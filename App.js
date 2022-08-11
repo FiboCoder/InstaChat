@@ -6,13 +6,13 @@ import Login from './src/screens/auth/Login';
 
 
 
-function RegisterApp() {
+function RegisterApp({}) {
   return (
     <Register></Register>
   );
 }
 
-function LoginApp() {
+function LoginApp({}) {
   return (
     <Login></Login>
   );
@@ -21,7 +21,6 @@ function LoginApp() {
 const Tab = createBottomTabNavigator();
 
 export default function App() {
-
 
   return (
     <NavigationContainer>
