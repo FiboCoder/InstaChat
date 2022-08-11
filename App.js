@@ -1,20 +1,34 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import * as React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import Register from './src/screens/auth/Register';
+import Login from './src/screens/auth/Login';
 
-export default function App() {
+
+
+function RegisterApp() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <Register></Register>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+function LoginApp() {
+  return (
+    <Login></Login>
+  );
+}
+
+const Tab = createBottomTabNavigator();
+
+export default function App() {
+
+
+  return (
+    <NavigationContainer>
+      <Tab.Navigator>
+        <Tab.Screen name="RegisterApp" options={{headerShown: false, tabBarStyle: {display: 'none'}}} component={RegisterApp} />
+        <Tab.Screen name="LoginApp" options={{headerShown: false, tabBarStyle: {display: 'none'}}} component={LoginApp} />
+      </Tab.Navigator>
+    </NavigationContainer>
+  );
+}
