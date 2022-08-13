@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { StyleSheet, TextInput, View, Text, TouchableOpacity} from "react-native";
+import { StyleSheet, TextInput, View, Text, TouchableOpacity, Image} from "react-native";
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
-import { auth } from "../../utils/firebase";
+import { auth } from "../../utils/Firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
@@ -62,55 +62,63 @@ export default function Register(){
 
             setLoginError("Preencha o campo E-mail.");
         }
-
-
-        
-
-        
     }
 
     return(
 
         <View style={styles.mainContainer}>
 
+            <Image resizeMode={'center'} resizeMethod={'auto'} source={require('../../../assets/images/logo_text.png')}></Image>
+
             <View>
 
-                <Text>Cadastrar</Text>
+                <Text style={{marginTop: 30, marginBottom: 20, color: '#1565C0', fontSize: 22, fontWeight: '800'}}>Cadastre-se</Text>
             </View>
 
             <View style={styles.textFields}>
 
-                <FontAwesome name="envelope-o" size={20} color="#616161" />
+                <FontAwesome name="envelope-o" size={20} color="#5E5E5E" />
                 <TextInput onChangeText={(val)=>setEmail(val)} style={{marginStart: 12, width: '100%'}} placeholder="E-mail" value={email}></TextInput>
             </View>
 
             <View style={styles.textFields}>
 
-                <AntDesign name="lock" size={24} color="#616161" />
+                <AntDesign name="lock" size={24} color="#5E5E5E" />
                 <TextInput secureTextEntry={true} onChangeText={(val)=>setPassword(val)} style={{marginStart: 8, width: '100%'}} placeholder="Senha" value={password}></TextInput>
             </View>
 
             <View style={styles.textFields}>
 
-                <AntDesign name="lock" size={24} color="#616161" />
+                <AntDesign name="lock" size={24} color="#5E5E5E" />
                 <TextInput secureTextEntry={true} onChangeText={(val)=>setConfirmPassword(val)} style={{marginStart: 8, width: '100%'}} placeholder="Confirmar senha" value={confirmPassword}></TextInput>
             </View>
 
-            <View style={{width: '100%', marginTop: 40, alignItems: 'center'}}>
+            <View style={{width: '100%', marginTop: 30, alignItems: 'center', paddingStart: 5, paddingEnd: 5}}>
 
                 {loginError ? <Text style={{color: '#ff0000'}}>{loginError}</Text> : <Text style={{display: 'none'}}></Text>}
                 
-                <TouchableOpacity onPress={doAuth} style={{width: '100%', marginTop: 10, alignItems: 'center', padding: 10, borderRadius: 10, backgroundColor: '#304FFE'}}>
+                <TouchableOpacity onPress={doAuth} style={{
 
-                    <Text style={{color: 'white', fontSize: 20, fontWeight: '700'}}>Cadastrar</Text>
+                    width: '100%', 
+                    marginTop: 10, 
+                    paddingStart: 10,
+                    paddingEnd: 10,
+                    paddingTop: 14,
+                    paddingBottom: 14, 
+                    borderRadius: 30, 
+                    backgroundColor: '#2196F3', 
+                    shadowColor: '#000000', 
+                    elevation: 4}}>
+
+                    <Text style={{alignSelf: 'center', color: 'white', fontSize: 20, fontWeight: '700'}}>Cadastrar</Text>
                 </TouchableOpacity>
             </View>
 
-            <View style={{alignSelf: 'center', flexDirection: 'row', marginTop: 10}}>
+            <View style={{position: 'absolute', bottom: 0, marginBottom: 10, alignSelf: 'center', flexDirection: 'row', marginTop: 10}}>
 
-                <Text>Já tem conta? </Text>
-                <Text onPress={()=> navigation.navigate('LoginApp')} style={{color: '#304FFE'}}>Entrar</Text>
-                <Text>.</Text>
+                <Text style={{fontSize: 16}}>Já tem conta? </Text>
+                <Text onPress={()=> navigation.navigate('LoginApp')} style={{color: '#304FFE', fontSize: 16}}>Entrar</Text>
+                <Text style={{fontSize: 16}}>.</Text>
 
             </View>
         </View>
@@ -122,8 +130,11 @@ const styles = StyleSheet.create({
     mainContainer:{
 
         flex:1,
+        paddingBottom: 10,
+        paddingStart: 14,
+        paddingEnd: 10,
+        alignItems: 'center',
         marginTop: Constants.statusBarHeight,
-        padding: 10,
         backgroundColor: "white"
 
     },
@@ -131,13 +142,15 @@ const styles = StyleSheet.create({
     textFields:{
 
         flexDirection: "row",
-        backgroundColor: 'white',
-        marginTop: 20,
-        padding: 10,
+        backgroundColor: '#E6E6E6',
+        marginTop: 14,
+        marginStart: 20,
+        marginEnd: 20,
+        paddingStart: 14,
+        paddingEnd: 10,
+        paddingTop: 12,
+        paddingBottom: 12,
         alignItems: "center",
-        borderRadius: 10,
-        shadowColor: '#000000',
-        shadowOpacity: 1,
-        elevation: 6
+        borderRadius: 30
     }
 })
