@@ -2,15 +2,14 @@ import { StyleSheet, TextInput, View, Text, TouchableOpacity, Image } from "reac
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import Constants from 'expo-constants';
-import React, { useState } from "react";
+import React, { useState, useContext, createContext } from "react";
 import { useNavigation } from '@react-navigation/native';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup  } from "firebase/auth";
 import { auth } from "../../utils/Firebase";
 
-export default function Login(){
+export default function Login(props){
 
     const navigation = useNavigation();
-
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -31,9 +30,12 @@ export default function Login(){
                     setEmail('');
                     setPassword('');
 
+                    props.signIn(user);
+                    console("SUCESSO"+user.id)
+
                 }).catch(err=>{
         
-                    setLoginError("Erro ao cadastrar usuário, tente novamente.");
+                    setLoginError("Erro ao fazer login, tente novamente.");
                 });
         
             }else{
