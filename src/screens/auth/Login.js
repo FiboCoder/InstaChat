@@ -9,6 +9,8 @@ import { auth } from "../../utils/Firebase";
 
 export default function Login(props){
 
+    console.log(props.signIn())
+
     const navigation = useNavigation();
 
     const [email, setEmail] = useState('');
@@ -30,7 +32,7 @@ export default function Login(props){
                     setEmail('');
                     setPassword('');
 
-                    props.signIn(user);
+                    props.signIn();
                     console("SUCESSO"+user.id)
 
                 }).catch(err=>{

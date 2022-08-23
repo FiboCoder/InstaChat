@@ -1,15 +1,21 @@
+import React from "react";
+import { useNavigation } from '@react-navigation/native';
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
+import { ChatDetail } from "../screens/main/Chats/ChatDetails";
 
-export const ChatComponent = (props)=>{
+export const ChatItem = (props)=>{
 
     /*<Image style={{width: 30, height: 30}} source={require('../../assets/images/vanmal.png')}></Image>*/
+
+    const navigation = useNavigation();
+    
 
     return(
 
         <View style={{flex: 1, marginBottom: 24}}>
 
-            <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center',}}>
+            <TouchableOpacity onPress={()=>{navigation.navigate('ChatDetails')}} style={{flexDirection: 'row', alignItems: 'center',}}>
             
 
                 <View>
@@ -32,7 +38,7 @@ export const ChatComponent = (props)=>{
                     <View style={{flex: 1,flexDirection: 'row', marginStart: 20}}>
                         <View style={{}}>
 
-                            <Text key={props.key} style={{color: '#1E1E1E', fontSize: 18, fontWeight: '700'}}>{props.text}</Text>
+                            <Text style={{color: '#1E1E1E', fontSize: 18, fontWeight: '700'}}>{props.text}</Text>
                             <Text style={{color: '#5E5E5E'}}>Last Message</Text>
                         </View>
 

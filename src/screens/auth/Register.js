@@ -2,10 +2,13 @@ import React, { useState } from "react";
 import { StyleSheet, TextInput, View, Text, TouchableOpacity, Image} from "react-native";
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
-import { auth } from "../../utils/Firebase";
+import { auth, db } from "../../utils/Firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import Constants from 'expo-constants';
+import Constants, { UserInterfaceIdiom } from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
+
+import { collection, addDoc } from "firebase/firestore";
+import { User } from "../../model/User";
 
 
 export default function Register(){
@@ -31,7 +34,20 @@ export default function Register(){
             
                         createUserWithEmailAndPassword(auth, email, password).then((userCredeantial)=>{
             
-                            const user = userCredeantial.user;
+                            const userData = userCredeantial.user;
+
+                            let user = new User();
+
+                            user.settId(email);
+                            user.setEmail(email);
+                            user.settUsername('Nome de usuário');
+                            user.setProfileImage('');
+
+                            User.saveUser().then(result=>{
+
+                                
+                            });
+
 
                             setEmail('');
                             setPassword('');

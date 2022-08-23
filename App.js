@@ -1,10 +1,13 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
+
 import Register from './src/screens/auth/Register';
 import Login from './src/screens/auth/Login';
 
-import { Image } from 'react-native';
+import { Image, Touchable, TouchableOpacity } from 'react-native';
 
 import Contacts from './src/screens/main/Contacts/Contacts';
 import Calls from './src/screens/main/Calls/Callls';
@@ -16,10 +19,16 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import Takes from './src/screens/main/Takes/Takes';
 import Settings from './src/screens/main/Settings/Settings';
+import ChatDetails from './src/screens/main/Chats/ChatDetails';
+import AddContact from './src/screens/main/Contacts/AddContact';
 
 const Tab = createBottomTabNavigator();
+const ChatStack = createStackNavigator();
+const ContactsStack = createStackNavigator();
 
-export default function App({navigation}) {
+
+
+export default function App() {
 
   const AuthContext = React.createContext();
 
@@ -29,21 +38,26 @@ export default function App({navigation}) {
         case 'RESTORE_TOKEN':
           return {
             ...prevState,
+
+            isSignedIn: true,
             userToken: action.token,
           };
         case 'SIGN_IN':
           return {
             ...prevState,
+            isSignedIn: true,
             userToken: action.token,
           };
         case 'SIGN_OUT':
           return {
             ...prevState,
+            isSignedIn: false,
             userToken: null,
           };
       }
     },
     {
+      isSignedIn: false,
       userToken: null
     }
   );
@@ -51,7 +65,7 @@ export default function App({navigation}) {
   React.useEffect(() => {
     // Fetch the token from storage then navigate to our appropriate place
     const bootstrapAsync = async () => {
-      let userToken;
+      let userToken = '';
 
       try {
         userToken = await SecureStore.getItemAsync('userToken');
@@ -77,7 +91,7 @@ export default function App({navigation}) {
         // After getting token, we need to persist the token using `SecureStore`
         // In the example, we'll use a dummy token
 
-        dispatch({ type: 'SIGN_IN',  token: data});
+        dispatch({ type: 'SIGN_IN',  token: 'userToken'});
       },
       signOut: () => dispatch({ type: 'SIGN_OUT' }),
       signUp: async (data) => {
@@ -86,11 +100,105 @@ export default function App({navigation}) {
         // After getting token, we need to persist the token using `SecureStore`
         // In the example, we'll use a dummy token
 
-        dispatch({ type: 'SIGN_IN', token: data});
+        dispatch({ type: 'SIGN_IN', token: 'userToken'});
       },
     }),
     []
   );
+
+  function getTabBarVisibility(route){
+    
+    const routeName = getFocusedRouteNameFromRoute(route) ?? '';
+
+    if(routeName === 'ChatDetails'){
+
+      return 'none';
+    }else if(routeName === 'CallDetails'){
+
+      return 'none';
+    }else if(routeName === 'AboutUser'){
+
+      return 'none';
+    }else if(routeName === 'PersonalInformation'){
+
+      return 'none';
+    }else if(routeName === 'ChatConfiguration'){
+
+      return 'none';
+    }else if(routeName === 'AddContact'){
+
+      return 'none';
+    }
+
+    return 'flex'
+
+  }
+
+
+  // --------------- BEGIN CONTACTS STACK ---------------
+
+  function ContactsMain({}) {
+    return (
+      <Contacts></Contacts>
+    );
+  }
+
+  function AddContactF({}) {
+    return (
+      <AddContact></AddContact>
+    );
+  }
+
+  function ContactsStackScreen(){
+
+    return(
+
+      <ContactsStack.Navigator initialRouteName='ContactsMain' screenOptions={({route})=>({
+        headerShown: false,
+      })}>
+
+        <ContactsStack.Screen name='ContactsMain' component={ContactsMain}></ContactsStack.Screen>
+        <ContactsStack.Screen name='AddContact' component={AddContactF}></ContactsStack.Screen>
+
+
+      </ContactsStack.Navigator>
+    );
+  }
+
+    // --------------- END CONTACTS STACK ---------------
+
+  function ChatsMain({navigation}) {
+    return (
+      <Chats></Chats>
+    );
+  }
+  
+  function ChatDetailsScreen({navigation}){
+  
+    return(
+  
+      <ChatDetails navigation={navigation}></ChatDetails>
+    );
+  
+  }
+
+  function ChatStackScreen(){
+  
+    return(
+  
+    <ChatStack.Navigator initialRouteName='ChatsMain' screenOptions={({route})=>({
+      headerShown: false,
+    })}>
+  
+      <ChatStack.Screen name="ChatsMain" component={ChatsMain}  />
+  
+      <ChatStack.Screen name='ChatDetails' component={ChatDetailsScreen}/>
+  
+    </ChatStack.Navigator>
+    );
+  
+    
+  }
 
   function RegisterApp({}) {
     return (
@@ -100,28 +208,18 @@ export default function App({navigation}) {
   
   function LoginApp({}) {
   
-    const { signIn } = React.useContext(AuthContext);
+    const { signIn } = useContext(AuthContext);
   
     return (
         <Login signIn={signIn}></Login>
     );
   }
 
-  function ContactsApp({}) {
-    return (
-      <Contacts></Contacts>
-    );
-  }
+ 
 
   function CallsApp({}) {
     return (
       <Calls></Calls>
-    );
-  }
-  
-  function ChatsApp({}) {
-    return (
-      <Chats></Chats>
     );
   }
 
@@ -137,13 +235,14 @@ export default function App({navigation}) {
     );
   }
 
+
   return (
 
     <AuthContext.Provider value={authContext}>
       <NavigationContainer>
-        <Tab.Navigator initialRouteName={state.isSignedIn == false ? 'LoginApp' : 'ChatsApp'}>
+        <Tab.Navigator >
 
-          {state.isSignedIn == false ? (
+          {state.isSignedIn == true ? (
 
             <>
               <Tab.Screen name="RegisterApp" options={{headerShown: false, tabBarStyle: {display: 'none'}}} component={RegisterApp} />
@@ -152,7 +251,10 @@ export default function App({navigation}) {
           ) : (
 
             <>
-              <Tab.Screen name="ContactsApp" options={{headerShown: false, tabBarShowLabel: false, tabBarIcon: ({focused})=>{
+
+              {/* --------------- BEGIN CONTACTS ROUTES --------------- */}
+
+              <Tab.Screen name="ContactsApp" options={({route})=>({headerShown: false, tabBarShowLabel: false, tabBarIcon: ({focused})=>{
 
                 return (
 
@@ -163,7 +265,12 @@ export default function App({navigation}) {
                   <FontAwesome5 name="user" size={24} color="#4B4B4B" />
 
                 );
-              },}} component={ContactsApp}></Tab.Screen>
+              }, tabBarStyle: {display: getTabBarVisibility(route)}})} component={ContactsStackScreen}></Tab.Screen>
+
+              {/* --------------- END CONTACTS ROUTES --------------- */}
+
+
+              {/* --------------- BEGIN CALLS ROUTES --------------- */}
 
               <Tab.Screen name="CallsApp" options={{headerShown: false, tabBarShowLabel: false, tabBarIcon: ({focused})=>{
 
@@ -178,13 +285,30 @@ export default function App({navigation}) {
                 );
               },}} component={CallsApp}></Tab.Screen>
 
-              <Tab.Screen name="ChatsApp" options={{headerShown: false, tabBarIcon: ({})=>{
+              {/* --------------- END CALLS ROUTES --------------- */}
 
-                return(
 
-                  <Image style={{width: 80, height: 80, marginBottom: 50}} source={require('./assets/images/logo.png')}></Image>
-                );
-              }, tabBarShowLabel: false}} component={ChatsApp} />
+              {/* --------------- BEGIN CHATS ROUTES --------------- */}
+
+              <Tab.Screen name="ChatsApp" options={({route})=>({
+                headerShown: false, 
+                tabBarIcon: ({})=>{
+
+                  return(
+
+                    <TouchableOpacity>
+
+                      <Image style={{width: 80, height: 80, marginBottom: 50}} source={require('./assets/images/logo.png')}></Image>
+                    </TouchableOpacity>
+                  );
+                },
+                tabBarStyle: {display: getTabBarVisibility(route)}, 
+                tabBarShowLabel: false})} component={ChatStackScreen} />
+
+              {/* --------------- END CHATS ROUTES --------------- */}
+
+
+              {/* --------------- BEGIN TAKES ROUTES --------------- */}
 
               <Tab.Screen name="TakesApp" options={{headerShown: false, tabBarShowLabel: false, tabBarIcon: ({focused})=>{
 
@@ -201,6 +325,11 @@ export default function App({navigation}) {
                 );
               },}} component={TakesApp}></Tab.Screen>
 
+              {/* --------------- END TAKES ROUTES --------------- */}
+
+
+              {/* --------------- BEGIN SETTINGS ROUTES --------------- */}
+
               <Tab.Screen name="SettingsApp" options={{headerShown: false, tabBarShowLabel: false, tabBarIcon: ({focused})=>{
 
                 return (
@@ -213,6 +342,9 @@ export default function App({navigation}) {
 
                 );
               },}} component={SettingsApp}></Tab.Screen>
+
+              {/* --------------- END TAKES ROUTES --------------- */}
+
             </>
           )}
           
