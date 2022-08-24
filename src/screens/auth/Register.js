@@ -2,10 +2,13 @@ import React, { useState } from "react";
 import { StyleSheet, TextInput, View, Text, TouchableOpacity, Image} from "react-native";
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
-import { auth } from "../../utils/Firebase";
+import { auth, db } from "../../utils/Firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import Constants from 'expo-constants';
+import Constants, { UserInterfaceIdiom } from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
+
+import { collection, addDoc } from "firebase/firestore";
+import { User } from "../../model/User";
 
 
 export default function Register(){
@@ -31,13 +34,26 @@ export default function Register(){
             
                         createUserWithEmailAndPassword(auth, email, password).then((userCredeantial)=>{
             
-                            const user = userCredeantial.user;
+                            const userData = userCredeantial.user;
 
-                            setEmail('');
-                            setPassword('');
-                            setConfirmPassword('');
+                            let user = new User();
 
-                            navigation.navigate('LoginApp')
+                            user.settId(email);
+                            user.setEmail(email);
+                            user.settUsername('Nome de usuário');
+                            user.setProfileImage('');
+
+                            user.saveUser().then(result=>{
+
+                                setEmail('');
+                                setPassword('');
+                                setConfirmPassword('');
+                            });
+
+
+                            
+
+                            navigation.navigate('Login')
 
                         }).catch(err=>{
                 
@@ -114,10 +130,10 @@ export default function Register(){
                 </TouchableOpacity>
             </View>
 
-            <View style={{position: 'absolute', bottom: 0, marginBottom: 10, alignSelf: 'center', flexDirection: 'row', marginTop: 10}}>
+            <View style={{marginTop: 50, alignSelf: 'center', flexDirection: 'row'}}>
 
                 <Text style={{fontSize: 16}}>Já tem conta? </Text>
-                <Text onPress={()=> navigation.navigate('LoginApp')} style={{color: '#304FFE', fontSize: 16}}>Entrar</Text>
+                <Text onPress={()=> navigation.navigate('Login')} style={{color: '#304FFE', fontSize: 16}}>Entrar</Text>
                 <Text style={{fontSize: 16}}>.</Text>
 
             </View>

@@ -2,9 +2,10 @@ import React, {useState} from "react";
 import { Image, View, Text, ScrollView, TouchableOpacity } from "react-native";
 import Constants  from "expo-constants";
 import { AntDesign } from '@expo/vector-icons';
-import { ChatComponent } from "../../../components/ChatItem";
+import { ChatItem } from "../../../components/ChatItem";
+import { useNavigation } from "@react-navigation/native";
 
-export default function Chats(){
+export default function Chats(props){
 
     let names = ['allan', 'david'];
 
@@ -27,7 +28,7 @@ export default function Chats(){
 
                     {names.map((name, k)=>{
 
-                        return <ChatComponent key={k} text={name} profileImage={null}></ChatComponent>
+                        return <ChatItem key={k} navigation={props.navigationProp} text={name} profileImage={null}></ChatItem>
                     })
 
 
