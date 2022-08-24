@@ -1,5 +1,5 @@
 import { db } from "../utils/Firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, getDoc, getDocs, setDoc } from "firebase/firestore";
 
 export class User{
 
@@ -20,7 +20,7 @@ export class User{
     getProfileImage (){ return this._profileImage; }
     setProfileImage (value){ return this._profileImage = value; }
 
-    static saveUser(){
+    saveUser(){
 
         return new Promise((resolve, reject)=>{
 
@@ -42,9 +42,32 @@ export class User{
         
     }
 
-    static saveContact(){
+    addContact(contactEmail, meEmail){
 
 
+      return new Promise((resolve, reject)=>{
+
+        const docRef = doc(db, "users", contactEmail);
+        getDoc(docRef).then(data=>{
+
+          if(data.exists()){
+
+            setDoc(doc(db, "users", meEmail, "contacts", contactEmail), {
+
+              email: data.data().email,
+              username: data.data().username,
+              profileImage: data.data().profileImage
+              
+            }).then(result=>{
+  
+              resolve(result);
+            }).catch(err=>{
+
+              reject(err);
+            });
+          }
+        });
+    });
     }
 }
 

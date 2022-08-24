@@ -9,7 +9,6 @@ import { auth } from "../../utils/Firebase";
 
 export default function Login(props){
 
-    console.log(props.signIn())
 
     const navigation = useNavigation();
 
@@ -31,12 +30,12 @@ export default function Login(props){
 
                     setEmail('');
                     setPassword('');
-
-                    props.signIn();
-                    console("SUCESSO"+user.id)
+                    props.signIn({email});
+                    console.log("SUCESSO"+user.uid)
 
                 }).catch(err=>{
         
+                    console.log(err)
                     setLoginError("Erro ao fazer login, tente novamente.");
                 });
         
@@ -140,10 +139,10 @@ export default function Login(props){
             </View>
                 */}
 
-            <View style={{position: 'absolute', bottom: 0, marginBottom: 10, alignSelf: 'center', flexDirection: 'row', marginTop: 10}}>
+            <View style={{alignSelf: 'center', flexDirection: 'row', marginTop: 10}}>
 
                 <Text style={{fontSize: 16}}>Não tem conta? </Text>
-                <Text onPress={()=> navigation.navigate('RegisterApp')} style={{color: '#304FFE', fontSize: 16}}>Cadastre-se</Text>
+                <Text onPress={()=> navigation.navigate('Register')} style={{color: '#304FFE', fontSize: 16}}>Cadastre-se</Text>
                 <Text style={{fontSize: 16}}>.</Text>
 
             </View>

@@ -1,4 +1,4 @@
-import React, {useState, useContext} from 'react';
+import React, {useState, useEffect, useContext, useReducer, useMemo, createContext} from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -7,7 +7,7 @@ import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import Register from './src/screens/auth/Register';
 import Login from './src/screens/auth/Login';
 
-import { Image, Touchable, TouchableOpacity } from 'react-native';
+import { Image, TouchableOpacity } from 'react-native';
 
 import Contacts from './src/screens/main/Contacts/Contacts';
 import Calls from './src/screens/main/Calls/Callls';
@@ -23,49 +23,54 @@ import ChatDetails from './src/screens/main/Chats/ChatDetails';
 import AddContact from './src/screens/main/Contacts/AddContact';
 
 const Tab = createBottomTabNavigator();
+const AuthStack = createStackNavigator();
 const ChatStack = createStackNavigator();
 const ContactsStack = createStackNavigator();
 
+export default function App({navigation}) {
 
+  const AuthContext = createContext();
 
-export default function App() {
-
-  const AuthContext = React.createContext();
-
-  const [state, dispatch] = React.useReducer(
+  const [state, dispatch] = useReducer(
     (prevState, action) => {
       switch (action.type) {
         case 'RESTORE_TOKEN':
           return {
             ...prevState,
-
             isSignedIn: true,
-            userToken: action.token,
+            userToken: action.token
           };
         case 'SIGN_IN':
+
+        if(action.token){
+
+          SecureStore.setItemAsync('userToken', action.token);
+        }
           return {
             ...prevState,
             isSignedIn: true,
-            userToken: action.token,
+            userToken: action.token
           };
         case 'SIGN_OUT':
+          SecureStore.deleteItemAsync('userToken');
           return {
             ...prevState,
             isSignedIn: false,
-            userToken: null,
+            userToken: null
           };
       }
-    },
-    {
+    }, {
+
       isSignedIn: false,
       userToken: null
     }
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     // Fetch the token from storage then navigate to our appropriate place
     const bootstrapAsync = async () => {
-      let userToken = '';
+
+      let userToken;
 
       try {
         userToken = await SecureStore.getItemAsync('userToken');
@@ -83,25 +88,30 @@ export default function App() {
     bootstrapAsync();
   }, []);
 
-  const authContext = React.useMemo(
+  const authContext = useMemo(
     () => ({
       signIn: async (data) => {
+
+        setEmail(data.email);
         // In a production app, we need to send some data (usually username, password) to server and get a token
         // We will also need to handle errors if sign in failed
         // After getting token, we need to persist the token using `SecureStore`
         // In the example, we'll use a dummy token
 
-        dispatch({ type: 'SIGN_IN',  token: 'userToken'});
+        dispatch({ type: 'SIGN_IN',  token: 'niceToken'});
+
       },
       signOut: () => dispatch({ type: 'SIGN_OUT' }),
-      signUp: async (data) => {
+      signUp: async () => {
         // In a production app, we need to send user data to server and get a token
         // We will also need to handle errors if sign up failed
         // After getting token, we need to persist the token using `SecureStore`
         // In the example, we'll use a dummy token
 
-        dispatch({ type: 'SIGN_IN', token: 'userToken'});
+        dispatch({ type: 'SIGN_IN', token: 'niceToken'});
+        
       },
+      
     }),
     []
   );
@@ -134,10 +144,42 @@ export default function App() {
 
   }
 
+  // --------------- BEGIN AUTH STACK ---------------
+
+  function RegisterApp({}) {
+    return (
+      <Register></Register>
+    );
+  }
+  
+  function LoginApp({}) {
+  
+    const {signIn} = useContext(AuthContext);
+  
+    return (
+        <Login signIn={signIn}></Login>
+    );
+  }
+
+  function AuthRoutes(){
+
+    return(
+
+      <AuthStack.Navigator initialRouteName='Register' screenOptions={{headerShown: false}}>
+        <AuthStack.Screen name="Register" component={RegisterApp}></AuthStack.Screen>
+        <AuthStack.Screen name="Login" component={LoginApp}></AuthStack.Screen>
+      </AuthStack.Navigator>
+    );
+  }
+
+  // --------------- END AUTH STACK ---------------
+
 
   // --------------- BEGIN CONTACTS STACK ---------------
 
   function ContactsMain({}) {
+
+    
     return (
       <Contacts></Contacts>
     );
@@ -182,7 +224,7 @@ export default function App() {
   
   }
 
-  function ChatStackScreen(){
+  function ChatsRoutes(){
   
     return(
   
@@ -199,23 +241,6 @@ export default function App() {
   
     
   }
-
-  function RegisterApp({}) {
-    return (
-      <Register></Register>
-    );
-  }
-  
-  function LoginApp({}) {
-  
-    const { signIn } = useContext(AuthContext);
-  
-    return (
-        <Login signIn={signIn}></Login>
-    );
-  }
-
- 
 
   function CallsApp({}) {
     return (
@@ -242,11 +267,11 @@ export default function App() {
       <NavigationContainer>
         <Tab.Navigator >
 
-          {state.isSignedIn == true ? (
+          {state.userToken == null ? (
 
             <>
-              <Tab.Screen name="RegisterApp" options={{headerShown: false, tabBarStyle: {display: 'none'}}} component={RegisterApp} />
-              <Tab.Screen name="LoginApp" options={{headerShown: false, tabBarStyle: {display: 'none'}}} component={LoginApp} />
+              <Tab.Screen name="AuthStack" options={({route})=>({headerShown: false, tabBarStyle: {display: 'none'}})} component={AuthRoutes} />
+              
             </>
           ) : (
 
@@ -303,7 +328,7 @@ export default function App() {
                   );
                 },
                 tabBarStyle: {display: getTabBarVisibility(route)}, 
-                tabBarShowLabel: false})} component={ChatStackScreen} />
+                tabBarShowLabel: false})} component={ChatsRoutes} />
 
               {/* --------------- END CHATS ROUTES --------------- */}
 

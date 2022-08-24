@@ -1,14 +1,39 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import { Image, View, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
 import Constants  from "expo-constants";
 
 import { AntDesign } from '@expo/vector-icons';
 import { ContactItem } from "../../../components/ContactItem";
 import { useNavigation } from "@react-navigation/native";
+import { currentUser, db } from "../../../utils/Firebase";
+import { collection, onSnapshot, query } from "firebase/firestore";
 
 export default function Contacts(){
 
     const navigation = useNavigation();
+
+    let contacts = [];
+
+    const getContacts = () =>{
+
+      if(currentUser){
+
+        const q = query(collection(db, "users", currentUser.email, "contacts"));
+        onSnapshot(q, (querySnapshot)=>{
+
+          querySnapshot.forEach((doc)=>{
+
+            contacts.push(doc.data());
+          });
+        });  
+        return contacts;
+      }
+
+      useEffect({
+
+        getContacts
+      },[])
+    }
 
     return(
 
@@ -53,7 +78,11 @@ export default function Contacts(){
 
                 <ScrollView style={{marginTop: 20}}>
 
-                    <ContactItem></ContactItem>
+                    {contacts.map((data, index)=>{
+
+                      <ContactItem key={index} username={data.username} aboutUser={data.username}></ContactItem>
+
+                    })}
                     
                 </ScrollView>
                 

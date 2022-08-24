@@ -43,17 +43,17 @@ export default function Register(){
                             user.settUsername('Nome de usuário');
                             user.setProfileImage('');
 
-                            User.saveUser().then(result=>{
+                            user.saveUser().then(result=>{
 
-                                
+                                setEmail('');
+                                setPassword('');
+                                setConfirmPassword('');
                             });
 
 
-                            setEmail('');
-                            setPassword('');
-                            setConfirmPassword('');
+                            
 
-                            navigation.navigate('LoginApp')
+                            navigation.navigate('Login')
 
                         }).catch(err=>{
                 
@@ -130,10 +130,10 @@ export default function Register(){
                 </TouchableOpacity>
             </View>
 
-            <View style={{position: 'absolute', bottom: 0, marginBottom: 10, alignSelf: 'center', flexDirection: 'row', marginTop: 10}}>
+            <View style={{marginTop: 50, alignSelf: 'center', flexDirection: 'row'}}>
 
                 <Text style={{fontSize: 16}}>Já tem conta? </Text>
-                <Text onPress={()=> navigation.navigate('LoginApp')} style={{color: '#304FFE', fontSize: 16}}>Entrar</Text>
+                <Text onPress={()=> navigation.navigate('Login')} style={{color: '#304FFE', fontSize: 16}}>Entrar</Text>
                 <Text style={{fontSize: 16}}>.</Text>
 
             </View>
