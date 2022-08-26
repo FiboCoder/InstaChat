@@ -7,7 +7,7 @@ import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import Register from './src/screens/auth/Register';
 import Login from './src/screens/auth/Login';
 
-import { Image, TouchableOpacity } from 'react-native';
+import { Image } from 'react-native';
 
 import Contacts from './src/screens/main/Contacts/Contacts';
 import Calls from './src/screens/main/Calls/Callls';
@@ -92,7 +92,6 @@ export default function App({navigation}) {
     () => ({
       signIn: async (data) => {
 
-        setEmail(data.email);
         // In a production app, we need to send some data (usually username, password) to server and get a token
         // We will also need to handle errors if sign in failed
         // After getting token, we need to persist the token using `SecureStore`
@@ -321,10 +320,7 @@ export default function App({navigation}) {
 
                   return(
 
-                    <TouchableOpacity>
-
-                      <Image style={{width: 80, height: 80, marginBottom: 50}} source={require('./assets/images/logo.png')}></Image>
-                    </TouchableOpacity>
+                      <Image style={{width: 70, height: 70, marginBottom: 50}} source={require('./assets/images/logo.png')}></Image>
                   );
                 },
                 tabBarStyle: {display: getTabBarVisibility(route)}, 
@@ -372,8 +368,6 @@ export default function App({navigation}) {
 
             </>
           )}
-          
-          
         </Tab.Navigator>
       </NavigationContainer>
     </AuthContext.Provider>

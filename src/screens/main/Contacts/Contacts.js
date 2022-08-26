@@ -5,35 +5,46 @@ import Constants  from "expo-constants";
 import { AntDesign } from '@expo/vector-icons';
 import { ContactItem } from "../../../components/ContactItem";
 import { useNavigation } from "@react-navigation/native";
-import { currentUser, db } from "../../../utils/Firebase";
+import { auth, db } from "../../../utils/Firebase";
 import { collection, onSnapshot, query } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 
 export default function Contacts(){
 
     const navigation = useNavigation();
 
-    let contacts = [];
+    const [contactsList, setContactsList] = useState([]);
 
+
+    //Function to recover contacts list
     const getContacts = () =>{
 
-      if(currentUser){
+      onAuthStateChanged(auth, (user)=>{
 
-        const q = query(collection(db, "users", currentUser.email, "contacts"));
-        onSnapshot(q, (querySnapshot)=>{
+        let contactsArray = [];
+        
+        if(user){
 
-          querySnapshot.forEach((doc)=>{
-
-            contacts.push(doc.data());
-          });
-        });  
-        return contacts;
-      }
-
-      useEffect({
-
-        getContacts
-      },[])
+          const q = query(collection(db, "users", user.email, "contacts"));
+          onSnapshot(q, (contacts)=>{
+  
+            contacts.forEach((contact)=>{
+  
+              contactsArray.push(contact.data());
+            });
+            
+            setContactsList(contactsArray);
+          });  
+          
+        }
+        
+      });
     }
+
+    useEffect(()=>{
+
+      getContacts()
+    },[]);
 
     return(
 
@@ -49,38 +60,41 @@ export default function Contacts(){
 
             <View style={{height: '100%', padding: 26, backgroundColor: 'white', borderTopLeftRadius: 30, borderTopRightRadius: 30, shadowColor: '#000000', elevation: 4}}>
 
+                <View style={{flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16}}>
 
-                <TouchableOpacity style={{flexDirection: 'row', marginBottom: 20, alignItems: 'center'}}>
+                  <TouchableOpacity style={{flexDirection: 'column', alignItems: 'center'}}>
 
-                    <View style={{width: 70, height: 70, borderRadius: 50, alignItems: 'center', justifyContent: 'center', backgroundColor: '#A4A4A4'}}>
+                    <View style={{width: 62, height: 62, borderRadius: 50, alignItems: 'center', justifyContent: 'center', backgroundColor: '#A4A4A4'}}>
 
                     <AntDesign name="addusergroup" size={34} color="white" />
 
                     </View>
 
-                    <Text style={{marginLeft: 26, fontSize: 18, fontWeight: '700'}}>Criar grupo</Text>
+                    <Text style={{fontSize: 16, fontWeight: '600'}}>Criar grupo</Text>
 
-                </TouchableOpacity>
+                  </TouchableOpacity>
 
-                <TouchableOpacity onPress={()=>{navigation.navigate('AddContact')}} style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <TouchableOpacity onPress={()=>{navigation.navigate('AddContact')}} style={{flexDirection: 'column', alignItems: 'center'}}>
 
-                    <View style={{width: 70, height: 70, borderRadius: 50, alignItems: 'center', justifyContent: 'center', backgroundColor: '#A4A4A4'}}>
+                    <View style={{width: 62, height: 62, borderRadius: 50, alignItems: 'center', justifyContent: 'center', backgroundColor: '#A4A4A4'}}>
 
                         <AntDesign name="adduser" size={34} color="white" />
 
                     </View>
 
-                    <Text style={{marginLeft: 26, fontSize: 18, fontWeight: '700'}}>Adicionar contato</Text>
+                    <Text style={{fontSize: 16, fontWeight: '600'}}>Adicionar contato</Text>
 
-                </TouchableOpacity>
+                  </TouchableOpacity>
+                </View>
 
-                <View style={{marginTop: 20, height: 1, backgroundColor: '#B7B7B7'}}></View>
+                
+                <View style={{height: 1, backgroundColor: '#B7B7B7'}}></View>
 
-                <ScrollView style={{marginTop: 20}}>
+                <ScrollView style={{marginTop: 20, marginBottom: 106}}>
 
-                    {contacts.map((data, index)=>{
+                    {contactsList.map((data, index)=>{
 
-                      <ContactItem key={index} username={data.username} aboutUser={data.username}></ContactItem>
+                      return <ContactItem key={index} data={data}></ContactItem>
 
                     })}
                     

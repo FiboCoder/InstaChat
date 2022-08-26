@@ -1,4 +1,4 @@
-import { Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { FlatList, Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import { AntDesign } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
@@ -6,59 +6,103 @@ import { FontAwesome } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import { ChatBoxMessageBlue, ChatBoxMessageLightGray } from '../../../components/ChatBoxItem';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth, db } from '../../../utils/Firebase';
+
+import { Message } from '../../../model/Message'
+import { useRoute } from '@react-navigation/native';
+import { collection, onSnapshot, query } from 'firebase/firestore';
 
 
-export default function ChatDetails(){
+export default function ChatDetails(props){
 
+    const route = useRoute();
 
-    const [message, setMessage] = useState('');
+    //Message states
+    const [messageContent, setMessageContent] = useState('');
+    const [messagesList, setMessagesList] = useState([]);
+    const [meEmail, setMeEmail] = useState('');
+    const [firstMessage, setFirstMessage] = useState(true);
 
+    //State to controll screen updates
+    const [refreshing, setRefreshing] = useState(false);
+
+    //Function to recover messages list
+    const getMessages = () =>{
+
+        onAuthStateChanged(auth, (user)=>{
+
+            if(user){
+
+                setMeEmail(user.email);
+
+                console.log(user.email)
+
+                Message.getMessages(route.params.data.email, user.email).then(messages=>{
+
+                    if(!messages.empty){
+
+                        setFirstMessage(false)
+
+                        let messagesArray = [];
+
+                        messages.forEach(message=>{
+                            console.log(message.data())
+
+                            messagesArray.push(message.data());
+                        });
+
+                        
+                        setMessagesList(messagesArray);
+
+                    }else{
+
+                        setFirstMessage(true);
+                    }
+                });
+            }else{
+
+                console.log(user.email)
+
+            }
+
+            
+        });
+    }
+
+    //Function to send a message
     const sendMessage = () =>{
 
-        
+        let message = new Message();
+        message.setMessage(messageContent);
+        message.setStatus('sent');
+        message.setFrom(meEmail);
+        message.setType('text');
+        message.sendMessage(firstMessage, route.params.data.email, meEmail);
     }
+
+    useEffect(()=>{
+
+        getMessages()  
+    }, []);
 
 
     let userName = 'Nome de usuário';
     let profileImage = '../../../../assets/images/mal.png';
 
-    let messages = [
-
-        {
-            id: 1,
-            me: false,
-            message: 'Mensagem de teste aqui',
-            status: 'sent',
-            time: '00:00'
-        },
-
-        {
-            id: 1,
-            me: true,
-            message: 'Mensagem de teste aqui',
-            status: 'sent',
-            time: '00:00'
-        },
-
-        {
-            id: 1,
-            me: false,
-            message: 'Mensagem de teste aqui',
-            status: 'sent',
-            time: '00:00'
-        },
-
-        {
-            id: 1,
-            me: true,
-            message: 'Mensagem de teste aqui',
-            status: 'sent',
-            time: '00:00'
-        },
+    //Function to conditional rendering of the message box
+    const renderMessageBox = ({item}) =>{
         
+        if(item.from == meEmail){
 
-    ]
+            return <ChatBoxMessageBlue message={item}></ChatBoxMessageBlue>
+        }else{
+
+            return <ChatBoxMessageLightGray message={item}></ChatBoxMessageLightGray>
+
+        }
+    }
 
     return(
 
@@ -98,26 +142,12 @@ export default function ChatDetails(){
 
             <View style={{flex: 1, height: '100%', flexDirection: 'column', justifyContent: 'flex-end', backgroundColor: 'white', borderTopLeftRadius: 30, borderTopRightRadius: 30, shadowColor: '#000000', elevation: 4}}>
 
-                <ScrollView style={{flex: 1, marginBottom: 10, marginTop: 60, marginBottom: 4, marginLeft: 26, paddingRight: 26, flexDirection: 'column'}}>
+                
 
-                    <View>
-
-                    {
-                        messages.map((message)=>{
-                            
-
-                            if(message.me){
-
-                                return <ChatBoxMessageLightGray messageProp={message.message} statusProp={message.status} timeProp={message.time}></ChatBoxMessageLightGray>
-                            }else{
-
-                                return <ChatBoxMessageBlue messageProp={message.message} statusProp={message.status} timeProp={message.time}></ChatBoxMessageBlue>
-                            }
-                        })
-                    }
-                    </View>
-                    
-                </ScrollView>
+                <View style={{flex: 1, marginBottom: 10, marginTop: 60, marginBottom: 4, marginLeft: 26, paddingRight: 26, flexDirection: 'column'}}>
+                    <FlatList 
+                    data={messagesList} renderItem={renderMessageBox} keyExtractor={(item)=>messagesList.indexOf(item)} refreshing={refreshing} onRefresh={()=>{getMessages()}}/>
+                </View>
 
                 <View style={{marginBottom: 6, flexDirection: 'row', width: '100%'}}>
 
@@ -139,7 +169,7 @@ export default function ChatDetails(){
                             <Entypo style={{marginLeft: 10}} name="emoji-happy" size={24} color="#4B4B4B" />
                         </TouchableOpacity>
                         
-                        <TextInput onChangeText={(message)=>setMessage(message)} style={{width: '100%', marginLeft: 10}} placeholder='Mensagem...'></TextInput>
+                        <TextInput onChangeText={(message)=>setMessageContent(message)} style={{width: '100%', marginLeft: 10}} placeholder='Mensagem...'></TextInput>
 
                         <View style={{flexDirection: 'row', position: 'absolute', right: 0, marginRight: 20}}>
 
@@ -158,25 +188,27 @@ export default function ChatDetails(){
 
                     <View style={{marginRight: 4}}>
 
-                        <TouchableOpacity style={{
-                            padding: 14, 
-                            marginLeft: 2, 
-                            borderRadius: 50, 
-                            alignItems: 'center', 
-                            justifyContent: 'center', 
-                            backgroundColor: '#1565C0',
-                            shadowColor: '#000000',
-                            elevation: 3}}>
+                        <TouchableOpacity
 
-                            <FontAwesome onPress={sendMessage()} name="send" size={24} color="white" />
+                            onPress={()=>{sendMessage()}}
+                        
+                            style={{
+                                padding: 14, 
+                                marginLeft: 2, 
+                                borderRadius: 50, 
+                                alignItems: 'center', 
+                                justifyContent: 'center', 
+                                backgroundColor: '#1565C0',
+                                shadowColor: '#000000',
+                                elevation: 3}}>
+
+                            <FontAwesome name="send" size={24} color="white" />
                         </TouchableOpacity>
                         
                     </View>
                 </View>
                 
             </View>
-
-            
         </View>
     );
 }
