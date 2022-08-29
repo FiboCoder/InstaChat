@@ -4,7 +4,7 @@ import Constants  from "expo-constants";
 import { useNavigation } from "@react-navigation/native";
 import { User } from "../../../model/User";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../../../utils/Firebase";
+import { auth } from "../../../utils/firebase";
 
 export default function AddContact(){
 

@@ -1,5 +1,6 @@
-import { db } from "../utils/Firebase";
+import { auth, db } from "../utils/firebase";
 import { doc, getDoc, getDocs, setDoc } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 
 export class User{
 
@@ -19,6 +20,17 @@ export class User{
 
     getProfileImage (){ return this._profileImage; }
     setProfileImage (value){ return this._profileImage = value; }
+
+    static getUser(){
+
+      onAuthStateChanged(auth, (user)=>{
+
+        if(user){
+
+          return user;
+        }
+      })
+    }
 
     saveUser(){
 

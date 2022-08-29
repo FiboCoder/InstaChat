@@ -1,4 +1,4 @@
-import { FlatList, Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { FlatList, Image, Text, TextInput, TouchableOpacity, View, Keyboard } from 'react-native';
 
 import { AntDesign } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
@@ -8,16 +8,21 @@ import Constants from 'expo-constants';
 import { ChatBoxMessageBlue, ChatBoxMessageLightGray } from '../../../components/ChatBoxItem';
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth, db } from '../../../utils/Firebase';
+import { auth, db } from '../../../utils/firebase';
 
 import { Message } from '../../../model/Message'
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { collection, onSnapshot, query } from 'firebase/firestore';
+import { User } from '../../../model/User';
 
 
 export default function ChatDetails(props){
 
+    const navigation = useNavigation();
     const route = useRoute();
+
+    const [contactData, getContactData] = useState(route.params.data);
+    const [userData, getUserData] = useState(User.getUser());
 
     //Message states
     const [messageContent, setMessageContent] = useState('');
@@ -26,7 +31,9 @@ export default function ChatDetails(props){
     const [firstMessage, setFirstMessage] = useState(true);
 
     //State to controll screen updates
-    const [refreshing, setRefreshing] = useState(false);
+    const [refreshing, setRefreshing] = useState(true);
+
+    
 
     //Function to recover messages list
     const getMessages = () =>{
@@ -37,7 +44,6 @@ export default function ChatDetails(props){
 
                 setMeEmail(user.email);
 
-                console.log(user.email)
 
                 Message.getMessages(route.params.data.email, user.email).then(messages=>{
 
@@ -48,12 +54,10 @@ export default function ChatDetails(props){
                         let messagesArray = [];
 
                         messages.forEach(message=>{
-                            console.log(message.data())
 
                             messagesArray.push(message.data());
                         });
-
-                        
+ 
                         setMessagesList(messagesArray);
 
                     }else{
@@ -64,10 +68,7 @@ export default function ChatDetails(props){
             }else{
 
                 console.log(user.email)
-
             }
-
-            
         });
     }
 
@@ -79,12 +80,81 @@ export default function ChatDetails(props){
         message.setStatus('sent');
         message.setFrom(meEmail);
         message.setType('text');
-        message.sendMessage(firstMessage, route.params.data.email, meEmail);
+        message.sendMessage(route.params.data.email, meEmail).then(result=>{
+
+            
+        });
+        setMessageContent('');
+        Keyboard.dismiss();
+        
     }
 
     useEffect(()=>{
 
-        getMessages()  
+        setRefreshing(true);
+        setRefreshing(false);
+        console.log("rodando")
+
+        onAuthStateChanged(auth, (user)=>{
+
+            if(user){
+                setMeEmail(user.email);
+
+                Message.find(route.params.data.email, user.email).then(chats=>{ 
+
+                    if(!chats.empty){
+        
+                        chats.forEach((chat)=>{
+        
+                            if(chat.data().users.contactEmail == route.params.data.email && chat.data().users.meEmail == user.email){
+
+                                let messagesArray = [];
+                                const messagesQuery = query(collection(db, "chats", chat.id, "messages"));
+                                onSnapshot(messagesQuery, (messages)=>{
+
+                                        setRefreshing(true);
+                                        messagesArray = [];
+                                        setRefreshing(false);
+        
+                                    if(!messages.empty){
+
+                                        setRefreshing(true);
+        
+                                        messages.forEach(message=>{
+        
+                                            messagesArray.push(message.data());
+                                        });
+        
+                                    }else{
+        
+                                        setRefreshing(true);
+                                        setRefreshing(false);
+                                    }
+
+                                    setMessagesList(messagesArray);
+                                    setRefreshing(false);
+                                });
+        
+                            }else{
+        
+                                console.log("NOT CHAT")
+
+                                setMessagesList([]);
+                            }
+                        });
+                    }else{
+
+                        console.log("EMPTY CHATS")
+
+
+                        setMessagesList([]);
+                    }
+                });
+            }else{
+
+
+            }
+        });
     }, []);
 
 
@@ -146,7 +216,7 @@ export default function ChatDetails(props){
 
                 <View style={{flex: 1, marginBottom: 10, marginTop: 60, marginBottom: 4, marginLeft: 26, paddingRight: 26, flexDirection: 'column'}}>
                     <FlatList 
-                    data={messagesList} renderItem={renderMessageBox} keyExtractor={(item)=>messagesList.indexOf(item)} refreshing={refreshing} onRefresh={()=>{getMessages()}}/>
+                    data={messagesList} renderItem={renderMessageBox} keyExtractor={(item)=>messagesList.indexOf(item)} refreshing={refreshing}/>
                 </View>
 
                 <View style={{marginBottom: 6, flexDirection: 'row', width: '100%'}}>
@@ -169,7 +239,7 @@ export default function ChatDetails(props){
                             <Entypo style={{marginLeft: 10}} name="emoji-happy" size={24} color="#4B4B4B" />
                         </TouchableOpacity>
                         
-                        <TextInput onChangeText={(message)=>setMessageContent(message)} style={{width: '100%', marginLeft: 10}} placeholder='Mensagem...'></TextInput>
+                        <TextInput onSubmitEditing={Keyboard.dismiss} onChangeText={(message)=>setMessageContent(message)} style={{width: '100%', marginLeft: 10}} placeholder='Mensagem...'>{messageContent}</TextInput>
 
                         <View style={{flexDirection: 'row', position: 'absolute', right: 0, marginRight: 20}}>
 

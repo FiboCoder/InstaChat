@@ -18,8 +18,6 @@ export const ChatBoxMessageLightGray = (props)=>{
 
 export const ChatBoxMessageBlue = (props) =>{
 
-    console.log(props.message)
-
 
     return(
 

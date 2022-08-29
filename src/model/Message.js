@@ -1,5 +1,5 @@
 import { addDoc, collection, doc, getDoc, getDocs, onSnapshot, query } from "firebase/firestore";
-import { db } from "../utils/Firebase";
+import { db } from "../utils/firebase";
 
 export class Message{
 
@@ -33,16 +33,7 @@ export class Message{
 
             getDocs(collection(db, "chats")).then(chats=>{
 
-                if(!chats.empty){
-
-                    chats.forEach(chat=>{
-
-                        if(chat.data().users.contactEmail == contactEmail && chat.data().users.meEmail == meEmail){
-    
-                            resolve(chat);
-                        }
-                    });
-                }
+                resolve(chats);
                 
         }).catch(err=>{
 
@@ -74,58 +65,91 @@ export class Message{
         });
     }
 
+
     //Function to send a message to a specific contact
-    sendMessage = (firstMesssage, contactEmail, meEmail) =>{
+    sendMessage = (contactEmail, meEmail) =>{
 
         return new Promise((resolve, reject)=>{
 
-            if(firstMesssage){
+            Message.find(contactEmail, meEmail).then(chats=>{
 
-                addDoc(collection(db, "chats"), {
+                if(!chats.empty){
 
-                    users:{contactEmail, meEmail}
-                }).then(result=>{
+                    chats.forEach(chat=>{
 
-                    addDoc(collection(db, "chats", result.id, "messages"),{
+                        if(chat.data().users.contactEmail == contactEmail && chat.data().users.meEmail == meEmail){
 
-                        content: this._message,
-                        status: this._status,
-                        time: Date.now(),
-                        from: this._from,
-                        type: this._type
+                            addDoc(collection(db, "chats", chat.id, "messages"),{
 
+                                content: this._message,
+                                status: this._status,
+                                time: Date.now(),
+                                from: this._from,
+                                type: this._type
+        
+                            }).then(result=>{
+        
+                                resolve(result);
+                            }).catch(err=>{
+        
+                                reject(err);
+                            });
+                        }else{
+
+                            addDoc(collection(db, "chats"), {
+
+                                users:{contactEmail, meEmail}
+                            }).then(result=>{
+            
+                                addDoc(collection(db, "chats", result.id, "messages"),{
+            
+                                    content: this._message,
+                                    status: this._status,
+                                    time: Date.now(),
+                                    from: this._from,
+                                    type: this._type
+            
+                                }).then(result=>{
+            
+                                    resolve(result);
+                                }).catch(err=>{
+            
+                                    reject(err);
+                                });
+                            }).catch(err=>{
+            
+                                reject(err);
+                            });
+                        }
+                    })
+                }else{
+
+                    addDoc(collection(db, "chats"), {
+
+                        users:{contactEmail, meEmail}
                     }).then(result=>{
-
-                        resolve(result);
-                    }).catch(err=>{
-
-                        reject(err);
-                    });
-                }).catch(err=>{
-
-                    reject(err);
-                });
-            }else{
     
-                Message.find(contactEmail, meEmail).then(chat=>{
-
-                    addDoc(collection(db, "chats", chat.id, "messages"),{
-
-                        content: this._message,
-                        status: this._status,
-                        time: Date.now(),
-                        from: this._from,
-                        type: this._type
-
-                    }).then(result=>{
-
-                        resolve(result);
+                        addDoc(collection(db, "chats", result.id, "messages"),{
+    
+                            content: this._message,
+                            status: this._status,
+                            time: Date.now(),
+                            from: this._from,
+                            type: this._type
+    
+                        }).then(result=>{
+    
+                            resolve(result);
+                        }).catch(err=>{
+    
+                            reject(err);
+                        });
                     }).catch(err=>{
-
+    
                         reject(err);
                     });
-                })
-            }  
+                }
+            });
         });
     }
 }

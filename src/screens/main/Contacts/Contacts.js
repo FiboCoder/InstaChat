@@ -5,7 +5,7 @@ import Constants  from "expo-constants";
 import { AntDesign } from '@expo/vector-icons';
 import { ContactItem } from "../../../components/ContactItem";
 import { useNavigation } from "@react-navigation/native";
-import { auth, db } from "../../../utils/Firebase";
+import { auth, db } from "../../../utils/firebase";
 import { collection, onSnapshot, query } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 

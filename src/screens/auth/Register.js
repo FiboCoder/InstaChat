@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { StyleSheet, TextInput, View, Text, TouchableOpacity, Image} from "react-native";
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
-import { auth, db } from "../../utils/Firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import Constants, { UserInterfaceIdiom } from 'expo-constants';
+import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
 
 import { collection, addDoc } from "firebase/firestore";
 import { User } from "../../model/User";
+import { auth } from "../../utils/firebase";
 
 
 export default function Register(){

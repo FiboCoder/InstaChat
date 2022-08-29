@@ -3,9 +3,9 @@ import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import React, { useState, useContext, createContext } from "react";
-import { useNavigation } from '@react-navigation/native';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup  } from "firebase/auth";
-import { auth } from "../../utils/Firebase";
+import { auth } from "../../utils/firebase";
+import { useNavigation } from "@react-navigation/native";
 
 export default function Login(props){
 
