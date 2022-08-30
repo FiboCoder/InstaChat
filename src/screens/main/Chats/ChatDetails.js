@@ -6,7 +6,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import { ChatBoxMessageBlue, ChatBoxMessageLightGray } from '../../../components/ChatBoxItem';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth, db } from '../../../utils/firebase';
 
@@ -36,44 +36,10 @@ export default function ChatDetails(props){
     
 
     //Function to recover messages list
-    const getMessages = () =>{
-
-        onAuthStateChanged(auth, (user)=>{
-
-            if(user){
-
-                setMeEmail(user.email);
-
-
-                Message.getMessages(route.params.data.email, user.email).then(messages=>{
-
-                    if(!messages.empty){
-
-                        setFirstMessage(false)
-
-                        let messagesArray = [];
-
-                        messages.forEach(message=>{
-
-                            messagesArray.push(message.data());
-                        });
- 
-                        setMessagesList(messagesArray);
-
-                    }else{
-
-                        setFirstMessage(true);
-                    }
-                });
-            }else{
-
-                console.log(user.email)
-            }
-        });
-    }
 
     //Function to send a message
     const sendMessage = () =>{
+
 
         let message = new Message();
         message.setMessage(messageContent);
@@ -82,79 +48,164 @@ export default function ChatDetails(props){
         message.setType('text');
         message.sendMessage(route.params.data.email, meEmail).then(result=>{
 
-            
         });
         setMessageContent('');
         Keyboard.dismiss();
+
         
     }
 
     useEffect(()=>{
 
-        setRefreshing(true);
-        setRefreshing(false);
-        console.log("rodando")
+        const chatsQuery = query(collection(db, "chats"));
+        onSnapshot(chatsQuery, (chats)=>{
 
-        onAuthStateChanged(auth, (user)=>{
+            onAuthStateChanged(auth, (user)=>{
 
-            if(user){
-                setMeEmail(user.email);
+                if(user){
+                    setMeEmail(user.email);
+    
+                        if(!chats.empty){
+            
+                            chats.forEach((chat)=>{
+            
+                                if(chat.data().users.contactEmail == route.params.data.email && chat.data().users.meEmail == user.email){
+    
+                                    let messagesArray = [];
+                                    const messagesQuery = query(collection(db, "chats", chat.id, "messages"));
+                                    onSnapshot(messagesQuery, (messages)=>{
+    
+                                            setRefreshing(true);
+                                            messagesArray = [];
+                                            setRefreshing(false);
+            
+                                        if(!messages.empty){
+    
+                                            setRefreshing(true);
+            
+                                            messages.forEach(message=>{
+            
+                                                messagesArray.push(message.data());
+                                            });
+            
+                                        }else{
+            
+                                            setRefreshing(true);
+                                            setRefreshing(false);
+                                        }
+    
+                                        messagesArray = messagesArray.sort((a, b)=>{
 
-                Message.find(route.params.data.email, user.email).then(chats=>{ 
+                                            const dateA = a.timeStamp;
+                                            const dateB = a.timeStamp;
 
-                    if(!chats.empty){
-        
-                        chats.forEach((chat)=>{
-        
-                            if(chat.data().users.contactEmail == route.params.data.email && chat.data().users.meEmail == user.email){
+                                            if(dateA > dateB){
 
-                                let messagesArray = [];
-                                const messagesQuery = query(collection(db, "chats", chat.id, "messages"));
-                                onSnapshot(messagesQuery, (messages)=>{
+                                                return 1;
+                                            }else{
 
-                                        setRefreshing(true);
-                                        messagesArray = [];
+                                                return -1
+                                            }
+                                        })
+                                        setMessagesList(messagesArray);
                                         setRefreshing(false);
+                                    });
+            
+                                }else{
+    
+                                    const chatsQuery = query(collection(db, "chats"));
+                                    onSnapshot(chatsQuery, (chats)=>{
+            
+                                        if(!chats.empty){
+    
+                                            chats.forEach(chat=>{
+    
+                                                if(chat.data().users.contactEmail == route.params.data.email && chat.data().users.meEmail == user.email){
+    
+                                                    let messagesArray = [];
+                                                    const messagesQuery = query(collection(db, "chats", chat.id, "messages"));
+                                                    onSnapshot(messagesQuery, (messages)=>{
+                    
+                                                            setRefreshing(true);
+                                                            messagesArray = [];
+                                                            setRefreshing(false);
+                            
+                                                        if(!messages.empty){
+                    
+                                                            setRefreshing(true);
+                            
+                                                            messages.forEach(message=>{
+                            
+                                                                messagesArray.push(message.data());
+                                                            });
+                            
+                                                        }else{
+                            
+                                                            setRefreshing(true);
+                                                            setRefreshing(false);
+                                                        }
+                    
+                                                        setMessagesList(messagesArray);
+                                                        setRefreshing(false);
+                                                    }); 
+                                                }
+                                            });
+            
+                                        }
+                                    });
+                                }
+                            });
+                        }else{
+    
+                            const chatsQuery = query(collection(db, "chats"));
+                                    onSnapshot(chatsQuery, (chats)=>{
+            
+                                        if(!chats.empty){
+    
+                                            chats.forEach(chat=>{
+    
+                                                if(chat.data().users.contactEmail == route.params.data.email && chat.data().users.meEmail == user.email){
+    
+                                                    let messagesArray = [];
+                                                    const messagesQuery = query(collection(db, "chats", chat.id, "messages"));
+                                                    onSnapshot(messagesQuery, (messages)=>{
+                    
+                                                            setRefreshing(true);
+                                                            messagesArray = [];
+                                                            setRefreshing(false);
+                            
+                                                        if(!messages.empty){
+                    
+                                                            setRefreshing(true);
+                            
+                                                            messages.forEach(message=>{
+                            
+                                                                messagesArray.push(message.data());
+                                                            });
+                            
+                                                        }else{
+                            
+                                                            setRefreshing(true);
+                                                            setRefreshing(false);
+                                                        }
+                    
+                                                        setMessagesList(messagesArray);
+                                                        setRefreshing(false);
+                                                    }); 
+                                                }
+                                            });
+            
+                                        }
+                                    });
+                        }
+                }else{
+    
+    
+                }
+            });
+        })
+
         
-                                    if(!messages.empty){
-
-                                        setRefreshing(true);
-        
-                                        messages.forEach(message=>{
-        
-                                            messagesArray.push(message.data());
-                                        });
-        
-                                    }else{
-        
-                                        setRefreshing(true);
-                                        setRefreshing(false);
-                                    }
-
-                                    setMessagesList(messagesArray);
-                                    setRefreshing(false);
-                                });
-        
-                            }else{
-        
-                                console.log("NOT CHAT")
-
-                                setMessagesList([]);
-                            }
-                        });
-                    }else{
-
-                        console.log("EMPTY CHATS")
-
-
-                        setMessagesList([]);
-                    }
-                });
-            }else{
-
-
-            }
-        });
     }, []);
 
 
