@@ -23,23 +23,23 @@ export default function AddContact(){
 
                 meEmail = user.email;
 
-                if(email === meEmail){
+                if(email == meEmail){
 
                     errorMessage('Você não pode adicionar a si mesmo como um contato!')
+                }else{
+
+                    User.addContact(email, meEmail).then(result=>{
+        
+                        navigation.goBack()
+                    });
                 }
 
-                
             }else{
 
                 errorMessage('Erro ao adicionar contato, tente novamente!')
             }
 
-            let nUser = new User();
-            nUser.addContact(email, meEmail).then(result=>{
-
-                navigation.goBack()
-            });
-        })
+        });
 
 
         

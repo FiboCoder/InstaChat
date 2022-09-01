@@ -12,7 +12,7 @@ import { auth, db } from '../../../utils/firebase';
 
 import { Message } from '../../../model/Message'
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { collection, onSnapshot, query } from 'firebase/firestore';
+import { collection, doc, onSnapshot, query, updateDoc } from 'firebase/firestore';
 import { User } from '../../../model/User';
 
 
@@ -22,7 +22,7 @@ export default function ChatDetails(props){
     const route = useRoute();
 
     const [contactData, getContactData] = useState(route.params.data);
-    const [userData, getUserData] = useState(User.getUser());
+    const [userData, getUserData] = useState('');
 
     //Message states
     const [messageContent, setMessageContent] = useState('');
@@ -40,12 +40,22 @@ export default function ChatDetails(props){
     //Function to send a message
     const sendMessage = () =>{
 
+        console.log(meEmail)
+
 
         let message = new Message();
         message.setMessage(messageContent);
-        message.setStatus('sent');
+        message.setStatus('waiting');
         message.setFrom(meEmail);
         message.setType('text');
+
+        let messageObj = {
+
+            content: messageContent,
+            status: 'waiting',
+            from: meEmail,
+            type: 'text'
+        }
         message.sendMessage(route.params.data.email, meEmail).then(result=>{
 
         });
@@ -57,153 +67,76 @@ export default function ChatDetails(props){
 
     useEffect(()=>{
 
-        const chatsQuery = query(collection(db, "chats"));
-        onSnapshot(chatsQuery, (chats)=>{
+        onAuthStateChanged(auth, (user)=>{
 
-            onAuthStateChanged(auth, (user)=>{
+            if(user){
 
-                if(user){
-                    setMeEmail(user.email);
-    
-                        if(!chats.empty){
-            
-                            chats.forEach((chat)=>{
-            
-                                if(chat.data().users.contactEmail == route.params.data.email && chat.data().users.meEmail == user.email){
-    
-                                    let messagesArray = [];
-                                    const messagesQuery = query(collection(db, "chats", chat.id, "messages"));
-                                    onSnapshot(messagesQuery, (messages)=>{
-    
-                                            setRefreshing(true);
-                                            messagesArray = [];
-                                            setRefreshing(false);
-            
-                                        if(!messages.empty){
-    
-                                            setRefreshing(true);
-            
-                                            messages.forEach(message=>{
-            
-                                                messagesArray.push(message.data());
-                                            });
-            
-                                        }else{
-            
-                                            setRefreshing(true);
-                                            setRefreshing(false);
-                                        }
-    
-                                        messagesArray = messagesArray.sort((a, b)=>{
+                setMeEmail(user.email);
 
-                                            const dateA = a.timeStamp;
-                                            const dateB = a.timeStamp;
+                const chatsQuery = query(collection(db, "users", user.email, "chats"));
+                onSnapshot(chatsQuery, (chats)=>{
 
-                                            if(dateA > dateB){
+                    if(!chats.empty){
+        
+                        chats.forEach((chat)=>{
 
-                                                return 1;
-                                            }else{
+                            //Get messages if chat exists
+        
+                            if(chat.data().users.contactEmail == route.params.data.email && chat.data().users.meEmail == user.email){
 
-                                                return -1
-                                            }
-                                        })
-                                        setMessagesList(messagesArray);
+                                let messagesArray = [];
+                                const messagesQuery = query(collection(db, "users", user.email, "chats", chat.id, "messages"));
+                                onSnapshot(messagesQuery, (messages)=>{
+
+                                        setRefreshing(true);
+                                        messagesArray = [];
                                         setRefreshing(false);
-                                    });
-            
-                                }else{
-    
-                                    const chatsQuery = query(collection(db, "chats"));
-                                    onSnapshot(chatsQuery, (chats)=>{
-            
-                                        if(!chats.empty){
-    
-                                            chats.forEach(chat=>{
-    
-                                                if(chat.data().users.contactEmail == route.params.data.email && chat.data().users.meEmail == user.email){
-    
-                                                    let messagesArray = [];
-                                                    const messagesQuery = query(collection(db, "chats", chat.id, "messages"));
-                                                    onSnapshot(messagesQuery, (messages)=>{
-                    
-                                                            setRefreshing(true);
-                                                            messagesArray = [];
-                                                            setRefreshing(false);
-                            
-                                                        if(!messages.empty){
-                    
-                                                            setRefreshing(true);
-                            
-                                                            messages.forEach(message=>{
-                            
-                                                                messagesArray.push(message.data());
-                                                            });
-                            
-                                                        }else{
-                            
-                                                            setRefreshing(true);
-                                                            setRefreshing(false);
-                                                        }
-                    
-                                                        setMessagesList(messagesArray);
-                                                        setRefreshing(false);
-                                                    }); 
-                                                }
-                                            });
-            
-                                        }
-                                    });
-                                }
-                            });
-                        }else{
-    
-                            const chatsQuery = query(collection(db, "chats"));
-                                    onSnapshot(chatsQuery, (chats)=>{
-            
-                                        if(!chats.empty){
-    
-                                            chats.forEach(chat=>{
-    
-                                                if(chat.data().users.contactEmail == route.params.data.email && chat.data().users.meEmail == user.email){
-    
-                                                    let messagesArray = [];
-                                                    const messagesQuery = query(collection(db, "chats", chat.id, "messages"));
-                                                    onSnapshot(messagesQuery, (messages)=>{
-                    
-                                                            setRefreshing(true);
-                                                            messagesArray = [];
-                                                            setRefreshing(false);
-                            
-                                                        if(!messages.empty){
-                    
-                                                            setRefreshing(true);
-                            
-                                                            messages.forEach(message=>{
-                            
-                                                                messagesArray.push(message.data());
-                                                            });
-                            
-                                                        }else{
-                            
-                                                            setRefreshing(true);
-                                                            setRefreshing(false);
-                                                        }
-                    
-                                                        setMessagesList(messagesArray);
-                                                        setRefreshing(false);
-                                                    }); 
-                                                }
-                                            });
-            
-                                        }
-                                    });
-                        }
-                }else{
-    
-    
-                }
-            });
-        })
+        
+                                    if(!messages.empty){
+
+                                        setRefreshing(true);
+        
+                                        messages.forEach(message=>{
+
+                                            if(!message.data().from == user.email){
+
+                                                const messageRef = doc(db, "users", user.email, "chats", chat.id, "messages", message.id);
+                                                updateDoc(messageRef, {
+
+                                                    status: 'received'
+                                                });
+                                            }
+        
+                                            messagesArray.push(message.data());
+                                        });
+
+                                        let sortedArray = messagesArray.sort((a, b)=>{
+
+                                            return a.time - b.time;
+                                        })
+                                        setMessagesList(sortedArray);
+                                        setRefreshing(false);
+        
+                                    }else{
+        
+                                        setMessagesList(messagesList);
+                                        setRefreshing(true);
+                                        setRefreshing(false);
+                                    }
+                                });
+        
+                            }else{
+                            }
+                        });
+                    }else{
+                    }
+
+                });
+            }else{
+
+
+            }
+        });
 
         
     }, []);
@@ -265,9 +198,8 @@ export default function ChatDetails(props){
 
                 
 
-                <View style={{flex: 1, marginBottom: 10, marginTop: 60, marginBottom: 4, marginLeft: 26, paddingRight: 26, flexDirection: 'column'}}>
-                    <FlatList 
-                    data={messagesList} renderItem={renderMessageBox} keyExtractor={(item)=>messagesList.indexOf(item)} refreshing={refreshing}/>
+                <View style={{flex: 1, marginBottom: 10, marginTop: 60, marginBottom: 4, marginLeft: 4, marginRight: 4, flexDirection: 'column'}}>
+                    <FlatList inverted contentContainerStyle={{flexDirection: 'column-reverse', paddingLeft: 6, paddingRight: 6}} data={messagesList} renderItem={renderMessageBox} keyExtractor={(item)=>messagesList.indexOf(item)} refreshing={refreshing}/>
                 </View>
 
                 <View style={{marginBottom: 6, flexDirection: 'row', width: '100%'}}>
@@ -285,25 +217,20 @@ export default function ChatDetails(props){
                         shadowColor: '#000000', 
                         elevation: 3}}>
 
-                        <TouchableOpacity>
+                        <TouchableOpacity style={{marginLeft: 6}}>
 
-                            <Entypo style={{marginLeft: 10}} name="emoji-happy" size={24} color="#4B4B4B" />
+                            <Entypo  name="emoji-happy" size={24} color="#4B4B4B" />
                         </TouchableOpacity>
                         
-                        <TextInput onSubmitEditing={Keyboard.dismiss} onChangeText={(message)=>setMessageContent(message)} style={{width: '100%', marginLeft: 10}} placeholder='Mensagem...'>{messageContent}</TextInput>
+                        <TextInput onSubmitEditing={Keyboard.dismiss} onChangeText={(message)=>setMessageContent(message)} style={{flex: 1, marginLeft: 10}} placeholder='Mensagem...'>{messageContent}</TextInput>
 
-                        <View style={{flexDirection: 'row', position: 'absolute', right: 0, marginRight: 20}}>
+                        <TouchableOpacity style={{marginLeft: 6, marginRight: 6}}>
+                            <Entypo name="attachment" size={24} color="#4B4B4B" />
+                        </TouchableOpacity>
 
-                            <TouchableOpacity>
-
-                                <Entypo style={{marginRight: 6}} name="attachment" size={24} color="#4B4B4B" />
-                            </TouchableOpacity>
-
-                            <TouchableOpacity>
-
-                                <Entypo name="camera" size={24} color="#4B4B4B" />
-                            </TouchableOpacity>
-                        </View>
+                        <TouchableOpacity style={{marginRight: 8}}>
+                            <Entypo name="camera" size={24} color="#4B4B4B" />
+                        </TouchableOpacity>
                         
                     </View>
 

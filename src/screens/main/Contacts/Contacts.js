@@ -19,14 +19,19 @@ export default function Contacts(){
     //Function to recover contacts list
     const getContacts = () =>{
 
+      
+    }
+
+    useEffect(()=>{
+
       onAuthStateChanged(auth, (user)=>{
 
-        let contactsArray = [];
-        
         if(user){
 
-          const q = query(collection(db, "users", user.email, "contacts"));
-          onSnapshot(q, (contacts)=>{
+          const contactsQuery = query(collection(db, "users", user.email, "contacts"));
+          onSnapshot(contactsQuery, (contacts)=>{
+
+            let contactsArray = [];
   
             contacts.forEach((contact)=>{
   
@@ -34,16 +39,12 @@ export default function Contacts(){
             });
             
             setContactsList(contactsArray);
-          });  
-          
+          }); 
+        }else{
+
         }
-        
       });
-    }
-
-    useEffect(()=>{
-
-      getContacts()
+      
     },[]);
 
     return(

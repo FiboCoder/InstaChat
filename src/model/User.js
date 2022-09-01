@@ -21,17 +21,6 @@ export class User{
     getProfileImage (){ return this._profileImage; }
     setProfileImage (value){ return this._profileImage = value; }
 
-    static getUser(){
-
-      onAuthStateChanged(auth, (user)=>{
-
-        if(user){
-
-          return user;
-        }
-      })
-    }
-
     saveUser(){
 
         return new Promise((resolve, reject)=>{
@@ -54,21 +43,21 @@ export class User{
         
     }
 
-    addContact(contactEmail, meEmail){
+    static addContact(contactEmail, meEmail){
 
 
       return new Promise((resolve, reject)=>{
 
-        const docRef = doc(db, "users", contactEmail);
-        getDoc(docRef).then(data=>{
+        const contactRef = doc(db, "users", contactEmail);
+        getDoc(contactRef).then(contactData=>{
 
-          if(data.exists()){
+          if(contactData.exists()){
 
             setDoc(doc(db, "users", meEmail, "contacts", contactEmail), {
 
-              email: data.data().email,
-              username: data.data().username,
-              profileImage: data.data().profileImage
+              email: contactData.data().email,
+              username: contactData.data().username,
+              profileImage: contactData.data().profileImage
               
             }).then(result=>{
   
@@ -77,6 +66,9 @@ export class User{
 
               reject(err);
             });
+          }else{
+
+            reject(err);
           }
         });
     });

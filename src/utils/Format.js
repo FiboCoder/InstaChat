@@ -39,4 +39,21 @@ export class Format{
         return string;
 
     }
+
+    static timeStampToTime(timeStamp) {
+
+        return (timeStamp) ? Format.dateToTime(new Date(timeStamp)) : '';
+
+    }
+
+    static dateToTime(date) {
+
+        let nDate = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', seconds: '2-digit' });
+
+        let index = nDate.lastIndexOf(":");
+        let newDate = nDate.substring(0, index);
+
+        return newDate;
+
+    }
 }
