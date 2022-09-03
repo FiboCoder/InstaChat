@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import { Image, View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { Image, View, Text, ScrollView, TouchableOpacity, FlatList } from "react-native";
 import Constants  from "expo-constants";
 import { AntDesign } from '@expo/vector-icons';
 import { ChatItem } from "../../../components/ChatItem";
@@ -8,12 +8,10 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../../utils/firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 
-export default function Chats(props){
-
-    let names = ['allan', 'david'];
+export default function Chats(){
 
     const [chatsList, setChatsList] = useState([]);
-    const [refreshing, setRefreshing] = useState(true);
+
 
     useEffect(()=>{
 
@@ -21,18 +19,12 @@ export default function Chats(props){
 
             if(user){
 
-                let chatsArray = [];
-
                 const chatsQuery = collection(db, "users", user.email, "chats");
                 onSnapshot(chatsQuery, (chats)=>{
 
-                    setRefreshing(true);
-                    chatsArray = [];
-                    setRefreshing(false);
-
                     if(!chats.empty){
 
-                        setRefreshing(true);
+                        let chatsArray = [];
 
                         chats.forEach(chat=>{
 
@@ -40,17 +32,17 @@ export default function Chats(props){
                         });
 
                         setChatsList(chatsArray);
-                        setRefreshing(false);
+                        
                     }else{
 
-
+                        setChatsList([]);
                     }
                 });
 
 
             }else{
 
-
+                setChatsList([]);
             }
         });
     },[]);
@@ -73,10 +65,10 @@ export default function Chats(props){
                 </TouchableOpacity>
             </View>
 
-            <View style={{height: '100%', padding: 26, backgroundColor: 'white', borderTopLeftRadius: 30, borderTopRightRadius: 30, shadowColor: '#000000', elevation: 4}}>
+            <View style={{height: '100%', padding: 20, backgroundColor: 'white', borderTopLeftRadius: 30, borderTopRightRadius: 30, shadowColor: '#000000', elevation: 4}}>
 
-                <View style={{flex: 1, marginBottom: 10, marginTop: 60, marginBottom: 4, marginLeft: 4, marginRight: 4, flexDirection: 'column'}}>
-                    <FlatList inverted contentContainerStyle={{flexDirection: 'column-reverse', paddingLeft: 6, paddingRight: 6}} data={chatsList} renderItem={renderChatItem} keyExtractor={(item)=>messagesList.indexOf(item)} refreshing={refreshing}/>
+                <View style={{flex: 1, marginBottom: 10, marginTop: 20, marginBottom: 4, marginLeft: 4, marginRight: 4, flexDirection: 'column'}}>
+                    <FlatList data={chatsList} renderItem={renderChatItem} keyExtractor={(item)=>chatsList.indexOf(item)}/>
                 </View>
                 
             </View>

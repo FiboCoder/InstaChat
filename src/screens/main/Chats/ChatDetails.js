@@ -13,7 +13,6 @@ import { auth, db } from '../../../utils/firebase';
 import { Message } from '../../../model/Message'
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { collection, doc, onSnapshot, query, updateDoc } from 'firebase/firestore';
-import { User } from '../../../model/User';
 
 
 export default function ChatDetails(props){
@@ -21,17 +20,12 @@ export default function ChatDetails(props){
     const navigation = useNavigation();
     const route = useRoute();
 
-    const [contactData, getContactData] = useState(route.params.data);
-    const [userData, getUserData] = useState('');
-
     //Message states
     const [messageContent, setMessageContent] = useState('');
     const [messagesList, setMessagesList] = useState([]);
     const [meEmail, setMeEmail] = useState('');
-    const [firstMessage, setFirstMessage] = useState(true);
 
     //State to controll screen updates
-    const [refreshing, setRefreshing] = useState(true);
 
     
 
@@ -49,13 +43,6 @@ export default function ChatDetails(props){
         message.setFrom(meEmail);
         message.setType('text');
 
-        let messageObj = {
-
-            content: messageContent,
-            status: 'waiting',
-            from: meEmail,
-            type: 'text'
-        }
         message.sendMessage(route.params.data.email, meEmail).then(result=>{
 
         });
@@ -73,6 +60,7 @@ export default function ChatDetails(props){
 
                 setMeEmail(user.email);
 
+                //Listen 'Chats'
                 const chatsQuery = query(collection(db, "users", user.email, "chats"));
                 onSnapshot(chatsQuery, (chats)=>{
 
@@ -82,53 +70,63 @@ export default function ChatDetails(props){
 
                             //Get messages if chat exists
         
-                            if(chat.data().users.contactEmail == route.params.data.email && chat.data().users.meEmail == user.email){
+                            if(chat.data().users[0] == route.params.data.email && chat.data().users[1] == user.email){
 
-                                let messagesArray = [];
+                                //Listen 'Messages'
                                 const messagesQuery = query(collection(db, "users", user.email, "chats", chat.id, "messages"));
                                 onSnapshot(messagesQuery, (messages)=>{
 
-                                        setRefreshing(true);
-                                        messagesArray = [];
-                                        setRefreshing(false);
+                                    let messagesArray = [];
         
                                     if(!messages.empty){
 
-                                        setRefreshing(true);
-        
-                                        messages.forEach(message=>{
+                                        messages.forEach((message, index)=>{
 
-                                            if(!message.data().from == user.email){
+                                            //Check if message is from contact
+                                            if(message.data().from !== user.email){
 
-                                                const messageRef = doc(db, "users", user.email, "chats", chat.id, "messages", message.id);
-                                                updateDoc(messageRef, {
+                                                //Check if status is 'sent' and update status from contact to 'received'
+                                                if(message.data().status === 'sent'){
 
-                                                    status: 'received'
-                                                });
+                                                    const messageRef = doc(db, "users", message.data().from, "chats", chat.id, "messages", message.id);
+                                                    updateDoc(messageRef, {
+    
+                                                        status: 'received'
+                                                    }).then(result=>{
+
+                                                    });
+                                                }
+
+                                                messagesArray.push(message.data());
+
+                                            }else{
+
+                                                messagesArray.push(message.data());
                                             }
-        
-                                            messagesArray.push(message.data());
+                                            
                                         });
 
+                                        //Sort messages by timestamp
                                         let sortedArray = messagesArray.sort((a, b)=>{
 
                                             return a.time - b.time;
                                         })
                                         setMessagesList(sortedArray);
-                                        setRefreshing(false);
         
                                     }else{
         
-                                        setMessagesList(messagesList);
-                                        setRefreshing(true);
-                                        setRefreshing(false);
+                                        setMessagesList([]);
                                     }
                                 });
         
                             }else{
+
+                                setMessagesList([]);
                             }
                         });
                     }else{
+
+                        setMessagesList([]);
                     }
 
                 });
@@ -164,23 +162,27 @@ export default function ChatDetails(props){
 
             <View style={{zIndex: 1, width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: 20, paddingBottom: -10, backgroundColor: '#1565C0'}}>
                 
-                <TouchableOpacity style={{position: 'absolute', left: 0, marginLeft: 10}}>
+                <TouchableOpacity onPress={()=>{navigation.goBack()}} style={{position: 'absolute', left: 0, marginLeft: 10}}>
 
                     <AntDesign  name="arrowleft" size={26} color="white" />
                 </TouchableOpacity>
 
                 <View style={{alignItems: 'center', marginLeft: 96, marginRight: 96,}}>
 
-                    <Text numberOfLines={1} style={{color: 'white', fontSize: 18, fontWeight: '600'}}>{userName}</Text>
+                    <Text numberOfLines={1} style={{color: 'white', fontSize: 18, fontWeight: '600'}}>{route.params.data.username}</Text>
                     <View style={{marginTop: 10}}>
-                        {profileImage === '' ?
+
+                        {
+                            route.params.data.profileImage == '' 
                             
-                            <View style={{width: 80, height: 80, marginBottom: -40, borderRadius: 50, backgroundColor: '#A4A4A4', alignItems: "center", justifyContent: 'center'}}>
-                                <FontAwesome5 style={{shadowColor: '#000000', elevation: 4}} name="user" size={30} color="white" />
-                            </View>
+                            ?
+                            
+                                <View style={{width: 80, height: 80, marginBottom: -40, borderRadius: 50, backgroundColor: '#A4A4A4', alignItems: "center", justifyContent: 'center'}}>
+                                    <FontAwesome5 style={{shadowColor: '#000000', elevation: 4}} name="user" size={30} color="white" />
+                                </View>
                             :
 
-                            <Image style={{width: 80, height: 80, marginBottom: -40}} source={require(profileImage)}></Image>
+                                <Image style={{width: 80, height: 80, marginBottom: -40}} source={{uri: route.params.data.profileImage}}></Image>
                             
                         }
                     </View>
@@ -199,7 +201,7 @@ export default function ChatDetails(props){
                 
 
                 <View style={{flex: 1, marginBottom: 10, marginTop: 60, marginBottom: 4, marginLeft: 4, marginRight: 4, flexDirection: 'column'}}>
-                    <FlatList inverted contentContainerStyle={{flexDirection: 'column-reverse', paddingLeft: 6, paddingRight: 6}} data={messagesList} renderItem={renderMessageBox} keyExtractor={(item)=>messagesList.indexOf(item)} refreshing={refreshing}/>
+                    <FlatList inverted contentContainerStyle={{flexDirection: 'column-reverse', paddingLeft: 6, paddingRight: 6}} data={messagesList} renderItem={renderMessageBox} keyExtractor={(item)=>messagesList.indexOf(item)}/>
                 </View>
 
                 <View style={{marginBottom: 6, flexDirection: 'row', width: '100%'}}>
@@ -228,7 +230,7 @@ export default function ChatDetails(props){
                             <Entypo name="attachment" size={24} color="#4B4B4B" />
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={{marginRight: 8}}>
+                        <TouchableOpacity onPress={()=>{navigation.navigate('Camera')}} style={{marginRight: 8}}>
                             <Entypo name="camera" size={24} color="#4B4B4B" />
                         </TouchableOpacity>
                         

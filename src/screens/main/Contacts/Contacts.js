@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import { Image, View, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
+import { Image, View, Text, ScrollView, TouchableOpacity, StyleSheet, FlatList } from "react-native";
 import Constants  from "expo-constants";
 
 import { AntDesign } from '@expo/vector-icons';
@@ -17,10 +17,6 @@ export default function Contacts(){
 
 
     //Function to recover contacts list
-    const getContacts = () =>{
-
-      
-    }
 
     useEffect(()=>{
 
@@ -31,14 +27,23 @@ export default function Contacts(){
           const contactsQuery = query(collection(db, "users", user.email, "contacts"));
           onSnapshot(contactsQuery, (contacts)=>{
 
-            let contactsArray = [];
+            if(!contacts.empty){
+
+              let contactsArray = [];
+
+              contacts.forEach((contact)=>{
   
-            contacts.forEach((contact)=>{
-  
-              contactsArray.push(contact.data());
-            });
-            
-            setContactsList(contactsArray);
+                contactsArray.push(contact.data());
+
+              });
+
+              setContactsList(contactsArray);
+              console.log(contactsArray)
+
+            }else{
+
+              setContactsList([]);
+            }
           }); 
         }else{
 
@@ -46,6 +51,11 @@ export default function Contacts(){
       });
       
     },[]);
+
+    const renderContactItem = ({item}) =>{
+
+      return <ContactItem contact={item}></ContactItem>
+    }
 
     return(
 
@@ -91,15 +101,11 @@ export default function Contacts(){
                 
                 <View style={{height: 1, backgroundColor: '#B7B7B7'}}></View>
 
-                <ScrollView style={{marginTop: 20, marginBottom: 106}}>
+                <View style={{flex: 1, marginTop: 20}}>
 
-                    {contactsList.map((data, index)=>{
+                  <FlatList data={contactsList} renderItem={renderContactItem} keyExtractor={(item)=>contactsList.indexOf(item)}/>
 
-                      return <ContactItem key={index} data={data}></ContactItem>
-
-                    })}
-                    
-                </ScrollView>
+                </View>
                 
             </View>
 

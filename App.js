@@ -21,6 +21,7 @@ import Takes from './src/screens/main/Takes/Takes';
 import Settings from './src/screens/main/Settings/Settings';
 import ChatDetails from './src/screens/main/Chats/ChatDetails';
 import AddContact from './src/screens/main/Contacts/AddContact';
+import CameraScreen from './src/screens/main/Camera';
 
 const Tab = createBottomTabNavigator();
 const AuthStack = createStackNavigator();
@@ -259,6 +260,14 @@ export default function App({navigation}) {
     );
   }
 
+  function CameraApp({}){
+
+    return(
+
+      <CameraScreen></CameraScreen>
+    );
+  }
+
 
   return (
 
@@ -366,6 +375,7 @@ export default function App({navigation}) {
 
               {/* --------------- END TAKES ROUTES --------------- */}
 
+              <Tab.Screen name="Camera" options={{headerShown: false, tabBarShowLabel: false, tabBarStyle: {display: 'none'},}} component={CameraApp}></Tab.Screen>
             </>
           )}
         </Tab.Navigator>

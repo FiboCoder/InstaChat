@@ -55,9 +55,7 @@ export class User{
 
             setDoc(doc(db, "users", meEmail, "contacts", contactEmail), {
 
-              email: contactData.data().email,
-              username: contactData.data().username,
-              profileImage: contactData.data().profileImage
+              email: contactEmail
               
             }).then(result=>{
   

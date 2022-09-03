@@ -47,13 +47,13 @@ export class Message{
 
                 content: message.content,
                 status: message.status,
-                time: Date.now(),
+                time: message.time,
                 from: message.from,
                 type: message.type
 
             }).then(messageData=>{
 
-                Message.saveToContact(contactEmail, chatId, messageData.id, message).then(result=>{
+                Message.saveToContact(contactEmail, meEmail, chatId, messageData.id, message).then(result=>{
 
                 });
 
@@ -77,29 +77,37 @@ export class Message{
         });
     }
 
-    static saveToContact(contactEmail, chatId, messageId, message){
+    static saveToContact(contactEmail, meEmail, chatId, messageId, message){
 
         return new Promise((resolve, reject)=>{
 
-            setDoc(doc(db, "users", contactEmail, "chats", chatId, "messages", messageId),message).then(messageData=>{
+            setDoc(doc(db, "users", contactEmail, "chats", chatId), {
 
-                resolve(messageData);
+                users: [meEmail, contactEmail]
+            }).then(result=>{
 
-                const messageRef = doc(db, "users", contactEmail, "chats", chatId, "messages", messageId);
-                updateDoc(messageRef, {
+                setDoc(doc(db, "users", contactEmail, "chats", chatId, "messages", messageId),message).then(messageData=>{
 
-                    status: 'sent'
-                }).then(result=>{
-
+                    resolve(messageData);
+    
+                    const messageRef = doc(db, "users", contactEmail, "chats", chatId, "messages", messageId);
+                    updateDoc(messageRef, {
+    
+                        status: 'sent'
+                    }).then(result=>{
+    
+                    }).catch(err=>{
+    
+                        reject(err);
+                    });
+    
                 }).catch(err=>{
-
+    
                     reject(err);
                 });
-
-            }).catch(err=>{
-
-                reject(err);
             });
+
+            
         });
     }
 
@@ -115,6 +123,7 @@ export class Message{
 
                     content: this._message,
                     status: this._status,
+                    time: Date.now(),
                     from: this._from,
                     type: this._type
                 }
@@ -125,7 +134,7 @@ export class Message{
 
                     chats.forEach(chat=>{
 
-                        if(chat.data().users.contactEmail == contactEmail && chat.data().users.meEmail == meEmail){
+                        if(chat.data().users[0] == contactEmail && chat.data().users[1] == meEmail){
 
 
                             Message.saveToMe(contactEmail, meEmail, chat.id, message).then(result=>{
