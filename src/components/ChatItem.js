@@ -24,8 +24,7 @@ export const ChatItem = (props)=>{
 
         <View style={{flex: 1, marginBottom: 24}}>
             <TouchableOpacity onPress={()=>{navigation.navigate('ChatDetails', {data: contactData})}} style={{flexDirection: 'row', alignItems: 'center',}}>
-                <View>0
-
+                <View>
                         {
                         
                             contactData.profileImage == '' 
@@ -40,7 +39,6 @@ export const ChatItem = (props)=>{
                                 <Image style={{width: 58, height: 58}} source={{uri: contactData.profileImage}}></Image>
                         
                         }
-                    
                 </View>
                     
 

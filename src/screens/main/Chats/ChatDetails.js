@@ -1,4 +1,4 @@
-import { FlatList, Image, Text, TextInput, TouchableOpacity, View, Keyboard } from 'react-native';
+import { FlatList, Image, Text, TextInput, TouchableOpacity, View, Keyboard, PermissionsAndroid } from 'react-native';
 
 import { AntDesign } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
@@ -13,6 +13,7 @@ import { auth, db } from '../../../utils/firebase';
 import { Message } from '../../../model/Message'
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { collection, doc, onSnapshot, query, updateDoc } from 'firebase/firestore';
+import { Camera } from 'expo-camera';
 
 
 export default function ChatDetails(props){
@@ -20,16 +21,28 @@ export default function ChatDetails(props){
     const navigation = useNavigation();
     const route = useRoute();
 
+    //Permissions
+    const [cameraPermission, setCameraPermission] = Camera.useCameraPermissions();
+
     //Message states
     const [messageContent, setMessageContent] = useState('');
     const [messagesList, setMessagesList] = useState([]);
     const [meEmail, setMeEmail] = useState('');
 
-    //State to controll screen updates
-
+    //Check if permissions
     
 
-    //Function to recover messages list
+    //Request permissions
+    const requestCameraPermission = async () =>{
+
+        if(cameraPermission.granted){
+
+            navigation.navigate('Camera');
+        }else{
+
+            setCameraPermission();
+        }
+    }
 
     //Function to send a message
     const sendMessage = () =>{
@@ -230,7 +243,7 @@ export default function ChatDetails(props){
                             <Entypo name="attachment" size={24} color="#4B4B4B" />
                         </TouchableOpacity>
 
-                        <TouchableOpacity onPress={()=>{navigation.navigate('Camera')}} style={{marginRight: 8}}>
+                        <TouchableOpacity onPress={()=>{requestCameraPermission()}} style={{marginRight: 8}}>
                             <Entypo name="camera" size={24} color="#4B4B4B" />
                         </TouchableOpacity>
                         
