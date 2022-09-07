@@ -5,7 +5,7 @@ import { Entypo } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
 import Constants from 'expo-constants';
-import { ChatBoxMessageBlue, ChatBoxMessageLightGray } from '../../../components/ChatBoxItem';
+import { ChatBoxMessageBlue, ChatBoxMessageLightGray, ImageBoxBlue, ImageBoxLightGray } from '../../../components/MessageBoxItem';
 import { useCallback, useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth, db } from '../../../utils/firebase';
@@ -28,6 +28,7 @@ export default function ChatDetails(props){
     const [messageContent, setMessageContent] = useState('');
     const [messagesList, setMessagesList] = useState([]);
     const [meEmail, setMeEmail] = useState('');
+    const [chatId, setChatId] = useState();
 
     //Check if permissions
     
@@ -37,7 +38,12 @@ export default function ChatDetails(props){
 
         if(cameraPermission.granted){
 
-            navigation.navigate('Camera');
+            navigation.navigate('Camera', {
+
+                contactEmail: route.params.data.email,
+                meEmail: meEmail,
+                chatId: chatId
+            });
         }else{
 
             setCameraPermission();
@@ -84,6 +90,8 @@ export default function ChatDetails(props){
                             //Get messages if chat exists
         
                             if(chat.data().users[0] == route.params.data.email && chat.data().users[1] == user.email){
+
+                                setChatId(chat.id);
 
                                 //Listen 'Messages'
                                 const messagesQuery = query(collection(db, "users", user.email, "chats", chat.id, "messages"));
@@ -159,12 +167,21 @@ export default function ChatDetails(props){
     //Function to conditional rendering of the message box
     const renderMessageBox = ({item}) =>{
         
-        if(item.from == meEmail){
+        if(item.from == meEmail && item.type == 'text'){
 
             return <ChatBoxMessageBlue message={item}></ChatBoxMessageBlue>
-        }else{
+
+        }else if(item.from == meEmail && item.type == 'photo'){
+
+            return <ImageBoxBlue message={item}></ImageBoxBlue>
+
+        }else if(item.from == route.params.data.email && item.type == 'text'){
 
             return <ChatBoxMessageLightGray message={item}></ChatBoxMessageLightGray>
+
+        }else if(item.from == route.params.data.email && item.type == 'photo'){
+
+            return <ImageBoxLightGray message={item}></ImageBoxLightGray>
 
         }
     }

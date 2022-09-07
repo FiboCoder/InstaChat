@@ -1,5 +1,6 @@
 import { addDoc, collection, doc, getDoc, getDocs, onSnapshot, query, setDoc, updateDoc } from "firebase/firestore";
-import { db } from "../utils/firebase";
+import { connectStorageEmulator, getDownloadURL, ref, uploadBytes, uploadString } from "firebase/storage";
+import { db, storage } from "../utils/firebase";
 
 export class Message{
 
@@ -171,5 +172,30 @@ export class Message{
                 }
             });
         });
+    }
+
+    static uploadPhoto = (chatId, blob) =>{
+
+        return new Promise((resolve, reject)=>{
+
+            let imageId = (Math.floor(Math.random() * 1000000000000).toString() + Date.now().toString());
+
+            let path = 'images/chats/' + chatId + '/' + imageId + '.jpg';
+
+            let imageRef = ref(storage, path);
+    
+            uploadBytes(imageRef, blob).then(snapshot=>{
+    
+                getDownloadURL(imageRef).then(url=>{
+
+                    resolve(url)
+                });
+            }).catch(err=>{
+
+                reject(err);
+            });
+        });
+
+        
     }
 }
