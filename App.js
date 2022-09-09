@@ -138,6 +138,9 @@ export default function App({navigation}) {
     }else if(routeName === 'AddContact'){
 
       return 'none';
+    }else if (routeName == 'CameraChatsApp'){
+
+      return 'none';
     }
 
     return 'flex'
@@ -235,6 +238,9 @@ export default function App({navigation}) {
       <ChatStack.Screen name="ChatsMain" component={ChatsMain}  />
   
       <ChatStack.Screen name='ChatDetails' component={ChatDetailsScreen}/>
+
+      <ChatStack.Screen name="CameraChatsApp" component={CameraApp}/>
+
   
     </ChatStack.Navigator>
     );
@@ -374,8 +380,6 @@ export default function App({navigation}) {
               },}} component={SettingsApp}></Tab.Screen>
 
               {/* --------------- END TAKES ROUTES --------------- */}
-
-              <Tab.Screen name="Camera" options={{headerShown: false, tabBarShowLabel: false, tabBarStyle: {display: 'none'},}} component={CameraApp}></Tab.Screen>
             </>
           )}
         </Tab.Navigator>

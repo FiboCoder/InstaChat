@@ -77,7 +77,7 @@ export default function CameraScreen(){
         message.setType('photo');
         message.sendMessage(route.params.contactEmail, route.params.meEmail).then(result=>{
   
-          navigation.navigate('ChatsApp', {screen: 'ChatDetails'});
+          navigation.goBack();
         });
       });
     }

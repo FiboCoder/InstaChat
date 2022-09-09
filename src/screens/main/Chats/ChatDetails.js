@@ -1,4 +1,4 @@
-import { FlatList, Image, Text, TextInput, TouchableOpacity, View, Keyboard, PermissionsAndroid } from 'react-native';
+import { FlatList, Image, Text, TextInput, TouchableOpacity, View, Keyboard, PermissionsAndroid, Modal, TouchableWithoutFeedback, ImageBackground } from 'react-native';
 
 import { AntDesign } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
@@ -14,6 +14,7 @@ import { Message } from '../../../model/Message'
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { collection, doc, onSnapshot, query, updateDoc } from 'firebase/firestore';
 import { Camera } from 'expo-camera';
+import { Format } from '../../../utils/Format';
 
 
 export default function ChatDetails(props){
@@ -30,6 +31,9 @@ export default function ChatDetails(props){
     const [meEmail, setMeEmail] = useState('');
     const [chatId, setChatId] = useState();
 
+    const [modalVisibility, setModalVisibility] = useState(false);
+    const [item, setItem] = useState(false);
+
     //Check if permissions
     
 
@@ -38,7 +42,7 @@ export default function ChatDetails(props){
 
         if(cameraPermission.granted){
 
-            navigation.navigate('Camera', {
+            navigation.navigate('CameraChatsApp', {
 
                 contactEmail: route.params.data.email,
                 meEmail: meEmail,
@@ -53,22 +57,23 @@ export default function ChatDetails(props){
     //Function to send a message
     const sendMessage = () =>{
 
-        console.log(meEmail)
+        if(messageContent == ''){
 
 
-        let message = new Message();
-        message.setMessage(messageContent);
-        message.setStatus('waiting');
-        message.setFrom(meEmail);
-        message.setType('text');
+        }else{
 
-        message.sendMessage(route.params.data.email, meEmail).then(result=>{
-
-        });
-        setMessageContent('');
-        Keyboard.dismiss();
-
-        
+            let message = new Message();
+            message.setMessage(messageContent);
+            message.setStatus('waiting');
+            message.setFrom(meEmail);
+            message.setType('text');
+    
+            message.sendMessage(route.params.data.email, meEmail).then(result=>{
+    
+            });
+            setMessageContent('');
+            Keyboard.dismiss();
+        }
     }
 
     useEffect(()=>{
@@ -160,6 +165,11 @@ export default function ChatDetails(props){
         
     }, []);
 
+    const openModal = (item) =>{
+
+        return 
+    }
+
 
     let userName = 'Nome de usuário';
     let profileImage = '../../../../assets/images/mal.png';
@@ -173,7 +183,7 @@ export default function ChatDetails(props){
 
         }else if(item.from == meEmail && item.type == 'photo'){
 
-            return <ImageBoxBlue message={item}></ImageBoxBlue>
+            return <TouchableOpacity onPress={()=>{setModalVisibility(true), setItem(item)}}><ImageBoxBlue message={item}></ImageBoxBlue></TouchableOpacity> 
 
         }else if(item.from == route.params.data.email && item.type == 'text'){
 
@@ -188,107 +198,134 @@ export default function ChatDetails(props){
 
     return(
 
-        <View style={{paddingTop: Constants.statusBarHeight, flex: 1, backgroundColor: '#1565C0'}}>
+        <View style={{flex: 1}}>
 
-            <View style={{zIndex: 1, width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: 20, paddingBottom: -10, backgroundColor: '#1565C0'}}>
-                
-                <TouchableOpacity onPress={()=>{navigation.goBack()}} style={{position: 'absolute', left: 0, marginLeft: 10}}>
-
-                    <AntDesign  name="arrowleft" size={26} color="white" />
-                </TouchableOpacity>
-
-                <View style={{alignItems: 'center', marginLeft: 96, marginRight: 96,}}>
-
-                    <Text numberOfLines={1} style={{color: 'white', fontSize: 18, fontWeight: '600'}}>{route.params.data.username}</Text>
-                    <View style={{marginTop: 10}}>
-
-                        {
-                            route.params.data.profileImage == '' 
+            {
+                modalVisibility
+                    ?
+                    <View style={{flex: 1}}>
+                        <Modal visible={true} animationType="slide">
                             
-                            ?
-                            
-                                <View style={{width: 80, height: 80, marginBottom: -40, borderRadius: 50, backgroundColor: '#A4A4A4', alignItems: "center", justifyContent: 'center'}}>
-                                    <FontAwesome5 style={{shadowColor: '#000000', elevation: 4}} name="user" size={30} color="white" />
+                            <ImageBackground style={{width: '100%', height: '100%'}} source={{uri: item.content}}>
+                                <View style={{flexDirection: 'row', width: '100%', paddingTop: 6, paddingBottom: 6, backgroundColor: 'rgba(0, 0, 0, 0.6)'}}>
+                                    <TouchableOpacity onPress={()=>{setModalVisibility(false)}} style={{marginLeft: 6, marginTop: 6}}>
+                                        <AntDesign name="close" size={28} color="white" />
+                                    </TouchableOpacity>
+                                    <View>
+                                        
+                                    </View>
                                 </View>
-                            :
+                            </ImageBackground>
+                        </Modal>
+                    </View>
+                    :
+                    null
+            }
 
-                                <Image style={{width: 80, height: 80, marginBottom: -40}} source={{uri: route.params.data.profileImage}}></Image>
+            <View style={{paddingTop: Constants.statusBarHeight, flex: 1, backgroundColor: '#1565C0'}}>
+
+                <View style={{zIndex: 1, width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: 20, paddingBottom: -10, backgroundColor: '#1565C0'}}>
+                    
+                    <TouchableOpacity onPress={()=>{navigation.goBack()}} style={{position: 'absolute', left: 0, marginLeft: 10}}>
+
+                        <AntDesign  name="arrowleft" size={26} color="white" />
+                    </TouchableOpacity>
+
+                    <View style={{alignItems: 'center', marginLeft: 96, marginRight: 96,}}>
+
+                        <Text numberOfLines={1} style={{color: 'white', fontSize: 18, fontWeight: '600'}}>{route.params.data.username}</Text>
+                        <View style={{marginTop: 10}}>
+
+                            {
+                                route.params.data.profileImage == '' 
+                                
+                                ?
+                                
+                                    <View style={{width: 80, height: 80, marginBottom: -40, borderRadius: 50, backgroundColor: '#A4A4A4', alignItems: "center", justifyContent: 'center'}}>
+                                        <FontAwesome5 style={{shadowColor: '#000000', elevation: 4}} name="user" size={30} color="white" />
+                                    </View>
+                                :
+
+                                    <Image style={{width: 80, height: 80, marginBottom: -40}} source={{uri: route.params.data.profileImage}}></Image>
+                                
+                            }
+                        </View>
+                    </View>
+
+                    <TouchableOpacity style={{position: 'absolute', right: 0, marginLeft: 10}}>
+
+                        <Entypo name="dots-three-vertical" size={26} color="white" />
+                    </TouchableOpacity>
+
+                    
+                </View>
+
+                <View style={{flex: 1, height: '100%', flexDirection: 'column', justifyContent: 'flex-end', backgroundColor: 'white', borderTopLeftRadius: 30, borderTopRightRadius: 30, shadowColor: '#000000', elevation: 4}}>
+
+                    
+
+                    <View style={{flex: 1, marginBottom: 10, marginTop: 60, marginBottom: 4, marginLeft: 4, marginRight: 4, flexDirection: 'column'}}>
+                        <FlatList inverted contentContainerStyle={{flexDirection: 'column-reverse', paddingLeft: 6, paddingRight: 6}} data={messagesList} renderItem={renderMessageBox} keyExtractor={(item)=>messagesList.indexOf(item)}/>
+                    </View>
+
+                    <View style={{marginBottom: 6, flexDirection: 'row', width: '100%'}}>
+
+                        <View style={{
+                            flex: 1, 
+                            width: '100%', 
+                            flexDirection: 'row', 
+                            marginLeft: 4, 
+                            marginRight: 2, 
+                            borderRadius: 30, 
+                            padding: 8, 
+                            backgroundColor: '#D9D9D9', 
+                            alignItems: 'center', 
+                            shadowColor: '#000000', 
+                            elevation: 3}}>
+
+                            <TouchableOpacity style={{marginLeft: 6}}>
+
+                                <Entypo  name="emoji-happy" size={24} color="#4B4B4B" />
+                            </TouchableOpacity>
                             
-                        }
+                            <TextInput onSubmitEditing={Keyboard.dismiss} onChangeText={(message)=>setMessageContent(message)} style={{flex: 1, marginLeft: 10}} placeholder='Mensagem...'>{messageContent}</TextInput>
+
+                            <TouchableOpacity style={{marginLeft: 6, marginRight: 6}}>
+                                <Entypo name="attachment" size={24} color="#4B4B4B" />
+                            </TouchableOpacity>
+
+                            <TouchableOpacity onPress={()=>{requestCameraPermission()}} style={{marginRight: 8}}>
+                                <Entypo name="camera" size={24} color="#4B4B4B" />
+                            </TouchableOpacity>
+                            
+                        </View>
+
+                        <View style={{marginRight: 4}}>
+
+                            <TouchableOpacity
+
+                                onPress={()=>{sendMessage()}}
+                            
+                                style={{
+                                    padding: 14, 
+                                    marginLeft: 2, 
+                                    borderRadius: 50, 
+                                    alignItems: 'center', 
+                                    justifyContent: 'center', 
+                                    backgroundColor: '#1565C0',
+                                    shadowColor: '#000000',
+                                    elevation: 3}}>
+
+                                <FontAwesome name="send" size={24} color="white" />
+                            </TouchableOpacity>
+                            
+                        </View>
                     </View>
+                    
                 </View>
-
-                <TouchableOpacity style={{position: 'absolute', right: 0, marginLeft: 10}}>
-
-                    <Entypo name="dots-three-vertical" size={26} color="white" />
-                </TouchableOpacity>
-
-                
             </View>
 
-            <View style={{flex: 1, height: '100%', flexDirection: 'column', justifyContent: 'flex-end', backgroundColor: 'white', borderTopLeftRadius: 30, borderTopRightRadius: 30, shadowColor: '#000000', elevation: 4}}>
-
-                
-
-                <View style={{flex: 1, marginBottom: 10, marginTop: 60, marginBottom: 4, marginLeft: 4, marginRight: 4, flexDirection: 'column'}}>
-                    <FlatList inverted contentContainerStyle={{flexDirection: 'column-reverse', paddingLeft: 6, paddingRight: 6}} data={messagesList} renderItem={renderMessageBox} keyExtractor={(item)=>messagesList.indexOf(item)}/>
-                </View>
-
-                <View style={{marginBottom: 6, flexDirection: 'row', width: '100%'}}>
-
-                    <View style={{
-                        flex: 1, 
-                        width: '100%', 
-                        flexDirection: 'row', 
-                        marginLeft: 4, 
-                        marginRight: 2, 
-                        borderRadius: 30, 
-                        padding: 8, 
-                        backgroundColor: '#D9D9D9', 
-                        alignItems: 'center', 
-                        shadowColor: '#000000', 
-                        elevation: 3}}>
-
-                        <TouchableOpacity style={{marginLeft: 6}}>
-
-                            <Entypo  name="emoji-happy" size={24} color="#4B4B4B" />
-                        </TouchableOpacity>
-                        
-                        <TextInput onSubmitEditing={Keyboard.dismiss} onChangeText={(message)=>setMessageContent(message)} style={{flex: 1, marginLeft: 10}} placeholder='Mensagem...'>{messageContent}</TextInput>
-
-                        <TouchableOpacity style={{marginLeft: 6, marginRight: 6}}>
-                            <Entypo name="attachment" size={24} color="#4B4B4B" />
-                        </TouchableOpacity>
-
-                        <TouchableOpacity onPress={()=>{requestCameraPermission()}} style={{marginRight: 8}}>
-                            <Entypo name="camera" size={24} color="#4B4B4B" />
-                        </TouchableOpacity>
-                        
-                    </View>
-
-                    <View style={{marginRight: 4}}>
-
-                        <TouchableOpacity
-
-                            onPress={()=>{sendMessage()}}
-                        
-                            style={{
-                                padding: 14, 
-                                marginLeft: 2, 
-                                borderRadius: 50, 
-                                alignItems: 'center', 
-                                justifyContent: 'center', 
-                                backgroundColor: '#1565C0',
-                                shadowColor: '#000000',
-                                elevation: 3}}>
-
-                            <FontAwesome name="send" size={24} color="white" />
-                        </TouchableOpacity>
-                        
-                    </View>
-                </View>
-                
-            </View>
+            
         </View>
     );
 }

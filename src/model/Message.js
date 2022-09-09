@@ -42,6 +42,8 @@ export class Message{
 
     static saveToMe(contactEmail, meEmail, chatId, message){
 
+        let resolveArray = [];
+
         return new Promise((resolve, reject)=>{
 
             addDoc(collection(db, "users", meEmail, "chats", chatId, "messages"),{
@@ -54,8 +56,11 @@ export class Message{
 
             }).then(messageData=>{
 
+                resolveArray.push(messageData);
+
                 Message.saveToContact(contactEmail, meEmail, chatId, messageData.id, message).then(result=>{
 
+                    resolveArray.push(result);
                 });
 
                 const messageRef = doc(db, "users", meEmail, "chats", chatId, "messages", messageData.id);
@@ -75,6 +80,8 @@ export class Message{
 
                 reject(err);
             });
+
+            resolve(resolveArray);
         });
     }
 
@@ -140,7 +147,7 @@ export class Message{
 
                             Message.saveToMe(contactEmail, meEmail, chat.id, message).then(result=>{
 
-
+                                resolve(result);
                             });
                         }else{
 
@@ -151,6 +158,7 @@ export class Message{
 
                                 Message.saveToMe(contactEmail, meEmail, chat.id, message).then(result=>{
 
+                                    resolve(result);
 
                                 });
                             });
@@ -166,6 +174,7 @@ export class Message{
 
                         Message.saveToMe(contactEmail, meEmail, chat.id, message).then(result=>{
 
+                            resolve(result);
 
                         });
                     });
@@ -188,7 +197,7 @@ export class Message{
     
                 getDownloadURL(imageRef).then(url=>{
 
-                    resolve(url)
+                    resolve(url);
                 });
             }).catch(err=>{
 
