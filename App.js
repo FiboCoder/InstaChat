@@ -10,7 +10,7 @@ import Login from './src/screens/auth/Login';
 import { Image } from 'react-native';
 
 import Contacts from './src/screens/main/Contacts/Contacts';
-import Calls from './src/screens/main/Calls/Callls';
+import Calls from './src/screens/main/Calls/Calls';
 import Chats from './src/screens/main/Chats/Chats';
 
 import * as SecureStore from 'expo-secure-store';
@@ -21,7 +21,8 @@ import Takes from './src/screens/main/Takes/Takes';
 import Settings from './src/screens/main/Settings/Settings';
 import ChatDetails from './src/screens/main/Chats/ChatDetails';
 import AddContact from './src/screens/main/Contacts/AddContact';
-import CameraScreen from './src/screens/main/Camera';
+import CameraScreen from './src/screens/general/Camera';
+import Call from './src/screens/General/Call';
 
 const Tab = createBottomTabNavigator();
 const AuthStack = createStackNavigator();
@@ -274,6 +275,14 @@ export default function App({navigation}) {
     );
   }
 
+  function CallScreen({}){
+
+    return(
+
+      <Call></Call>
+    )
+  }
+
 
   return (
 
@@ -322,7 +331,7 @@ export default function App({navigation}) {
                   <Ionicons name="call-outline" size={24} color="#4B4B4B" />
 
                 );
-              },}} component={CallsApp}></Tab.Screen>
+              },}} component={CallScreen}></Tab.Screen>
 
               {/* --------------- END CALLS ROUTES --------------- */}
 
