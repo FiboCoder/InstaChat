@@ -2,7 +2,6 @@ import { View, Text, Image, Modal, TouchableWithoutFeedback } from "react-native
 import { Format } from "../utils/Format";
 import { Feather } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from "react";
 
 export const ChatBoxMessageLightGray = (props)=>{
 
@@ -111,10 +110,6 @@ export const ImageBoxLightGray = (props) =>{
 
 export const ImageBoxBlue = (props) =>{
 
-    const [width, setWidth] = useState();
-    const [height, setHeight] = useState();
-    const [modalVisibility, setModalVisibility] = useState();
-
     const getStatusIcon = () =>{
 
         if(props.message.status == 'waiting'){
@@ -131,12 +126,6 @@ export const ImageBoxBlue = (props) =>{
             return <Ionicons style={{marginLeft: 8}} name="checkmark-circle-sharp" size={16} color="#2196F3" />;
         }
     }
-
-    Image.getSize(props.message.content, (widthI, heightI)=>{
-
-        setWidth(widthI);
-        setHeight(heightI);
-    } )
 
     return(
 

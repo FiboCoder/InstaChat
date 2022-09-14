@@ -1,10 +1,16 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
+import { FontAwesome5 } from '@expo/vector-icons';
 import { CallActionBox } from '../../components/CallActionBox';
+import  Constants  from 'expo-constants';
+import { useNavigation } from '@react-navigation/native';
 
 
-const Calling = () =>{
+const Calling = (props) =>{
+
+    const navigation = useNavigation();
+
 
     return(
         <View style={styles.container}>
@@ -13,9 +19,17 @@ const Calling = () =>{
 
                 <View style={styles.topContainer}>
 
-                    <AntDesign  name="arrowleft" size={26} color="white" />
+                    <TouchableOpacity style={{borderRadius: 50, padding: 10}}>
+                        <AntDesign onPress={()=>{navigation.goBack()}}  name="arrowleft" size={26} color="white" />
+                    </TouchableOpacity>
 
-                    <Text style={styles.username}>Name</Text>
+                    <View style={styles.userInfo}>
+                        <View style={styles.profileImage}>
+                            <FontAwesome5 style={{shadowColor: '#000000', elevation: 4}} name="user" size={30} color="#4A4A4A" />
+                        </View>
+                        <Text style={styles.text}>Name</Text>
+                        <Text style={[styles.text, {fontSize: 16, fontWeight: 'normal', marginTop: 10}]}>Chamando</Text>
+                    </View>
                 </View>
 
                 <CallActionBox/>
@@ -45,12 +59,32 @@ const styles = StyleSheet.create({
 
     topContainer:{
 
-        height: '100%'
+        flex: 1,
+        width: '100%',
+        paddingTop: Constants.statusBarHeight + 10
     },
 
-    username:{
+    userInfo:{
 
-        fontSize: 30,
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+
+    profileImage:{
+
+        width: 80, 
+        height: 80, 
+        borderRadius: 50, 
+        backgroundColor: 'white', 
+        alignItems: "center", 
+        justifyContent: 'center'
+    },
+
+    text:{
+
+        marginTop: 20,
+        fontSize: 26,
         fontWeight: 'bold',
         color: 'white',
         alignSelf: 'center'

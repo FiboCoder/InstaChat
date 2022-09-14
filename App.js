@@ -22,7 +22,9 @@ import Settings from './src/screens/main/Settings/Settings';
 import ChatDetails from './src/screens/main/Chats/ChatDetails';
 import AddContact from './src/screens/main/Contacts/AddContact';
 import CameraScreen from './src/screens/general/Camera';
-import Call from './src/screens/General/Call';
+import Call from './src/screens/general/Call';
+import IncomingCall from './src/screens/general/IncomingCall';
+import Calling from './src/screens/general/Calling';
 
 const Tab = createBottomTabNavigator();
 const AuthStack = createStackNavigator();
@@ -142,13 +144,16 @@ export default function App({navigation}) {
     }else if (routeName == 'CameraChatsApp'){
 
       return 'none';
+    }else if (routeName == 'CallChatApp'){
+
+      return 'none';
     }
 
     return 'flex'
 
   }
 
-  // --------------- BEGIN AUTH STACK ---------------
+  // --------------- BEGIN - AUTH STACK ---------------
 
   function RegisterApp({}) {
     return (
@@ -176,10 +181,10 @@ export default function App({navigation}) {
     );
   }
 
-  // --------------- END AUTH STACK ---------------
+  // --------------- END - AUTH STACK ---------------
 
 
-  // --------------- BEGIN CONTACTS STACK ---------------
+  // --------------- BEGIN - CONTACTS STACK ---------------
 
   function ContactsMain({}) {
 
@@ -211,7 +216,9 @@ export default function App({navigation}) {
     );
   }
 
-    // --------------- END CONTACTS STACK ---------------
+    /* --------------- END - CONTACTS STACK --------------- */
+
+    /* --------------- BEGIN - CHATS SCREENS FUNCTIONS AND ROUTES --------------- */
 
   function ChatsMain({navigation}) {
     return (
@@ -242,12 +249,17 @@ export default function App({navigation}) {
 
       <ChatStack.Screen name="CameraChatsApp" component={CameraApp}/>
 
+      <ChatStack.Screen name="CallChatApp" component={CallingScreen}/>
+
   
     </ChatStack.Navigator>
     );
   
     
   }
+
+    /* --------------- END - CHATS SCREENS FUNCTIONS AND ROUTES --------------- */
+
 
   function CallsApp({}) {
     return (
@@ -275,13 +287,33 @@ export default function App({navigation}) {
     );
   }
 
-  function CallScreen({}){
+  /* --------------- BEGIN - VOICE AND VIDEO CALL FUNCTIONS --------------- */
+
+  const CallScreen = ({}) => {
 
     return(
 
       <Call></Call>
-    )
+    );
   }
+
+  const IncomingCallScreen = ({}) => {
+
+    return(
+
+      <IncomingCall></IncomingCall>
+    );
+  }
+
+  const CallingScreen = ({}) => {
+
+    return(
+
+      <Calling></Calling>
+    );
+  } 
+
+ /* --------------- END - VOICE AND VIDEO CALL FUNCTIONS --------------- */
 
 
   return (

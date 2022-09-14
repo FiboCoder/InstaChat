@@ -1,9 +1,10 @@
-import { FlatList, Image, Text, TextInput, TouchableOpacity, View, Keyboard, PermissionsAndroid, Modal, TouchableWithoutFeedback, ImageBackground } from 'react-native';
+import { FlatList, Image, Text, TextInput, TouchableOpacity, View, Keyboard, PermissionsAndroid, Modal, TouchableWithoutFeedback, ImageBackground, StyleSheet, Pressable } from 'react-native';
 
 import { AntDesign } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import { ChatBoxMessageBlue, ChatBoxMessageLightGray, ImageBoxBlue, ImageBoxLightGray } from '../../../components/MessageBoxItem';
 import { useCallback, useEffect, useState } from 'react';
@@ -32,6 +33,7 @@ export default function ChatDetails(props){
     const [chatId, setChatId] = useState();
 
     const [modalVisibility, setModalVisibility] = useState(false);
+    const [menuModalVisibility, setMenuModalVisibility] = useState(false);
     const [item, setItem] = useState(false);
 
     //Check if permissions
@@ -165,14 +167,20 @@ export default function ChatDetails(props){
         
     }, []);
 
-    const openModal = (item) =>{
+    const openVoiceCallScreen = () => {
 
-        return 
+        console.log("Voice call");
+        setMenuModalVisibility(false);
+
     }
 
+    const openVideoCallScreen = () => {
 
-    let userName = 'Nome de usuário';
-    let profileImage = '../../../../assets/images/mal.png';
+        console.log("Video call");
+        navigation.navigate("ChatsApp", {screen: "CallChatApp"});
+        setMenuModalVisibility(false)
+
+    }
 
     //Function to conditional rendering of the message box
     const renderMessageBox = ({item}) =>{
@@ -183,11 +191,11 @@ export default function ChatDetails(props){
 
         }else if(item.from == meEmail && item.type == 'photo'){
 
-            return <TouchableOpacity onPress={()=>{setModalVisibility(true), setItem(item)}}><ImageBoxBlue message={item}></ImageBoxBlue></TouchableOpacity> 
+            return <Pressable onPress={()=>{setModalVisibility(true), setItem(item)}}><ImageBoxBlue message={item}></ImageBoxBlue></Pressable> 
 
         }else if(item.from == route.params.data.email && item.type == 'text'){
 
-            return <ChatBoxMessageLightGray message={item}></ChatBoxMessageLightGray>
+            return <Pressable onPress={()=>{setModalVisibility(true), setItem(item)}}><ChatBoxMessageLightGray message={item}></ChatBoxMessageLightGray></Pressable>
 
         }else if(item.from == route.params.data.email && item.type == 'photo'){
 
@@ -208,7 +216,7 @@ export default function ChatDetails(props){
                             
                             <ImageBackground style={{width: '100%', height: '100%'}} source={{uri: item.content}}>
                                 <View style={{flexDirection: 'row', width: '100%', paddingTop: 6, paddingBottom: 6, backgroundColor: 'rgba(0, 0, 0, 0.6)'}}>
-                                    <TouchableOpacity onPress={()=>{setModalVisibility(false)}} style={{marginLeft: 6, marginTop: 6}}>
+                                    <TouchableOpacity onPress={()=>{setModalVisibility(false)}} style={[styles.buttonContainer, {marginLeft: 4, marginTop: 6}]}>
                                         <AntDesign name="close" size={28} color="white" />
                                     </TouchableOpacity>
                                     <View>
@@ -226,7 +234,7 @@ export default function ChatDetails(props){
 
                 <View style={{zIndex: 1, width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: 20, paddingBottom: -10, backgroundColor: '#1565C0'}}>
                     
-                    <TouchableOpacity onPress={()=>{navigation.goBack()}} style={{position: 'absolute', left: 0, marginLeft: 10}}>
+                    <TouchableOpacity onPress={()=>{navigation.goBack()}} style={[styles.buttonContainer, {position: 'absolute', left: 0, marginLeft: 4}]}>
 
                         <AntDesign  name="arrowleft" size={26} color="white" />
                     </TouchableOpacity>
@@ -252,10 +260,42 @@ export default function ChatDetails(props){
                         </View>
                     </View>
 
-                    <TouchableOpacity style={{position: 'absolute', right: 0, marginLeft: 10}}>
+                    
+                        <TouchableOpacity onPress={()=>{setMenuModalVisibility(true)}} style={[styles.buttonContainer, {position: 'absolute', right: 0, marginLeft: 4}]}>
 
-                        <Entypo name="dots-three-vertical" size={26} color="white" />
-                    </TouchableOpacity>
+                            <Entypo name="dots-three-vertical" size={26} color="white" />
+                        </TouchableOpacity>
+
+                        <Modal
+
+                            animationType="fade"
+                            transparent={true}
+                            visible={menuModalVisibility}
+                            onRequestClose={()=>{
+
+                                setMenuModalVisibility(false)
+                            }}>
+
+                                <View  style={{flex: 1, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.5)'}} onTouchEnd={()=>{setMenuModalVisibility(false)}}>
+
+                                    <View style={[styles.menuModalContainer]}>
+
+                                        <TouchableOpacity onPress={()=>{openVoiceCallScreen()}} style={styles.menuItemContainer}>
+                                            <Ionicons name="call" size={24} color="#4B4B4B" />
+                                            <Text style={styles.menuItemText}>Chamada de voz</Text>
+                                        </TouchableOpacity>
+
+                                        <TouchableOpacity onPress={()=>{openVideoCallScreen()}} style={[styles.menuItemContainer, {marginTop: 24}]}>
+                                            <FontAwesome name="video-camera" size={24} color="#4B4B4B" />
+                                            <Text style={styles.menuItemText}>Chamada de vídeo</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                                
+
+                        </Modal>
+                    
+                    
 
                     
                 </View>
@@ -329,3 +369,35 @@ export default function ChatDetails(props){
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+
+    buttonContainer:{
+
+        padding: 6,
+        borderradius: 50
+    },
+
+    menuModalContainer:{
+
+        position: 'absolute',
+        right: 0,
+        marginTop: 10,
+        marginRight: 10,
+        borderRadius: 2,
+        backgroundColor: 'white',
+        flexDirection: 'column',
+        padding: 16,
+        elevation: 10,
+
+    },
+    menuItemContainer:{
+
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    menuItemText:{
+
+        marginLeft: 10
+    }
+})

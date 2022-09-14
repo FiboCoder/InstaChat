@@ -1,8 +1,9 @@
 import React from 'react';
-import { ImageBackground, StyleSheet, Text, View, Pressable, Alert } from 'react-native';
+import { ImageBackground, StyleSheet, Text, View, Pressable } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Constants } from 'expo-constants';
 
 const IncomingCall = () =>{
 
@@ -32,7 +33,7 @@ const IncomingCall = () =>{
                 </View>
 
 
-                <View style={buttonsContainer}>
+                <View style={styles.buttonsContainer}>
 
                     <MaterialCommunityIcons name="message" size={24} color="black" />
 
@@ -80,7 +81,6 @@ const styles = StyleSheet.create({
     background:{
 
         flex: 1,
-        paddingTop: Constants.statusBarHeight + 20
     },
 
     topContainer:{

@@ -60,7 +60,7 @@ export const CallActionBox = () =>{
                 <MaterialCommunityIcons name={isMicrophoneOn ? "microphone-off" : "microphone"} size={24} color="white" />
             </Pressable>
 
-            <Pressable onPress={()=>{onHangup()}} style={[styles.iconButtonContainer, {backgoprundColor: 'red'}]}>
+            <Pressable onPress={()=>{onHangup()}} style={[styles.iconButtonContainer, {backgroundColor: 'red'}]}>
                 <MaterialIcons name="call-end" size={24} color="white" />
             </Pressable>
         </View>
