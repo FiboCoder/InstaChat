@@ -91,7 +91,9 @@ export class Message{
 
             setDoc(doc(db, "users", contactEmail, "chats", chatId), {
 
-                users: [meEmail, contactEmail]
+                users: [meEmail, contactEmail],
+                type: "single",
+                lastMessage: message
             }).then(result=>{
 
                 setDoc(doc(db, "users", contactEmail, "chats", chatId, "messages", messageId),message).then(messageData=>{
@@ -121,7 +123,7 @@ export class Message{
 
 
     //Function to send a message to a specific contact
-    sendMessage = (contactEmail, meEmail,) =>{
+    sendMessage = (contactEmail, meEmail, chatId) =>{
 
         return new Promise((resolve, reject)=>{
 
@@ -136,50 +138,144 @@ export class Message{
                     type: this._type
                 }
 
-                console.log(chats.empty)
+                if(contactEmail != "" && meEmail != "" && chatId == ""){
 
-                if(!chats.empty){
+                    if(!chats.empty){
+
+                        chats.forEach(chat=>{
+    
+                            
+    
+                            if(chat.data().users[0] == contactEmail && chat.data().users[1] == meEmail){
+    
+    
+                                Message.saveToMe(contactEmail, meEmail, chat.id, message).then(result=>{
+    
+                                    resolve(result);
+                                });
+                            }else{
+    
+                                addDoc(collection(db, "users", meEmail, "chats"),{
+    
+                                    users: [contactEmail, meEmail],
+                                    type: "single",
+                                    lastMessage: message
+                                }).then(chat=>{
+    
+                                    Message.saveToMe(contactEmail, meEmail, chat.id, message).then(result=>{
+    
+                                        resolve(result);
+    
+                                    });
+                                });
+                            }
+                        });
+                    }else{
+    
+                        addDoc(collection(db, "users", meEmail, "chats"),{
+    
+                            users: [contactEmail, meEmail],
+                            type: "single",
+                            lastMessage: message
+    
+                        }).then(chat=>{
+    
+                            Message.saveToMe(contactEmail, meEmail, chat.id, message).then(result=>{
+    
+                                resolve(result);
+    
+                            });
+                        });
+                    }
+                }else if(contactEmail == "" && meEmail == "" && chatId != ""){
 
                     chats.forEach(chat=>{
 
-                        if(chat.data().users[0] == contactEmail && chat.data().users[1] == meEmail){
+                        
+
+                        if(chat.id == chatId){
 
 
                             Message.saveToMe(contactEmail, meEmail, chat.id, message).then(result=>{
 
                                 resolve(result);
                             });
-                        }else{
-
-                            addDoc(collection(db, "users", meEmail, "chats"),{
-
-                                users: [contactEmail, meEmail]
-                            }).then(chat=>{
-
-                                Message.saveToMe(contactEmail, meEmail, chat.id, message).then(result=>{
-
-                                    resolve(result);
-
-                                });
-                            });
                         }
-                    });
-                }else{
-
-                    addDoc(collection(db, "users", meEmail, "chats"),{
-
-                        users: [contactEmail, meEmail]
-
-                    }).then(chat=>{
-
-                        Message.saveToMe(contactEmail, meEmail, chat.id, message).then(result=>{
-
-                            resolve(result);
-
-                        });
                     });
                 }
             });
+        });
+    }
+
+    static sendMessageToGroup = (meEmail, chatData) => {
+
+        return new Promise((resolve, reject)=>{
+
+            let resolveArray = [];
+            let rejectArray = [];
+
+            let message = {
+
+                content: this._message,
+                status: this._status,
+                time: Date.now(),
+                from: this._from,
+                type: this._type
+            }
+
+            addDoc(collection(db, "users", meEmail, "chats", chatData.id, "messages"), {
+
+                content: message.content,
+                status: message.status,
+                time: message.time,
+                from: message.from,
+                type: message.type
+            }).then(messageData=>{
+
+                resolveArray.push(messageData);
+
+                updateDoc(doc(db, "users", meEmail, "chats", chatData.id, "messages", messageData.id),{
+
+                    status: 'sent'
+                }).then(result=>{
+
+                    resolveArray.push(result);
+
+                });
+
+                chatData.data().users.forEach(email=>{
+
+                    if(!email == meEmail){
+
+                        setDoc(doc(db, "users", email, "chats", chatData.id, "messages", messageData.id), {
+
+                            content: message.content,
+                            status: message.status,
+                            time: message.time,
+                            from: message.from,
+                            type: message.type
+                        }).then(result=>{
+
+                            resolveArray.push(result);
+
+                            updateDoc(doc(db, "users", email, "chats", chatData.id, "messages", messageData.id),{
+
+                                status: 'sent'
+                            }).then(result=>{
+
+                                resolveArray.push(result);
+                            });
+                        });
+                    }else{
+
+                        
+                    }
+
+                    
+                });
+            });
+
+            resolve(resolveArray);
         });
     }
 
@@ -204,7 +300,36 @@ export class Message{
                 reject(err);
             });
         });
+    }
 
-        
+    static createGroup(meEmail, groupUsersList){
+
+        return new Promise((resolve, reject)=>{
+
+            addDoc(collection(db, "users", meEmail, "chats"), {
+
+                users: groupUsersList,
+                type: "group",
+                groupName: "",
+                groupProfileImage: "",
+                lastMessage: []
+            }).then(chat=>{
+
+                groupUsersList.forEach(userEmail=>{
+
+                    setDoc(doc(db, "users", userEmail, "chats", chat.id), {
+
+                        users: groupUsersList,
+                        type: "group",
+                        groupName: "",
+                        groupProfileImage: "",
+                        lastMessage: []
+                    }).then(result=>{
+
+                        resolve(result)
+                    });
+                });
+            });
+        });
     }
 }

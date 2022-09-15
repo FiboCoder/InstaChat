@@ -1,3 +1,5 @@
+import { mediaDevices } from "react-native-webrtc";
+
 export default class CallsUtils{
 
     static async getStream(){
@@ -19,7 +21,6 @@ export default class CallsUtils{
 
             audio: true,
             video: {
-
                 width: 640,
                 height: 480,
                 frameRate: 30,

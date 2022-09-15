@@ -1,21 +1,34 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { CallActionBox } from '../../components/CallActionBox';
 import  Constants  from 'expo-constants';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { RTCView } from 'react-native-webrtc';
 
 
-const Calling = (props) =>{
+const Calling = () =>{
 
     const navigation = useNavigation();
+    const route = useRoute();
 
+    console.log("LOCALSTREAM"+route.params.localStream)
 
     return(
         <View style={styles.container}>
 
-            <View style={styles.cameraPreview}>
+            {route.params.localStream != null
+            ?
+            <View>
+                <RTCView mirror={true} objectFit={'cover'} streamURL={route.params.localStream.toURL()}></RTCView>
+            </View>
+            
+            :
+            <View></View>
+            }
+            
+
 
                 <View style={styles.topContainer}>
 
@@ -24,17 +37,28 @@ const Calling = (props) =>{
                     </TouchableOpacity>
 
                     <View style={styles.userInfo}>
-                        <View style={styles.profileImage}>
-                            <FontAwesome5 style={{shadowColor: '#000000', elevation: 4}} name="user" size={30} color="#4A4A4A" />
-                        </View>
-                        <Text style={styles.text}>Name</Text>
+
+                        {
+
+                            route.params.contactData.profileImage == ''
+
+                                ?
+
+                                    <View style={styles.profileImage}>
+                                        <FontAwesome5 style={{shadowColor: '#000000', elevation: 4}} name="user" size={30} color="#4A4A4A" />
+                                    </View>
+                                :
+
+                                    <Image style={{width: 80, height: 80}} source={{uri: route.params.contactData.profileImage}}></Image>
+                        }
+                        
+                        <Text style={styles.text}>{route.params.contactData.username}</Text>
                         <Text style={[styles.text, {fontSize: 16, fontWeight: 'normal', marginTop: 10}]}>Chamando</Text>
                     </View>
                 </View>
 
                 <CallActionBox/>
 
-            </View>
 
         </View>
     );

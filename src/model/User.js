@@ -1,5 +1,5 @@
 import { auth, db } from "../utils/firebase";
-import { doc, getDoc, getDocs, setDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, onSnapshot, query, setDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
 export class User{
@@ -70,6 +70,24 @@ export class User{
           }
         });
     });
+    }
+
+    static getContacts(meEmail){
+
+      return new Promise((resolve, reject)=>{
+
+        const contactsRef = query(collection(db, "users", meEmail, "contacts"));
+        onSnapshot(contactsRef, (contacts)=>{
+
+          if(!contacts.empty){
+
+            resolve(contacts);
+          }else{
+
+            reject("Nenhum contato!")
+          }
+        });
+      });
     }
 }
 

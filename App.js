@@ -25,6 +25,7 @@ import CameraScreen from './src/screens/general/Camera';
 import Call from './src/screens/general/Call';
 import IncomingCall from './src/screens/general/IncomingCall';
 import Calling from './src/screens/general/Calling';
+import CreateGroup from './src/screens/main/Contacts/CreateGroup';
 
 const Tab = createBottomTabNavigator();
 const AuthStack = createStackNavigator();
@@ -141,6 +142,10 @@ export default function App({navigation}) {
     }else if(routeName === 'AddContact'){
 
       return 'none';
+    }else if(routeName === 'CreateGroup'){
+
+      return 'none';
+    
     }else if (routeName == 'CameraChatsApp'){
 
       return 'none';
@@ -194,10 +199,18 @@ export default function App({navigation}) {
     );
   }
 
-  function AddContactF({}) {
+  function AddContactScreen({}) {
     return (
       <AddContact></AddContact>
     );
+  }
+
+  const CreateGroupScreen = ({}) => {
+
+    return(
+
+      <CreateGroup></CreateGroup>
+    )
   }
 
   function ContactsStackScreen(){
@@ -209,7 +222,9 @@ export default function App({navigation}) {
       })}>
 
         <ContactsStack.Screen name='ContactsMain' component={ContactsMain}></ContactsStack.Screen>
-        <ContactsStack.Screen name='AddContact' component={AddContactF}></ContactsStack.Screen>
+        <ContactsStack.Screen name='CreateGroup' component={CreateGroupScreen}></ContactsStack.Screen>
+        <ContactsStack.Screen name='AddContact' component={AddContactScreen}></ContactsStack.Screen>
+        <ContactsStack.Screen name='ContactChatDetails' component={ChatDetails}></ContactsStack.Screen>
 
 
       </ContactsStack.Navigator>
@@ -248,9 +263,6 @@ export default function App({navigation}) {
       <ChatStack.Screen name='ChatDetails' component={ChatDetailsScreen}/>
 
       <ChatStack.Screen name="CameraChatsApp" component={CameraApp}/>
-
-      <ChatStack.Screen name="CallChatApp" component={CallingScreen}/>
-
   
     </ChatStack.Navigator>
     );
@@ -352,6 +364,7 @@ export default function App({navigation}) {
 
               {/* --------------- BEGIN CALLS ROUTES --------------- */}
 
+              {/*
               <Tab.Screen name="CallsApp" options={{headerShown: false, tabBarShowLabel: false, tabBarIcon: ({focused})=>{
 
                 return (
@@ -364,6 +377,7 @@ export default function App({navigation}) {
 
                 );
               },}} component={CallScreen}></Tab.Screen>
+            */}
 
               {/* --------------- END CALLS ROUTES --------------- */}
 
@@ -387,7 +401,7 @@ export default function App({navigation}) {
 
               {/* --------------- BEGIN TAKES ROUTES --------------- */}
 
-              <Tab.Screen name="TakesApp" options={{headerShown: false, tabBarShowLabel: false, tabBarIcon: ({focused})=>{
+              {/*<Tab.Screen name="TakesApp" options={{headerShown: false, tabBarShowLabel: false, tabBarIcon: ({focused})=>{
 
                 return (
 
@@ -400,7 +414,7 @@ export default function App({navigation}) {
 
 
                 );
-              },}} component={TakesApp}></Tab.Screen>
+              },}} component={TakesApp}></Tab.Screen>*/}
 
               {/* --------------- END TAKES ROUTES --------------- */}
 

@@ -28,7 +28,7 @@ export default function Chats(){
 
                         chats.forEach(chat=>{
 
-                            chatsArray.push(chat.data());
+                            chatsArray.push(chat);
                         });
 
                         setChatsList(chatsArray);

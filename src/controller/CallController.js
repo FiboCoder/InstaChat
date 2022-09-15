@@ -8,8 +8,7 @@ const CallController = async () =>{
 
     const configuration = {'iceServers':[{'url':'stun:stun.l.google.com:19302'}]};
 
-    const [localStream, setLocalStream] = useState(MediaStream | null);
-    const [remoteStream, setRemoteStream] = useState(MediaStream | null);
+    
     const [gettingCall, setGettingCall] = useState(false);
     const pc = useRef(RTCPeerConnection);
     const connecting = useRef(false);

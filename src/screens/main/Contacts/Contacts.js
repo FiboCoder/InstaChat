@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import { Image, View, Text, ScrollView, TouchableOpacity, StyleSheet, FlatList } from "react-native";
+import { Image, View, Text, ScrollView, TouchableOpacity, StyleSheet, FlatList, LogBox } from "react-native";
 import Constants  from "expo-constants";
 
 import { AntDesign } from '@expo/vector-icons';
@@ -11,9 +11,12 @@ import { onAuthStateChanged } from "firebase/auth";
 
 export default function Contacts(){
 
+  LogBox.ignoreAllLogs(true);
+
     const navigation = useNavigation();
 
     const [contactsList, setContactsList] = useState([]);
+    const [refreshing, setRefreshing] = useState(false);
 
 
     //Function to recover contacts list
@@ -29,6 +32,8 @@ export default function Contacts(){
 
             if(!contacts.empty){
 
+              setRefreshing(true);
+
               let contactsArray = [];
 
               contacts.forEach((contact)=>{
@@ -38,11 +43,15 @@ export default function Contacts(){
               });
 
               setContactsList(contactsArray);
-              console.log(contactsArray)
+              console.log(contactsArray);
+              setRefreshing(false);
 
             }else{
 
+              setRefreshing(true);
               setContactsList([]);
+              setRefreshing(false);
+      
             }
           }); 
         }else{
@@ -69,15 +78,15 @@ export default function Contacts(){
                 </TouchableOpacity>
             </View>
 
-            <View style={{height: '100%', padding: 26, backgroundColor: 'white', borderTopLeftRadius: 30, borderTopRightRadius: 30, shadowColor: '#000000', elevation: 4}}>
+            <View style={{height: '100%', padding: 26, backgroundColor: 'white', borderTopLeftRadius: 30, borderTopRightRadius: 30, elevation: 4}}>
 
                 <View style={{flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16}}>
 
-                  <TouchableOpacity style={{flexDirection: 'column', alignItems: 'center'}}>
+                  <TouchableOpacity onPress={()=>{navigation.navigate('CreateGroup')}} style={{flexDirection: 'column', alignItems: 'center'}}>
 
                     <View style={{width: 62, height: 62, borderRadius: 50, alignItems: 'center', justifyContent: 'center', backgroundColor: '#A4A4A4'}}>
 
-                    <AntDesign name="addusergroup" size={34} color="white" />
+                      <AntDesign name="addusergroup" size={34} color="white" />
 
                     </View>
 
@@ -103,7 +112,7 @@ export default function Contacts(){
 
                 <View style={{flex: 1, marginTop: 20}}>
 
-                  <FlatList data={contactsList} renderItem={renderContactItem} keyExtractor={(item)=>contactsList.indexOf(item)}/>
+                  <FlatList data={contactsList} renderItem={renderContactItem} keyExtractor={(item)=>contactsList.indexOf(item)} refreshing={refreshing} onRefresh={()=>{refreshing}}/>
 
                 </View>
                 

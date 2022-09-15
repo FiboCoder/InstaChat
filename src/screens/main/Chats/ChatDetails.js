@@ -16,6 +16,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { collection, doc, onSnapshot, query, updateDoc } from 'firebase/firestore';
 import { Camera } from 'expo-camera';
 import { Format } from '../../../utils/Format';
+import { mediaDevices, MediaStream } from 'react-native-webrtc';
+import CallsUtils from '../../../utils/CallsUtils';
 
 
 export default function ChatDetails(props){
@@ -36,20 +38,33 @@ export default function ChatDetails(props){
     const [menuModalVisibility, setMenuModalVisibility] = useState(false);
     const [item, setItem] = useState(false);
 
-    //Check if permissions
-    
-
+    //Video call states
+    const [localStream, setLocalStream] = useState(MediaStream | null);
+    const [remoteStream, setRemoteStream] = useState(MediaStream | null);
     //Request permissions
     const requestCameraPermission = async () =>{
 
         if(cameraPermission.granted){
 
-            navigation.navigate('CameraChatsApp', {
+            if(route.params.contactData){
 
-                contactEmail: route.params.data.email,
-                meEmail: meEmail,
-                chatId: chatId
-            });
+                navigation.navigate('CameraChatsApp', {
+
+                    contactEmail: route.params.contactData.email,
+                    meEmail: meEmail,
+                    chatId: chatId
+                });
+            }else{
+
+                navigation.navigate('CameraChatsApp', {
+
+                    contactEmail: route.params.data.id,
+                    meEmail: meEmail,
+                    chatId: chatId
+                });
+            }
+
+            
         }else{
 
             setCameraPermission();
@@ -69,12 +84,37 @@ export default function ChatDetails(props){
             message.setStatus('waiting');
             message.setFrom(meEmail);
             message.setType('text');
+
+            if(route.params.contactData){
+
+                message.sendMessage(route.params.contactData.email, meEmail, "").then(result=>{
     
-            message.sendMessage(route.params.data.email, meEmail).then(result=>{
+                });
+                setMessageContent('');
+                Keyboard.dismiss();
+            }else{
+
+                if(route.params.data.data().type == "single"){
+
+                    message.sendMessage("", "", route.params.data.id).then(result=>{
     
-            });
-            setMessageContent('');
-            Keyboard.dismiss();
+                    });
+                    setMessageContent('');
+                    Keyboard.dismiss();
+                }else{
+
+                    message.sendMessage(meEmail, route.params.data).then(result=>{
+    
+                    });
+                    setMessageContent('');
+                    Keyboard.dismiss();
+                }
+
+                
+            }
+    
+            
+            
         }
     }
 
@@ -95,61 +135,121 @@ export default function ChatDetails(props){
                         chats.forEach((chat)=>{
 
                             //Get messages if chat exists
-        
-                            if(chat.data().users[0] == route.params.data.email && chat.data().users[1] == user.email){
 
-                                setChatId(chat.id);
+                            if(route.params.contactData){
 
-                                //Listen 'Messages'
-                                const messagesQuery = query(collection(db, "users", user.email, "chats", chat.id, "messages"));
-                                onSnapshot(messagesQuery, (messages)=>{
+                                if(chat.data().users[0] == route.params.contactData.email && chat.data().users[1] == user.email){
 
-                                    let messagesArray = [];
-        
-                                    if(!messages.empty){
-
-                                        messages.forEach((message, index)=>{
-
-                                            //Check if message is from contact
-                                            if(message.data().from !== user.email){
-
-                                                //Check if status is 'sent' and update status from contact to 'received'
-                                                if(message.data().status === 'sent'){
-
-                                                    const messageRef = doc(db, "users", message.data().from, "chats", chat.id, "messages", message.id);
-                                                    updateDoc(messageRef, {
+                                    setChatId(chat.id);
     
-                                                        status: 'received'
-                                                    }).then(result=>{
-
-                                                    });
+                                    //Listen 'Messages'
+                                    const messagesQuery = query(collection(db, "users", user.email, "chats", chat.id, "messages"));
+                                    onSnapshot(messagesQuery, (messages)=>{
+    
+                                        let messagesArray = [];
+            
+                                        if(!messages.empty){
+    
+                                            messages.forEach((message, index)=>{
+    
+                                                //Check if message is from contact
+                                                if(message.data().from !== user.email){
+    
+                                                    //Check if status is 'sent' and update status from contact to 'received'
+                                                    if(message.data().status === 'sent'){
+    
+                                                        const messageRef = doc(db, "users", message.data().from, "chats", chat.id, "messages", message.id);
+                                                        updateDoc(messageRef, {
+        
+                                                            status: 'received'
+                                                        }).then(result=>{
+    
+                                                        });
+                                                    }
+    
+                                                    messagesArray.push(message.data());
+    
+                                                }else{
+    
+                                                    messagesArray.push(message.data());
                                                 }
-
-                                                messagesArray.push(message.data());
-
-                                            }else{
-
-                                                messagesArray.push(message.data());
-                                            }
-                                            
-                                        });
-
-                                        //Sort messages by timestamp
-                                        let sortedArray = messagesArray.sort((a, b)=>{
-
-                                            return a.time - b.time;
-                                        })
-                                        setMessagesList(sortedArray);
-        
-                                    }else{
-        
-                                        setMessagesList([]);
-                                    }
-                                });
-        
+                                                
+                                            });
+    
+                                            //Sort messages by timestamp
+                                            let sortedArray = messagesArray.sort((a, b)=>{
+    
+                                                return a.time - b.time;
+                                            })
+                                            setMessagesList(sortedArray);
+            
+                                        }else{
+            
+                                            setMessagesList([]);
+                                        }
+                                    });
+            
+                                }else{
+    
+                                    setMessagesList([]);
+                                }
                             }else{
 
-                                setMessagesList([]);
+                                if(chat.id == route.params.data.id){
+
+                                    setChatId(chat.id);
+    
+                                    //Listen 'Messages'
+                                    const messagesQuery = query(collection(db, "users", user.email, "chats", chat.id, "messages"));
+                                    onSnapshot(messagesQuery, (messages)=>{
+    
+                                        let messagesArray = [];
+            
+                                        if(!messages.empty){
+    
+                                            messages.forEach((message, index)=>{
+    
+                                                //Check if message is from contact
+                                                if(message.data().from !== user.email){
+    
+                                                    //Check if status is 'sent' and update status from contact to 'received'
+                                                    if(message.data().status === 'sent'){
+    
+                                                        const messageRef = doc(db, "users", message.data().from, "chats", chat.id, "messages", message.id);
+                                                        updateDoc(messageRef, {
+        
+                                                            status: 'received'
+                                                        }).then(result=>{
+    
+                                                        });
+                                                    }
+    
+                                                    messagesArray.push(message.data());
+    
+                                                }else{
+    
+                                                    messagesArray.push(message.data());
+                                                }
+                                                
+                                            });
+    
+                                            //Sort messages by timestamp
+                                            let sortedArray = messagesArray.sort((a, b)=>{
+    
+                                                return a.time - b.time;
+                                            })
+                                            setMessagesList(sortedArray);
+            
+                                        }else{
+            
+                                            setMessagesList([]);
+                                        }
+                                    });
+            
+                                }else{
+    
+                                    setMessagesList([]);
+                                }
                             }
                         });
                     }else{
@@ -177,9 +277,7 @@ export default function ChatDetails(props){
     const openVideoCallScreen = () => {
 
         console.log("Video call");
-        navigation.navigate("ChatsApp", {screen: "CallChatApp"});
-        setMenuModalVisibility(false)
-
+        setMenuModalVisibility(false);
     }
 
     //Function to conditional rendering of the message box
@@ -193,14 +291,41 @@ export default function ChatDetails(props){
 
             return <Pressable onPress={()=>{setModalVisibility(true), setItem(item)}}><ImageBoxBlue message={item}></ImageBoxBlue></Pressable> 
 
-        }else if(item.from == route.params.data.email && item.type == 'text'){
+        }else if(item.from == route.params.data.data().email && item.type == 'text'){
 
             return <Pressable onPress={()=>{setModalVisibility(true), setItem(item)}}><ChatBoxMessageLightGray message={item}></ChatBoxMessageLightGray></Pressable>
 
-        }else if(item.from == route.params.data.email && item.type == 'photo'){
+        }else if(item.from == route.params.data.data().email && item.type == 'photo'){
 
             return <ImageBoxLightGray message={item}></ImageBoxLightGray>
 
+        }
+    }
+
+    const renderProfileImage = () => {
+
+        if(route.params.data.data().type == "single"){
+
+            if(route.params.data.data().profileImage == ''){
+
+                return <View style={{width: 80, height: 80, marginBottom: -40, borderRadius: 50, backgroundColor: '#A4A4A4', alignItems: "center", justifyContent: 'center'}}>
+                    <FontAwesome5 style={{shadowColor: '#000000', elevation: 4}} name="user" size={30} color="white" />
+                </View>
+            }else{
+
+                return <Image style={{width: 80, height: 80, marginBottom: -40}} source={{uri: route.params.data.data().profileImage}}></Image>
+            }
+        }else{
+
+            if(route.params.data.data().groupProfileImage == ''){
+
+                return <View style={{width: 80, height: 80, marginBottom: -40, borderRadius: 50, backgroundColor: '#A4A4A4', alignItems: "center", justifyContent: 'center'}}>
+                    <FontAwesome5 style={{shadowColor: '#000000', elevation: 4}} name="user" size={30} color="white" />
+                </View>
+            }else{
+
+                return <Image style={{width: 80, height: 80, marginBottom: -40}} source={{uri: route.params.data.data().groupProfileImage}}></Image>
+            }
         }
     }
 
@@ -241,21 +366,11 @@ export default function ChatDetails(props){
 
                     <View style={{alignItems: 'center', marginLeft: 96, marginRight: 96,}}>
 
-                        <Text numberOfLines={1} style={{color: 'white', fontSize: 18, fontWeight: '600'}}>{route.params.data.username}</Text>
+                        <Text numberOfLines={1} style={{color: 'white', fontSize: 18, fontWeight: '600'}}>{route.params.data.data().type == "single" ? route.params.data.data().username : route.params.data.data().groupName}</Text>
                         <View style={{marginTop: 10}}>
 
                             {
-                                route.params.data.profileImage == '' 
-                                
-                                ?
-                                
-                                    <View style={{width: 80, height: 80, marginBottom: -40, borderRadius: 50, backgroundColor: '#A4A4A4', alignItems: "center", justifyContent: 'center'}}>
-                                        <FontAwesome5 style={{shadowColor: '#000000', elevation: 4}} name="user" size={30} color="white" />
-                                    </View>
-                                :
-
-                                    <Image style={{width: 80, height: 80, marginBottom: -40}} source={{uri: route.params.data.profileImage}}></Image>
-                                
+                                renderProfileImage()
                             }
                         </View>
                     </View>
