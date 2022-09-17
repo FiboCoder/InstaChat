@@ -32,25 +32,23 @@ export default function Contacts(){
 
             if(!contacts.empty){
 
-              setRefreshing(true);
-
               let contactsArray = [];
 
+
               contacts.forEach((contact)=>{
+                console.log(contact.data().email)
   
                 contactsArray.push(contact.data());
 
               });
-
+              
+              console.log(JSON.stringify(contactsArray));
               setContactsList(contactsArray);
-              console.log(contactsArray);
-              setRefreshing(false);
+
 
             }else{
 
-              setRefreshing(true);
               setContactsList([]);
-              setRefreshing(false);
       
             }
           }); 
@@ -63,7 +61,7 @@ export default function Contacts(){
 
     const renderContactItem = ({item}) =>{
 
-      return <ContactItem contact={item}></ContactItem>
+      return <ContactItem route={"AddContact"} contact={item}></ContactItem>
     }
 
     return(
@@ -112,7 +110,7 @@ export default function Contacts(){
 
                 <View style={{flex: 1, marginTop: 20}}>
 
-                  <FlatList data={contactsList} renderItem={renderContactItem} keyExtractor={(item)=>contactsList.indexOf(item)} refreshing={refreshing} onRefresh={()=>{refreshing}}/>
+                  <FlatList data={contactsList} renderItem={renderContactItem} keyExtractor={(item)=>contactsList.indexOf(item)}/>
 
                 </View>
                 

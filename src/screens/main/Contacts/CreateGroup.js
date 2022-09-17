@@ -24,7 +24,19 @@ const CreateGroup = () => {
     const [selected, setSelected] = useState(false);
     const [selectedQuantity, setSelectedQuantity] = useState(0);
     const [groupList, setGroupList] = useState([]);
-    let groupUsersList = [];
+    let groupUsersList = groupList;
+
+    if(email){
+
+        if(groupUsersList.includes(email)){
+
+        }else{
+
+            groupUsersList.push(email);
+        }
+
+    }
+
 
     useEffect(()=>{
 
@@ -51,49 +63,15 @@ const CreateGroup = () => {
         });
     }, []);
 
-    const doWhenPressOverContact = (item) => {
-
-        console.log(selected)
-
-        if(!selected){
-
-            setSelected(!selected);
-            setSelectedQuantity(selectedQuantity + 1);
-            groupUsersList.push(item.email);
-            setGroupList(groupUsersList);
-            
-
-        }else{
-
-            setSelected(!selected);
-
-            if(selectedQuantity > 0){
-
-                setSelectedQuantity(selectedQuantity - 1);
-                groupUsersList.filter((email)=>{
-
-                    return email != item.email;
-                });
-                setGroupList(groupUsersList);
-
-            }
-        } 
-    }
-
     const saveGroup = () => {
 
         if(email){
-
-            groupUsersList.push(email);
-
 
             Message.createGroup(email, groupList).then(result=>{
 
                 navigation.goBack();
             });
         }else{
-
-            groupUsersList.push(email);
 
             onAuthStateChanged(auth, (user)=>{
 
@@ -107,12 +85,20 @@ const CreateGroup = () => {
 
     }
 
-    console.log(groupList)
 
     const renderContactItem = ({item}) =>{
 
-        return <TouchableOpacity onPress={()=>{doWhenPressOverContact(item)}}><ContactItem route={"CreateGroup"} isSelected={selected} contact={item}></ContactItem></TouchableOpacity>
+        return <ContactItem 
+        route={"CreateGroup"}
+        groupUsersList={groupUsersList}
+        setSelectedQuantity={setSelectedQuantity}
+        selectedQuantity={selectedQuantity}
+        setGroupList={setGroupList}
+        groupList={groupList}
+        contact={item}></ContactItem>
       }
+
+    console.log(groupList)
 
     return(
 

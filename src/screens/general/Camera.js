@@ -75,10 +75,28 @@ export default function CameraScreen(){
         message.setStatus('waiting');
         message.setFrom(route.params.meEmail);
         message.setType('photo');
-        message.sendMessage(route.params.contactEmail, route.params.meEmail).then(result=>{
+
+        if(route.params.route == "Contact_List"){
+
+          message.sendMessage(route.params.contactEmail, route.params.meEmail, "", "Contact_List").then(result=>{
   
-          navigation.goBack();
-        });
+            navigation.goBack();
+          });
+        }else if(route.params.route == "Chat_Single"){
+
+          message.sendMessage(route.params.contactEmail, route.params.meEmail, route.params.chatId, "Chat_Single").then(result=>{
+  
+            navigation.goBack();
+          });
+        }else if(route.params.route == "Chat_Group"){
+
+          message.sendMessageToGroup(route.params.meEmail, route.params.groupUsersList, route.params.chatId).then(result=>{
+
+            navigation.goBack();
+
+          });
+        }
+        
       });
     }
   }

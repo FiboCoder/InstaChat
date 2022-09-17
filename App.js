@@ -152,6 +152,9 @@ export default function App({navigation}) {
     }else if (routeName == 'CallChatApp'){
 
       return 'none';
+    }else if(routeName == 'ContactChatDetails'){
+
+      return 'none';
     }
 
     return 'flex'

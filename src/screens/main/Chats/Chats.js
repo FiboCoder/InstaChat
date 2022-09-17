@@ -49,6 +49,7 @@ export default function Chats(){
 
     const renderChatItem = ({item}) =>{
 
+        console.log(item.id)
         return <ChatItem chat={item} ></ChatItem>
     }
 

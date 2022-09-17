@@ -69,6 +69,18 @@ export class Message{
                     status: 'sent'
                 }).then(result=>{
 
+                    updateDoc(doc(db, "users", meEmail, "chats", chatId),{
+
+                        lastMessage: {
+
+                            content: message.content,
+                            status: message.status,
+                            time: message.time,
+                            from: message.from,
+                            type: message.type
+                        }
+                    });
+
                     console.log(result)
                     
                 }).catch(err=>{
@@ -105,6 +117,18 @@ export class Message{
     
                         status: 'sent'
                     }).then(result=>{
+
+                        updateDoc(doc(db, "users", meEmail, "chats", chatId),{
+
+                            lastMessage: {
+
+                                content: message.content,
+                                status: message.status,
+                                time: message.time,
+                                from: message.from,
+                                type: message.type
+                            }
+                        });
     
                     }).catch(err=>{
     
@@ -123,7 +147,9 @@ export class Message{
 
 
     //Function to send a message to a specific contact
-    sendMessage = (contactEmail, meEmail, chatId) =>{
+    sendMessage = (contactEmail, meEmail, chatId = "", route) =>{
+
+        console.log(chatId)
 
         return new Promise((resolve, reject)=>{
 
@@ -138,7 +164,7 @@ export class Message{
                     type: this._type
                 }
 
-                if(contactEmail != "" && meEmail != "" && chatId == ""){
+                if(route == "Contact_List"){
 
                     if(!chats.empty){
 
@@ -187,11 +213,9 @@ export class Message{
                             });
                         });
                     }
-                }else if(contactEmail == "" && meEmail == "" && chatId != ""){
+                }else if(route == "Chat_Single"){
 
                     chats.forEach(chat=>{
-
-                        
 
                         if(chat.id == chatId){
 
@@ -207,7 +231,7 @@ export class Message{
         });
     }
 
-    static sendMessageToGroup = (meEmail, chatData) => {
+    sendMessageToGroup = (meEmail, groupUsersList, chatId) => {
 
         return new Promise((resolve, reject)=>{
 
@@ -223,7 +247,7 @@ export class Message{
                 type: this._type
             }
 
-            addDoc(collection(db, "users", meEmail, "chats", chatData.id, "messages"), {
+            addDoc(collection(db, "users", meEmail, "chats", chatId, "messages"), {
 
                 content: message.content,
                 status: message.status,
@@ -232,9 +256,11 @@ export class Message{
                 type: message.type
             }).then(messageData=>{
 
+                console.log("MESSAGE DATA"+messageData.id)
+
                 resolveArray.push(messageData);
 
-                updateDoc(doc(db, "users", meEmail, "chats", chatData.id, "messages", messageData.id),{
+                updateDoc(doc(db, "users", meEmail, "chats", chatId, "messages", messageData.id),{
 
                     status: 'sent'
                 }).then(result=>{
@@ -243,11 +269,15 @@ export class Message{
 
                 });
 
-                chatData.data().users.forEach(email=>{
+                groupUsersList.forEach(email=>{
 
-                    if(!email == meEmail){
+                    console.log("EMAIL OF ARRAY - "+email)
 
-                        setDoc(doc(db, "users", email, "chats", chatData.id, "messages", messageData.id), {
+                    if(email != meEmail){
+
+                        console.log("ENTER")
+
+                        setDoc(doc(db, "users", email, "chats", chatId, "messages", messageData.id), {
 
                             content: message.content,
                             status: message.status,
@@ -258,10 +288,22 @@ export class Message{
 
                             resolveArray.push(result);
 
-                            updateDoc(doc(db, "users", email, "chats", chatData.id, "messages", messageData.id),{
+                            updateDoc(doc(db, "users", email, "chats", chatId, "messages", messageData.id),{
 
                                 status: 'sent'
                             }).then(result=>{
+
+                                updateDoc(doc(db, "users", meEmail, "chats", chatId),{
+
+                                    lastMessage: {
+
+                                        content: message.content,
+                                        status: message.status,
+                                        time: message.time,
+                                        from: message.from,
+                                        type: message.type
+                                    }
+                                });
 
                                 resolveArray.push(result);
                             });

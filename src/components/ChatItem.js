@@ -1,32 +1,36 @@
 import React, { useEffect, useState } from "react";
-import { useNavigation } from '@react-navigation/native';
+import { TabRouter, useNavigation } from '@react-navigation/native';
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { FontAwesome5 } from '@expo/vector-icons';
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../utils/firebase";
+import { Format } from '../utils/Format';
 
 export const ChatItem = (props)=>{
 
     const navigation = useNavigation();
 
     const [contactData, setContactData] = useState([]);
-    
-    useEffect(()=>{
+
+    if(props.chat.data().type == "single"){
 
         const contactRef = doc(db, "users", props.chat.data().users[0]);
         onSnapshot(contactRef, (contactData)=>{
     
             setContactData(contactData.data());
         });
-    },[]);
+    }else{
+
+
+    }
 
     const render = () => {
 
-        if(props.chat.type == "single"){
+        if(props.chat.data().type == "single"){
 
             return <View style={{flex: 1}}>
 
-                        <TouchableOpacity onPress={()=>{navigation.navigate('ChatDetails', {data: props.chat, contactInfo: contactData})}} style={{flexDirection: 'row', alignItems: 'center',}}>
+                        <TouchableOpacity onPress={()=>{navigation.navigate('ChatDetails', {data: props.chat.data(), chatId: props.chat.id, contactData: contactData, route: "Chat_Single"})}} style={{flexDirection: 'row', alignItems: 'center',}}>
                             <View>
                                     {
                                     
@@ -49,12 +53,12 @@ export const ChatItem = (props)=>{
                                 <View style={{flex: 1, marginRight: 20}}>
 
                                     <Text numberOfLines={1} style={{color: '#1E1E1E', fontSize: 18, fontWeight: '700'}}>{contactData.username}</Text>
-                                    <Text style={{color: '#5E5E5E'}}>Last Message</Text>
+                                    <Text style={{color: '#5E5E5E'}}>{props.chat.data().lastMessage.content}</Text>
                                 </View>
 
                                 <View style={{alignSelf: 'flex-start'}}>
                                     
-                                    <Text style={{color: '#1E1E1E', fontSize: 14}}>00:00 AM</Text>
+                                    <Text style={{color: '#1E1E1E', fontSize: 14}}>{Format.timeStampToTime(props.chat.data().lastMessage.time)}</Text>
 
                                 </View>
                             </View>
@@ -65,7 +69,7 @@ export const ChatItem = (props)=>{
 
             return <View style={{flex: 1}}>
 
-                        <TouchableOpacity onPress={()=>{navigation.navigate('ChatDetails', {data: props.chat})}} style={{flexDirection: 'row', alignItems: 'center',}}>
+                        <TouchableOpacity onPress={()=>{navigation.navigate('ChatDetails', {data: props.chat.data(), chatId: props.chat.id, route: "Chat_Group"})}} style={{flexDirection: 'row', alignItems: 'center',}}>
                             <View>
                                     {
                                     
@@ -88,12 +92,12 @@ export const ChatItem = (props)=>{
                                 <View style={{flex: 1, marginRight: 20}}>
 
                                     <Text numberOfLines={1} style={{color: '#1E1E1E', fontSize: 18, fontWeight: '700'}}>{props.chat.data().groupName ? props.chat.data().groupName : "Nome do grupo"}</Text>
-                                    <Text style={{color: '#5E5E5E'}}>Last Message</Text>
+                                    <Text style={{color: '#5E5E5E'}}>{props.chat.data().lastMessage.content}</Text>
                                 </View>
 
                                 <View style={{alignSelf: 'flex-start'}}>
                                     
-                                    <Text style={{color: '#1E1E1E', fontSize: 14}}>00:00 AM</Text>
+                                    <Text style={{color: '#1E1E1E', fontSize: 14}}>{Format.timeStampToTime(props.chat.data().lastMessage.time)}</Text>
 
                                 </View>
                             </View>

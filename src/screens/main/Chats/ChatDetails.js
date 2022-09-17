@@ -38,29 +38,38 @@ export default function ChatDetails(props){
     const [menuModalVisibility, setMenuModalVisibility] = useState(false);
     const [item, setItem] = useState(false);
 
-    //Video call states
-    const [localStream, setLocalStream] = useState(MediaStream | null);
-    const [remoteStream, setRemoteStream] = useState(MediaStream | null);
     //Request permissions
     const requestCameraPermission = async () =>{
 
         if(cameraPermission.granted){
 
-            if(route.params.contactData){
+            if(route.params.route == "Contact_List"){
 
                 navigation.navigate('CameraChatsApp', {
 
                     contactEmail: route.params.contactData.email,
                     meEmail: meEmail,
-                    chatId: chatId
+                    chatId: chatId,
+                    route: "Contact_List"
                 });
-            }else{
+            }else if(route.params.route == "Chat_Single"){
 
                 navigation.navigate('CameraChatsApp', {
 
-                    contactEmail: route.params.data.id,
+                    contactEmail: route.params.data.email,
                     meEmail: meEmail,
-                    chatId: chatId
+                    chatId: chatId,
+                    route: "Chat_Single"
+                });
+
+            }else if(route.params.route == "Chat_Group"){
+
+                navigation.navigate('CameraChatsApp', {
+
+                    groupUsersList: route.params.data.users,
+                    meEmail: meEmail,
+                    chatId: chatId,
+                    route: "Chat_Group"
                 });
             }
 
@@ -85,36 +94,29 @@ export default function ChatDetails(props){
             message.setFrom(meEmail);
             message.setType('text');
 
-            if(route.params.contactData){
+            if(route.params.route == "Contact_List"){
 
-                message.sendMessage(route.params.contactData.email, meEmail, "").then(result=>{
+                message.sendMessage(route.params.contactData.email, meEmail, "", "Contact_List").then(result=>{
     
                 });
                 setMessageContent('');
                 Keyboard.dismiss();
-            }else{
+            }else if(route.params.route == "Chat_Single"){
 
-                if(route.params.data.data().type == "single"){
-
-                    message.sendMessage("", "", route.params.data.id).then(result=>{
+                message.sendMessage(route.params.contactData.email, meEmail, route.params.chatId, "Chat_Single").then(result=>{
     
-                    });
-                    setMessageContent('');
-                    Keyboard.dismiss();
-                }else{
+                });
+                setMessageContent('');
+                Keyboard.dismiss();
 
-                    message.sendMessage(meEmail, route.params.data).then(result=>{
+            }else if(route.params.route == "Chat_Group"){
+
+                message.sendMessageToGroup(meEmail, route.params.data.users, route.params.chatId).then(result=>{
     
-                    });
-                    setMessageContent('');
-                    Keyboard.dismiss();
-                }
-
-                
+                });
+                setMessageContent('');
+                Keyboard.dismiss();
             }
-    
-            
-            
         }
     }
 
@@ -136,7 +138,7 @@ export default function ChatDetails(props){
 
                             //Get messages if chat exists
 
-                            if(route.params.contactData){
+                            if(route.params.route == "Contact_List"){
 
                                 if(chat.data().users[0] == route.params.contactData.email && chat.data().users[1] == user.email){
 
@@ -193,14 +195,15 @@ export default function ChatDetails(props){
     
                                     setMessagesList([]);
                                 }
-                            }else{
+                            }else if(route.params.route == "Chat_Single" || route.params.route == "Chat_Group"){
 
-                                if(chat.id == route.params.data.id){
+                                if(chat.id == route.params.chatId){
 
                                     setChatId(chat.id);
     
                                     //Listen 'Messages'
                                     const messagesQuery = query(collection(db, "users", user.email, "chats", chat.id, "messages"));
+                                    console.log("USER EMAIL ---  "+user.email)
                                     onSnapshot(messagesQuery, (messages)=>{
     
                                         let messagesArray = [];
@@ -208,6 +211,8 @@ export default function ChatDetails(props){
                                         if(!messages.empty){
     
                                             messages.forEach((message, index)=>{
+
+                                                console.log("MESSAGE ----  "+JSON.stringify(message.data()))
     
                                                 //Check if message is from contact
                                                 if(message.data().from !== user.email){
@@ -223,8 +228,11 @@ export default function ChatDetails(props){
     
                                                         });
                                                     }
+
     
                                                     messagesArray.push(message.data());
+                                                    console.log("MESSAGES ARRAY  ---- "+JSON.stringify(messagesArray))
+
     
                                                 }else{
     
@@ -291,41 +299,72 @@ export default function ChatDetails(props){
 
             return <Pressable onPress={()=>{setModalVisibility(true), setItem(item)}}><ImageBoxBlue message={item}></ImageBoxBlue></Pressable> 
 
-        }else if(item.from == route.params.data.data().email && item.type == 'text'){
+        }else if(item.from != meEmail && item.type == 'text'){
 
-            return <Pressable onPress={()=>{setModalVisibility(true), setItem(item)}}><ChatBoxMessageLightGray message={item}></ChatBoxMessageLightGray></Pressable>
+            return <ChatBoxMessageLightGray message={item}></ChatBoxMessageLightGray>
 
-        }else if(item.from == route.params.data.data().email && item.type == 'photo'){
+        }else if(item.from != meEmail && item.type == 'photo'){
 
-            return <ImageBoxLightGray message={item}></ImageBoxLightGray>
+            return <Pressable onPress={()=>{setModalVisibility(true), setItem(item)}}><ImageBoxLightGray message={item}></ImageBoxLightGray></Pressable>
 
         }
     }
 
     const renderProfileImage = () => {
 
-        if(route.params.data.data().type == "single"){
+        if(route.params.route == "Contact_List"){
 
-            if(route.params.data.data().profileImage == ''){
-
+            if(route.params.contactData.profileImage == ''){
+    
                 return <View style={{width: 80, height: 80, marginBottom: -40, borderRadius: 50, backgroundColor: '#A4A4A4', alignItems: "center", justifyContent: 'center'}}>
-                    <FontAwesome5 style={{shadowColor: '#000000', elevation: 4}} name="user" size={30} color="white" />
-                </View>
+                            <FontAwesome5 style={{shadowColor: '#000000', elevation: 4}} name="user" size={30} color="white" />
+                        </View>
             }else{
 
-                return <Image style={{width: 80, height: 80, marginBottom: -40}} source={{uri: route.params.data.data().profileImage}}></Image>
+                return <Image style={{width: 80, height: 80, marginBottom: -40}} source={{uri: route.params.contactData.profileImage}}></Image>
             }
-        }else{
+        }else if(route.params.route == "Chat_Single"){
 
-            if(route.params.data.data().groupProfileImage == ''){
-
+            if(route.params.contactData.profileImage == ''){
+    
                 return <View style={{width: 80, height: 80, marginBottom: -40, borderRadius: 50, backgroundColor: '#A4A4A4', alignItems: "center", justifyContent: 'center'}}>
-                    <FontAwesome5 style={{shadowColor: '#000000', elevation: 4}} name="user" size={30} color="white" />
-                </View>
+                            <FontAwesome5 style={{shadowColor: '#000000', elevation: 4}} name="user" size={30} color="white" />
+                        </View>
             }else{
 
-                return <Image style={{width: 80, height: 80, marginBottom: -40}} source={{uri: route.params.data.data().groupProfileImage}}></Image>
+                return <Image style={{width: 80, height: 80, marginBottom: -40}} source={{uri: route.params.contactData.profileImage}}></Image>
             }
+
+        }else if(route.params.route == "Chat_Group"){
+
+            if(route.params.data.groupProfileImage == ''){
+    
+                return <View style={{width: 80, height: 80, marginBottom: -40, borderRadius: 50, backgroundColor: '#A4A4A4', alignItems: "center", justifyContent: 'center'}}>
+                            <FontAwesome5 style={{shadowColor: '#000000', elevation: 4}} name="user" size={30} color="white" />
+                        </View>
+            }else{
+
+                return <Image style={{width: 80, height: 80, marginBottom: -40}} source={{uri: route.params.data.groupProfileImage}}></Image>
+            }
+        }
+
+        
+    }
+
+    const renderProfileName = () => {
+
+        if(route.params.route == "Contact_List"){
+
+            return <Text numberOfLines={1} style={{color: 'white', fontSize: 18, fontWeight: '600'}}>{route.params.contactData.username ? route.params.contactData.username : "Nome do usuário"}</Text>
+
+        }else if(route.params.route == "Chat_Single"){
+
+            return <Text numberOfLines={1} style={{color: 'white', fontSize: 18, fontWeight: '600'}}>{route.params.contactData.username ? route.params.contactData.username : "Nome do usuário"}</Text>
+
+        }else if(route.params.route == "Chat_Group"){
+
+            return <Text numberOfLines={1} style={{color: 'white', fontSize: 18, fontWeight: '600'}}>{route.params.data.groupName ? route.params.data.groupName : "Nome do grupo"}</Text>
+
         }
     }
 
@@ -366,7 +405,9 @@ export default function ChatDetails(props){
 
                     <View style={{alignItems: 'center', marginLeft: 96, marginRight: 96,}}>
 
-                        <Text numberOfLines={1} style={{color: 'white', fontSize: 18, fontWeight: '600'}}>{route.params.data.data().type == "single" ? route.params.data.data().username : route.params.data.data().groupName}</Text>
+                        {
+                            renderProfileName()
+                        }
                         <View style={{marginTop: 10}}>
 
                             {
