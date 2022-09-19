@@ -69,19 +69,12 @@ export class Message{
                     status: 'sent'
                 }).then(result=>{
 
+                    console.log("MESSAGE RESULT" + result)
+
                     updateDoc(doc(db, "users", meEmail, "chats", chatId),{
 
-                        lastMessage: {
-
-                            content: message.content,
-                            status: message.status,
-                            time: message.time,
-                            from: message.from,
-                            type: message.type
-                        }
+                        lastMessage: message
                     });
-
-                    console.log(result)
                     
                 }).catch(err=>{
 
@@ -108,7 +101,7 @@ export class Message{
                 lastMessage: message
             }).then(result=>{
 
-                setDoc(doc(db, "users", contactEmail, "chats", chatId, "messages", messageId),message).then(messageData=>{
+                setDoc(doc(db, "users", contactEmail, "chats", chatId, "messages", messageId), message).then(messageData=>{
 
                     resolve(messageData);
     
@@ -118,16 +111,9 @@ export class Message{
                         status: 'sent'
                     }).then(result=>{
 
-                        updateDoc(doc(db, "users", meEmail, "chats", chatId),{
+                        updateDoc(doc(db, "users", contactEmail, "chats", chatId),{
 
-                            lastMessage: {
-
-                                content: message.content,
-                                status: message.status,
-                                time: message.time,
-                                from: message.from,
-                                type: message.type
-                            }
+                            lastMessage: message
                         });
     
                     }).catch(err=>{
@@ -149,8 +135,6 @@ export class Message{
     //Function to send a message to a specific contact
     sendMessage = (contactEmail, meEmail, chatId = "", route) =>{
 
-        console.log(chatId)
-
         return new Promise((resolve, reject)=>{
 
             Message.findMeChat(meEmail).then(chats=>{
@@ -165,6 +149,8 @@ export class Message{
                 }
 
                 if(route == "Contact_List"){
+
+                    console.log(contactEmail, meEmail, chatId, route);
 
                     if(!chats.empty){
 
@@ -256,8 +242,6 @@ export class Message{
                 type: message.type
             }).then(messageData=>{
 
-                console.log("MESSAGE DATA"+messageData.id)
-
                 resolveArray.push(messageData);
 
                 updateDoc(doc(db, "users", meEmail, "chats", chatId, "messages", messageData.id),{
@@ -271,11 +255,7 @@ export class Message{
 
                 groupUsersList.forEach(email=>{
 
-                    console.log("EMAIL OF ARRAY - "+email)
-
                     if(email != meEmail){
-
-                        console.log("ENTER")
 
                         setDoc(doc(db, "users", email, "chats", chatId, "messages", messageData.id), {
 

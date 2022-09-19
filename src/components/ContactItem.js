@@ -94,7 +94,7 @@ export const ContactItem = (props) =>{
 
                     </View>
 
-        }else{
+        }else if(props.route == "Contacts"){
 
             return <View style={{flex: 1, marginBottom: 24}}>
                         <TouchableOpacity onPress={()=>{navigation.navigate("ContactsApp", {screen: 'ContactChatDetails', params: {contactData: contactData, route: "Contact_List"}})}} style={{flexDirection: 'row', width: '100%', alignItems: 'center'}}>

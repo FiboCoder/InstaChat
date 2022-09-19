@@ -15,9 +15,6 @@ import { Message } from '../../../model/Message'
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { collection, doc, onSnapshot, query, updateDoc } from 'firebase/firestore';
 import { Camera } from 'expo-camera';
-import { Format } from '../../../utils/Format';
-import { mediaDevices, MediaStream } from 'react-native-webrtc';
-import CallsUtils from '../../../utils/CallsUtils';
 
 
 export default function ChatDetails(props){
@@ -37,6 +34,14 @@ export default function ChatDetails(props){
     const [modalVisibility, setModalVisibility] = useState(false);
     const [menuModalVisibility, setMenuModalVisibility] = useState(false);
     const [item, setItem] = useState(false);
+
+    if(route.params.route == "Contact_List"){
+
+        console.log(route.params.contactData.email)
+    }else{
+
+
+    }
 
     //Request permissions
     const requestCameraPermission = async () =>{
@@ -203,7 +208,6 @@ export default function ChatDetails(props){
     
                                     //Listen 'Messages'
                                     const messagesQuery = query(collection(db, "users", user.email, "chats", chat.id, "messages"));
-                                    console.log("USER EMAIL ---  "+user.email)
                                     onSnapshot(messagesQuery, (messages)=>{
     
                                         let messagesArray = [];
@@ -211,8 +215,6 @@ export default function ChatDetails(props){
                                         if(!messages.empty){
     
                                             messages.forEach((message, index)=>{
-
-                                                console.log("MESSAGE ----  "+JSON.stringify(message.data()))
     
                                                 //Check if message is from contact
                                                 if(message.data().from !== user.email){
@@ -228,10 +230,8 @@ export default function ChatDetails(props){
     
                                                         });
                                                     }
-
     
                                                     messagesArray.push(message.data());
-                                                    console.log("MESSAGES ARRAY  ---- "+JSON.stringify(messagesArray))
 
     
                                                 }else{

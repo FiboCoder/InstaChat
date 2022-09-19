@@ -36,13 +36,11 @@ export default function Contacts(){
 
 
               contacts.forEach((contact)=>{
-                console.log(contact.data().email)
   
                 contactsArray.push(contact.data());
 
               });
               
-              console.log(JSON.stringify(contactsArray));
               setContactsList(contactsArray);
 
 
@@ -61,7 +59,7 @@ export default function Contacts(){
 
     const renderContactItem = ({item}) =>{
 
-      return <ContactItem route={"AddContact"} contact={item}></ContactItem>
+      return <ContactItem route={"Contacts"} contact={item}></ContactItem>
     }
 
     return(
@@ -106,7 +104,7 @@ export default function Contacts(){
                 </View>
 
                 
-                <View style={{height: 1, backgroundColor: '#B7B7B7'}}></View>
+                <View style={{height: 1, backgroundColor: '#e0e0e0'}}></View>
 
                 <View style={{flex: 1, marginTop: 20}}>
 

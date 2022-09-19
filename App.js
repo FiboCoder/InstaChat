@@ -10,27 +10,26 @@ import Login from './src/screens/auth/Login';
 import { Image } from 'react-native';
 
 import Contacts from './src/screens/main/Contacts/Contacts';
-import Calls from './src/screens/main/Calls/Calls';
 import Chats from './src/screens/main/Chats/Chats';
 
 import * as SecureStore from 'expo-secure-store';
 
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
-import Takes from './src/screens/main/Takes/Takes';
-import Settings from './src/screens/main/Settings/Settings';
 import ChatDetails from './src/screens/main/Chats/ChatDetails';
 import AddContact from './src/screens/main/Contacts/AddContact';
 import CameraScreen from './src/screens/general/Camera';
-import Call from './src/screens/general/Call';
-import IncomingCall from './src/screens/general/IncomingCall';
-import Calling from './src/screens/general/Calling';
 import CreateGroup from './src/screens/main/Contacts/CreateGroup';
+import { ProfileSettings } from './src/screens/main/Settings/ProfileSettings';
+import { PersonalInfoSettings } from './src/screens/main/Settings/PersonalInfoSettings';
+import { ChatsSettings } from './src/screens/main/Settings/ChatsSettings';
+import SettingsController from './src/controller/settings/SettingsController';
 
 const Tab = createBottomTabNavigator();
 const AuthStack = createStackNavigator();
 const ChatStack = createStackNavigator();
 const ContactsStack = createStackNavigator();
+const SettingsStack = createStackNavigator();
 
 export default function App({navigation}) {
 
@@ -127,9 +126,6 @@ export default function App({navigation}) {
     if(routeName === 'ChatDetails'){
 
       return 'none';
-    }else if(routeName === 'CallDetails'){
-
-      return 'none';
     }else if(routeName === 'AboutUser'){
 
       return 'none';
@@ -147,9 +143,6 @@ export default function App({navigation}) {
       return 'none';
     
     }else if (routeName == 'CameraChatsApp'){
-
-      return 'none';
-    }else if (routeName == 'CallChatApp'){
 
       return 'none';
     }else if(routeName == 'ContactChatDetails'){
@@ -275,24 +268,58 @@ export default function App({navigation}) {
 
     /* --------------- END - CHATS SCREENS FUNCTIONS AND ROUTES --------------- */
 
+    /* --------------- BEGIN - SETTINGS SCREENS FUNCTIONS AND ROUTES --------------- */
 
-  function CallsApp({}) {
+  const SettingsScreen = ({}) =>{
     return (
-      <Calls></Calls>
+      <SettingsController></SettingsController>
     );
   }
 
-  function TakesApp({}) {
-    return (
-      <Takes></Takes>
+  const ProfileSettingsScreen = ({}) =>{
+
+    return(
+
+      <ProfileSettings></ProfileSettings>
     );
   }
 
-  function SettingsApp({}) {
-    return (
-      <Settings></Settings>
+  const PersonalInfoSettingsScreen = ({}) =>{
+
+    return(
+
+      <PersonalInfoSettings></PersonalInfoSettings>
     );
   }
+
+  const ChatsSettingsScreen = ({}) =>{
+
+    return(
+
+      <ChatsSettings></ChatsSettings>
+    );
+  }
+
+  const SettingsStackScreen = () =>{
+
+    return(
+
+      <SettingsStack.Navigator initialRouteName='SettingsApp' screenOptions={({route})=>({
+        headerShown: false,
+      })}>
+      <SettingsStack.Screen name='SettingsApp' component={SettingsScreen}/>
+      <SettingsStack.Screen name='ProfileSettingsScreen' component={ProfileSettingsScreen}/>
+      <SettingsStack.Screen name='PersonalInfoSettingsScreen' component={PersonalInfoSettingsScreen}/>
+      <SettingsStack.Screen name='ChatsSettingsScreen' component={ChatsSettingsScreen}/>
+    </SettingsStack.Navigator>
+    );
+    
+  }
+
+
+
+    /* --------------- END - SETTINGS SCREENS FUNCTIONS AND ROUTES --------------- */
+
 
   function CameraApp({}){
 
@@ -301,35 +328,6 @@ export default function App({navigation}) {
       <CameraScreen></CameraScreen>
     );
   }
-
-  /* --------------- BEGIN - VOICE AND VIDEO CALL FUNCTIONS --------------- */
-
-  const CallScreen = ({}) => {
-
-    return(
-
-      <Call></Call>
-    );
-  }
-
-  const IncomingCallScreen = ({}) => {
-
-    return(
-
-      <IncomingCall></IncomingCall>
-    );
-  }
-
-  const CallingScreen = ({}) => {
-
-    return(
-
-      <Calling></Calling>
-    );
-  } 
-
- /* --------------- END - VOICE AND VIDEO CALL FUNCTIONS --------------- */
-
 
   return (
 
@@ -365,26 +363,6 @@ export default function App({navigation}) {
               {/* --------------- END CONTACTS ROUTES --------------- */}
 
 
-              {/* --------------- BEGIN CALLS ROUTES --------------- */}
-
-              {/*
-              <Tab.Screen name="CallsApp" options={{headerShown: false, tabBarShowLabel: false, tabBarIcon: ({focused})=>{
-
-                return (
-
-                  focused
-                  ? 
-                  <Ionicons name="call" size={24} color="#4B4B4B" />
-                  :
-                  <Ionicons name="call-outline" size={24} color="#4B4B4B" />
-
-                );
-              },}} component={CallScreen}></Tab.Screen>
-            */}
-
-              {/* --------------- END CALLS ROUTES --------------- */}
-
-
               {/* --------------- BEGIN CHATS ROUTES --------------- */}
 
               <Tab.Screen name="ChatsApp" options={({route})=>({
@@ -402,26 +380,6 @@ export default function App({navigation}) {
               {/* --------------- END CHATS ROUTES --------------- */}
 
 
-              {/* --------------- BEGIN TAKES ROUTES --------------- */}
-
-              {/*<Tab.Screen name="TakesApp" options={{headerShown: false, tabBarShowLabel: false, tabBarIcon: ({focused})=>{
-
-                return (
-
-                  focused
-                  ? 
-                  <Image style={{width: 24, height: 24}} source={require('./assets/images/clapper100x100_fill.png')}></Image>
-
-                  :
-                  <Image style={{width: 24, height: 24}} source={require('./assets/images/clapper100x100_outline.png')}></Image>
-
-
-                );
-              },}} component={TakesApp}></Tab.Screen>*/}
-
-              {/* --------------- END TAKES ROUTES --------------- */}
-
-
               {/* --------------- BEGIN SETTINGS ROUTES --------------- */}
 
               <Tab.Screen name="SettingsApp" options={{headerShown: false, tabBarShowLabel: false, tabBarIcon: ({focused})=>{
@@ -435,9 +393,9 @@ export default function App({navigation}) {
                   <Ionicons name="settings-outline" size={24} color="#4B4B4B" />
 
                 );
-              },}} component={SettingsApp}></Tab.Screen>
+              },}} component={SettingsStackScreen}></Tab.Screen>
 
-              {/* --------------- END TAKES ROUTES --------------- */}
+              {/* --------------- END SETTINGS ROUTES --------------- */}
             </>
           )}
         </Tab.Navigator>

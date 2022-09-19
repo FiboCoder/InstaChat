@@ -98,8 +98,6 @@ const CreateGroup = () => {
         contact={item}></ContactItem>
       }
 
-    console.log(groupList)
-
     return(
 
         <View style={styles.container}>
