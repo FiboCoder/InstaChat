@@ -1,14 +1,50 @@
-import { Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { AntDesign } from '@expo/vector-icons';
 import { Foundation } from '@expo/vector-icons';
 import Constants from "expo-constants";
 import { useNavigation } from "@react-navigation/native";
+import ModalImageOptions from "../../../components/ModalImageOptions";
+import ModalText from "../../../components/ModalText";
 
 
-export const ProfileSettings = () =>{
+export const ProfileSettings = (props) =>{
 
     const navigation = useNavigation();
+
+    const renderModal = () =>{
+
+        if(props.modalRoute == "Image"){
+
+            return <ModalImageOptions 
+                        setIsVisible={props.setIsVisible} 
+                        isVisible={props.isVisible} 
+                        getImageFromCamera={props.getImageFromCamera}
+                        getImageFromGallery={props.getImageFromGallery}
+                    />
+        }else if(props.modalRoute == "Username"){
+
+            return <ModalText
+
+                        setIsVisible={props.setIsVisible}
+                        isVisible={props.isVisible}
+                        modalTextData={props.changeUsernameData}
+                        saveName={props.saveName}
+                        route={"Username"}
+                    />
+        }else if(props.modalRoute == "AboutMe"){
+
+            return <ModalText
+
+                        setIsVisible={props.setIsVisible}
+                        isVisible={props.isVisible}
+                        modalTextData={props.changeAboutMeData}
+                        saveAboutMe={props.saveAboutMe}
+                        route={"AboutMe"}
+
+                    />
+        }
+    }
 
     return(
 
@@ -21,7 +57,7 @@ export const ProfileSettings = () =>{
                     <AntDesign  name="arrowleft" size={30} color="#4A4A4A" />
                 </TouchableOpacity>
 
-                <TouchableOpacity>
+                <TouchableOpacity onPress={()=>{props.getImageModal()}}>
 
                     <Foundation name="pencil" size={30} color="#4A4A4A" />
                 </TouchableOpacity>
@@ -29,10 +65,21 @@ export const ProfileSettings = () =>{
 
             <View style={styles.subTopContainer}>
 
+
                 <Pressable>
-                    <View style={styles.profileImageContainer}>
-                        <AntDesign name="user" size={40} color="white" />
-                    </View>
+                    {
+                        props.userData.data().profileImage != ""
+
+                            ?
+
+                                <Image source={{uri: props.userData.data().profileImage}} style={styles.profileImage}/>
+                            :
+
+                                <View style={styles.profileImageContainer}>
+                                    <AntDesign name="user" size={40} color="white" />
+                                </View>
+                    }
+                    
                 </Pressable>
                 
             </View>
@@ -48,8 +95,8 @@ export const ProfileSettings = () =>{
                 <View style={{flex: 1, width: '100%', marginLeft: 20}}>
 
                     <View style={styles.username}>
-                        <Text style={styles.usernameText}>Nome do Usuário</Text>
-                        <TouchableOpacity>
+                        <Text style={styles.usernameText}>{props.userData.data().username != "" ? props.userData.data().username : "Nome do usuário"}</Text>
+                        <TouchableOpacity onPress={()=>{props.changeUsernameText()}}>
                             <Foundation name="pencil" size={24} color="#4A4A4A" />
                         </TouchableOpacity>
                     </View> 
@@ -69,8 +116,8 @@ export const ProfileSettings = () =>{
                 <View style={{flex: 1, width: '100%', marginLeft: 20,}}>
 
                     <View style={styles.aboutMe}>
-                        <Text style={styles.aboutMeText}>Sobre mim...</Text>
-                        <TouchableOpacity>
+                        <Text numberOfLines={2} style={styles.aboutMeText}>{props.userData.data().aboutMe != "" ? props.userData.data().aboutMe : "Sobre mim..."}</Text>
+                        <TouchableOpacity onPress={()=>{props.changeAboutMeText()}}>
                             <Foundation name="pencil" size={24} color="#4A4A4A" />
                         </TouchableOpacity>
                     </View>
@@ -80,6 +127,13 @@ export const ProfileSettings = () =>{
                 </View>
 
             </View>
+
+            {
+
+                renderModal()
+                
+            }
+
         </View>
     );
 }
@@ -106,6 +160,13 @@ const styles = StyleSheet.create({
 
         alignItems: 'center',
         justifyContent: 'center'
+    },
+
+    profileImage:{
+
+        height: 120, 
+        width: 120,
+        borderRadius: 100
     },
 
     profileImageContainer:{

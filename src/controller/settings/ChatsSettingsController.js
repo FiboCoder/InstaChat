@@ -1,6 +1,6 @@
 import ChatsSettings from "../../screens/main/Settings/ChatsSettings";
 
-const ChatSettingsController = () =>{
+const ChatsSettingsController = () =>{
 
     return(
 
@@ -8,4 +8,4 @@ const ChatSettingsController = () =>{
     )
 }
 
-export default ChatSettingsController;
+export default ChatsSettingsController;

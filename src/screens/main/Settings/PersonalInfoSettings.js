@@ -7,10 +7,9 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import { Foundation } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 
-export const PersonalInfoSettings = () =>{
+export const PersonalInfoSettings = (props) =>{
 
     const navigation = useNavigation();
-
 
 
     return(
@@ -38,7 +37,7 @@ export const PersonalInfoSettings = () =>{
                     <View style={{flex: 1, width: '100%', marginLeft: 20}}>
 
                         <View style={styles.email}>
-                            <Text style={styles.emailText}>Nome do Usuário</Text>
+                            <Text style={styles.emailText}>{props.userData.data().email != "" ? props.userData.data().email : "E-mail..."}</Text>
                             <TouchableOpacity>
                                 <Foundation name="pencil" size={24} color="#4A4A4A" />
                             </TouchableOpacity>

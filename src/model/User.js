@@ -1,6 +1,7 @@
-import { auth, db } from "../utils/firebase";
-import { collection, doc, getDoc, getDocs, onSnapshot, query, setDoc } from "firebase/firestore";
+import { auth, db, storage } from "../utils/firebase";
+import { collection, doc, getDoc, getDocs, onSnapshot, query, setDoc, updateDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 export class User{
 
@@ -41,6 +42,52 @@ export class User{
         });
 
         
+    }
+
+    static updateUser = (email, imageUrl = "", username = "", aboutMe = "", route) =>{
+
+      return new Promise((resolve, reject)=>{
+
+        if(route == "Image"){
+
+          updateDoc(doc(db, "users", email), {
+
+            profileImage: imageUrl
+          }).then(result=>{
+  
+            resolve(result);
+          }).catch(err=>{
+  
+            reject(err);
+          });
+        }else if(route == "Username"){
+
+          updateDoc(doc(db, "users", email), {
+
+            username: username
+          }).then(result=>{
+  
+            resolve(result);
+          }).catch(err=>{
+  
+            reject(err);
+          });
+        }else if(route == "AboutMe"){
+
+          updateDoc(doc(db, "users", email), {
+
+            aboutMe: aboutMe
+          }).then(result=>{
+  
+            resolve(result);
+          }).catch(err=>{
+  
+            reject(err);
+          });
+        }
+
+        
+      });
     }
 
     static addContact(contactEmail, meEmail){
@@ -88,6 +135,28 @@ export class User{
           }
         });
       });
+    }
+
+    static uploadPhoto = (email, blob) => {
+
+      return new Promise((resolve, reject)=>{
+
+        let path = 'images/users/' + email + '/profile/' + email + '.jpg';
+
+            let imageRef = ref(storage, path);
+    
+            uploadBytes(imageRef, blob).then(snapshot=>{
+    
+                getDownloadURL(imageRef).then(url=>{
+
+                    resolve(url);
+                });
+            }).catch(err=>{
+
+                reject(err);
+            });
+      });
+
     }
 }
 

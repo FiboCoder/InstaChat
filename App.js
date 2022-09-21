@@ -20,10 +20,11 @@ import ChatDetails from './src/screens/main/Chats/ChatDetails';
 import AddContact from './src/screens/main/Contacts/AddContact';
 import CameraScreen from './src/screens/general/Camera';
 import CreateGroup from './src/screens/main/Contacts/CreateGroup';
-import { ProfileSettings } from './src/screens/main/Settings/ProfileSettings';
-import { PersonalInfoSettings } from './src/screens/main/Settings/PersonalInfoSettings';
 import { ChatsSettings } from './src/screens/main/Settings/ChatsSettings';
 import SettingsController from './src/controller/settings/SettingsController';
+import ProfileSettingsController from './src/controller/settings/ProfileSettingsController';
+import PersonalInfoSettingsController from './src/controller/settings/PersonalInfoSettingsController';
+import ChatsSettingsController from './src/controller/settings/ChatsSettingsController';
 
 const Tab = createBottomTabNavigator();
 const AuthStack = createStackNavigator();
@@ -280,7 +281,7 @@ export default function App({navigation}) {
 
     return(
 
-      <ProfileSettings></ProfileSettings>
+      <ProfileSettingsController></ProfileSettingsController>
     );
   }
 
@@ -288,7 +289,7 @@ export default function App({navigation}) {
 
     return(
 
-      <PersonalInfoSettings></PersonalInfoSettings>
+      <PersonalInfoSettingsController></PersonalInfoSettingsController>
     );
   }
 
@@ -296,7 +297,7 @@ export default function App({navigation}) {
 
     return(
 
-      <ChatsSettings></ChatsSettings>
+      <ChatsSettingsController></ChatsSettingsController>
     );
   }
 
@@ -311,6 +312,7 @@ export default function App({navigation}) {
       <SettingsStack.Screen name='ProfileSettingsScreen' component={ProfileSettingsScreen}/>
       <SettingsStack.Screen name='PersonalInfoSettingsScreen' component={PersonalInfoSettingsScreen}/>
       <SettingsStack.Screen name='ChatsSettingsScreen' component={ChatsSettingsScreen}/>
+      <SettingsStack.Screen name='CameraSettingsApp' component={CameraApp}/>
     </SettingsStack.Navigator>
     );
     

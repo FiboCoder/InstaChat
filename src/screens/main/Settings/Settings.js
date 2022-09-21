@@ -29,7 +29,7 @@ export default function Settings(props){
                 
                 <View style={styles.mainContainer}>
 
-                    <TouchableOpacity onPress={()=>{navigation.navigate("ProfileSettingsScreen")}}>
+                    <TouchableOpacity onPress={()=>{navigation.navigate("ProfileSettingsScreen", {userData: props.userData})}}>
 
                         <View style={styles.userContainer}>
 
@@ -38,7 +38,7 @@ export default function Settings(props){
                                 props.userData && props.userData.data().profileImage != ""
                                     
                                     ?
-                                        <Image style={{height: 80, width: 80, alignItems: 'center', justifyContent: 'center'}} source={{uri: props.userData.profileImage}}/>
+                                        <Image style={styles.profileImage} resizeMode={"cover"} source={{uri: props.userData.data().profileImage}}/>
                                     :
                                         <View style={styles.profileImageContainer}>
                                             <AntDesign name="user" size={34} color="white" />
@@ -50,7 +50,7 @@ export default function Settings(props){
                             <View style={styles.profileDataContainer}>
 
                                 <Text style={styles.username}>{props.userData && props.userData.data().username != "" ? props.userData.data().username : "Nome do usuário" }</Text>
-                                <Text style={styles.aboutMe}>{props.userData && props.userData.data().aboutMe != "" ? props.userData.data().aboutMe : "Sobre mim..."}</Text>
+                                <Text numberOfLines={2} style={styles.aboutMe}>{props.userData && props.userData.data().aboutMe != "" ? props.userData.data().aboutMe : "Sobre mim..."}</Text>
                             </View>
                         </View>
                     </TouchableOpacity>
@@ -58,7 +58,7 @@ export default function Settings(props){
 
                     <View style={styles.divider}/>
 
-                    <TouchableOpacity onPress={()=>{navigation.navigate("PersonalInfoSettingsScreen")}}>
+                    <TouchableOpacity onPress={()=>{navigation.navigate("PersonalInfoSettingsScreen", {userData: props.userData})}}>
 
                         <View style={styles.personalInfoContainer}>
 
@@ -124,6 +124,14 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
 
+    profileImage:{
+
+        height: 80,
+        width: 80,
+        borderRadius: 100
+
+    },
+
     profileImageContainer:{
 
         borderRadius: 50,
@@ -136,6 +144,7 @@ const styles = StyleSheet.create({
 
     profileDataContainer:{
 
+        flex: 1,
         marginLeft: 36
     },
 

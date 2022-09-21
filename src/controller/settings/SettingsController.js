@@ -15,7 +15,11 @@ const SettingsController = () =>{
             const userRef = query(doc(db, "users", user.email));
             onSnapshot(userRef, (userData)=>{
 
-                setUserData(userData);
+                if(!userData.empty){
+
+                    setUserData(userData);
+
+                }
             });
         });
     },[]);
