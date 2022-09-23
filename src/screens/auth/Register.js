@@ -11,137 +11,69 @@ import { User } from "../../model/User";
 import { auth } from "../../utils/firebase";
 
 
-export default function Register(){
+const Register = () =>{
 
     const navigation = useNavigation();
 
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [loginError, setLoginError] = useState('');
-
-    const doAuth = ()=>{
-
-        if(email.toString() !== ''){
-
-            if(password.toString() !== ''){
-
-                if(confirmPassword.toString() !== ''){
-
-                    if(password.toString() === confirmPassword.toString()){
-
-                        setLoginError("");
-            
-                        createUserWithEmailAndPassword(auth, email, password).then((userCredeantial)=>{
-            
-                            const userData = userCredeantial.user;
-
-                            let user = new User();
-
-                            user.settId(email);
-                            user.setEmail(email);
-                            user.settUsername('Nome de usuário');
-                            user.setProfileImage('');
-
-                            user.saveUser().then(result=>{
-
-                                setEmail('');
-                                setPassword('');
-                                setConfirmPassword('');
-                            });
-
-
-                            
-
-                            navigation.navigate('Login')
-
-                        }).catch(err=>{
-                
-                            setLoginError("Erro ao cadastrar usuário, tente novamente.");
-                        });
-            
-                    }else{
-            
-                        setLoginError("As senhas digitadas não conferem!");
-                    }
-                }else{
-        
-                    setLoginError("Preencha o campo Confirmar Senha.");
-                    
-                }
-            }else{
-    
-                setLoginError("Preencha o campo Senha.");
-                
-            }
-        }else{
-
-            setLoginError("Preencha o campo E-mail.");
-        }
-    }
-
     return(
 
-        <View style={styles.mainContainer}>
+        <View style={styles.container}>
+
+            <View style={styles.mainContainer}>
 
             <Image resizeMode={'center'} resizeMethod={'auto'} source={require('../../../assets/images/logo_text.png')}></Image>
 
             <View>
 
-                <Text style={{marginTop: 30, marginBottom: 20, color: '#1565C0', fontSize: 22, fontWeight: '800'}}>Cadastre-se</Text>
+                <Text style={styles.title}>Cadastre-se</Text>
             </View>
 
             <View style={styles.textFields}>
 
                 <FontAwesome name="envelope-o" size={20} color="#5E5E5E" />
-                <TextInput onChangeText={(val)=>setEmail(val)} style={{marginStart: 12, width: '100%'}} placeholder="E-mail" value={email}></TextInput>
+                <TextInput onChangeText={(val)=>props.setEmail(val)} style={styles.textInput} placeholder="E-mail" value={props.email}></TextInput>
             </View>
 
             <View style={styles.textFields}>
 
                 <AntDesign name="lock" size={24} color="#5E5E5E" />
-                <TextInput secureTextEntry={true} onChangeText={(val)=>setPassword(val)} style={{marginStart: 8, width: '100%'}} placeholder="Senha" value={password}></TextInput>
+                <TextInput secureTextEntry={true} onChangeText={(val)=>props.setPassword(val)} style={styles.textInput} placeholder="Senha" value={props.password}></TextInput>
             </View>
 
             <View style={styles.textFields}>
 
                 <AntDesign name="lock" size={24} color="#5E5E5E" />
-                <TextInput secureTextEntry={true} onChangeText={(val)=>setConfirmPassword(val)} style={{marginStart: 8, width: '100%'}} placeholder="Confirmar senha" value={confirmPassword}></TextInput>
+                <TextInput secureTextEntry={true} onChangeText={(val)=>props.setConfirmPassword(val)} style={styles.textInput} placeholder="Confirmar senha" value={props.confirmPassword}></TextInput>
             </View>
 
-            <View style={{width: '100%', marginTop: 30, alignItems: 'center', paddingStart: 5, paddingEnd: 5}}>
+            <View style={styles.buttonContainer}>
 
-                {loginError ? <Text style={{color: '#ff0000'}}>{loginError}</Text> : <Text style={{display: 'none'}}></Text>}
+                {props.loginError ? <Text style={{color: '#ff0000'}}>{props.loginError}</Text> : <Text style={{display: 'none'}}></Text>}
                 
-                <TouchableOpacity onPress={doAuth} style={{
+                <TouchableOpacity onPress={props.register} style={styles.tbButtonContainer}>
 
-                    width: '100%', 
-                    marginTop: 10, 
-                    paddingStart: 10,
-                    paddingEnd: 10,
-                    paddingTop: 14,
-                    paddingBottom: 14, 
-                    borderRadius: 30, 
-                    backgroundColor: '#2196F3', 
-                    shadowColor: '#000000', 
-                    elevation: 4}}>
-
-                    <Text style={{alignSelf: 'center', color: 'white', fontSize: 20, fontWeight: '700'}}>Cadastrar</Text>
+                    <Text style={styles.registerButtonText}>Cadastrar</Text>
                 </TouchableOpacity>
             </View>
 
-            <View style={{marginTop: 50, alignSelf: 'center', flexDirection: 'row'}}>
+            <View style={styles.bottomContainer}>
 
                 <Text style={{fontSize: 16}}>Já tem conta? </Text>
                 <Text onPress={()=> navigation.navigate('Login')} style={{color: '#304FFE', fontSize: 16}}>Entrar</Text>
                 <Text style={{fontSize: 16}}>.</Text>
 
             </View>
+            </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
+
+    container:{
+
+        flex: 1
+    },
 
     mainContainer:{
 
@@ -153,6 +85,21 @@ const styles = StyleSheet.create({
         marginTop: Constants.statusBarHeight,
         backgroundColor: "white"
 
+    },
+
+    title:{
+
+        marginTop: 30,
+        marginBottom: 20, 
+        color: '#1565C0', 
+        fontSize: 22, 
+        fontWeight: '800'
+    },
+
+    textInput:{
+
+        marginStart: 12, 
+        width: '100%'
     },
 
     textFields:{
@@ -168,5 +115,48 @@ const styles = StyleSheet.create({
         paddingBottom: 12,
         alignItems: "center",
         borderRadius: 30
-    }
-})
+    },
+
+    buttonContainer:{
+
+        width: '100%', 
+        marginTop: 30, 
+        alignItems: 'center', 
+        paddingStart: 5, 
+        paddingEnd: 5
+    },
+
+    tbButtonContainer:{
+
+        width: '100%', 
+        marginTop: 10, 
+        paddingStart: 10,
+        paddingEnd: 10,
+        paddingTop: 14,
+        paddingBottom: 14, 
+        borderRadius: 30, 
+        backgroundColor: '#2196F3', 
+        shadowColor: '#000000', 
+        elevation: 4
+    
+    },
+
+    registerButtonText:{
+        
+        alignSelf: 'center', 
+        color: 'white', 
+        fontSize: 20, 
+        fontWeight: '700'
+    },
+
+    bottomContainer:{
+        
+        marginTop: 50, 
+        alignSelf: 'center', 
+        flexDirection: 'row'
+    },
+
+    
+});
+
+export default Register;

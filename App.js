@@ -1,30 +1,35 @@
-import React, {useState, useEffect, useContext, useReducer, useMemo, createContext} from 'react';
+import React, { useEffect, useContext, useReducer, useMemo, createContext } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
-import Register from './src/screens/auth/Register';
-import Login from './src/screens/auth/Login';
+import * as SecureStore from 'expo-secure-store';
 
 import { Image } from 'react-native';
+import { FontAwesome5 } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 
 import Contacts from './src/screens/main/Contacts/Contacts';
 import Chats from './src/screens/main/Chats/Chats';
 
-import * as SecureStore from 'expo-secure-store';
 
-import { FontAwesome5 } from '@expo/vector-icons';
-import { Ionicons } from '@expo/vector-icons';
-import ChatDetails from './src/screens/main/Chats/ChatDetails';
+import LoginController from './src/controller/auth/LoginController';
+import RegisterController from './src/controller/auth/RegisterController';
+
 import AddContact from './src/screens/main/Contacts/AddContact';
-import CameraScreen from './src/screens/general/Camera';
 import CreateGroup from './src/screens/main/Contacts/CreateGroup';
-import { ChatsSettings } from './src/screens/main/Settings/ChatsSettings';
+
+
+import ChatDetails from './src/screens/main/Chats/ChatDetails';
+
 import SettingsController from './src/controller/settings/SettingsController';
 import ProfileSettingsController from './src/controller/settings/ProfileSettingsController';
 import PersonalInfoSettingsController from './src/controller/settings/PersonalInfoSettingsController';
 import ChatsSettingsController from './src/controller/settings/ChatsSettingsController';
+
+import CameraScreen from './src/screens/general/Camera';
+
 
 const Tab = createBottomTabNavigator();
 const AuthStack = createStackNavigator();
@@ -181,28 +186,30 @@ export default function App({navigation}) {
 
   // --------------- BEGIN - AUTH STACK ---------------
 
-  function RegisterApp({}) {
+  function RegisterScreen({}) {
     return (
-      <Register></Register>
+      <RegisterController></RegisterController>
     );
   }
   
-  function LoginApp({}) {
+  function LoginScreen({}) {
   
     const {signIn} = useContext(AuthContext);
   
     return (
-        <Login signIn={signIn}></Login>
+        <LoginController signIn={signIn}></LoginController>
     );
   }
 
-  function AuthRoutes(){
+  function AuthStackScreen(){
 
     return(
 
-      <AuthStack.Navigator initialRouteName='Register' screenOptions={{headerShown: false}}>
-        <AuthStack.Screen name="Register" component={RegisterApp}></AuthStack.Screen>
-        <AuthStack.Screen name="Login" component={LoginApp}></AuthStack.Screen>
+      <AuthStack.Navigator initialRouteName='RegisterScreen' screenOptions={{headerShown: false}}>
+
+        <AuthStack.Screen name="RegisterScreen" component={RegisterScreen}></AuthStack.Screen>
+        <AuthStack.Screen name="LoginScreen" component={LoginScreen}></AuthStack.Screen>
+
       </AuthStack.Navigator>
     );
   }
@@ -379,7 +386,7 @@ export default function App({navigation}) {
           {state.userToken == null ? (
 
             <>
-              <Tab.Screen name="AuthStack" options={({route})=>({headerShown: false, tabBarStyle: {display: 'none'}})} component={AuthRoutes} />
+              <Tab.Screen name="AuthStack" options={({route})=>({headerShown: false, tabBarStyle: {display: 'none'}})} component={AuthStackScreen} />
               
             </>
           ) : (
