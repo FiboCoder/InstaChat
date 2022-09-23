@@ -63,11 +63,20 @@ export default function App({navigation}) {
             isSignedIn: false,
             userToken: null
           };
+
+        case 'USER_CHATS_CONFIGS':
+          SecureStore.setItemAsync('userChatsConfigs', action.data);
+          return{
+
+            ...prevState,
+            data: action.data
+          }
       }
     }, {
 
       isSignedIn: false,
-      userToken: null
+      userToken: null,
+      data: null
     }
   );
 
@@ -76,9 +85,11 @@ export default function App({navigation}) {
     const bootstrapAsync = async () => {
 
       let userToken;
+      let data;
 
       try {
         userToken = await SecureStore.getItemAsync('userToken');
+        data = await SecureStore.getItemAsync('userChatsConfigs');
       } catch (e) {
         // Restoring token failed
       }
@@ -115,6 +126,11 @@ export default function App({navigation}) {
         dispatch({ type: 'SIGN_IN', token: 'niceToken'});
         
       },
+
+      userChatsConfigs: async (data) => {
+
+        dispatch({type: 'USER_CHATS_CONFIGS', data: data})
+      }
       
     }),
     []
@@ -142,11 +158,19 @@ export default function App({navigation}) {
     }else if(routeName === 'CreateGroup'){
 
       return 'none';
-    
     }else if (routeName == 'CameraChatsApp'){
 
       return 'none';
     }else if(routeName == 'ContactChatDetails'){
+
+      return 'none';
+    }else if(routeName == 'ProfileSettingsScreen'){
+
+      return 'none';
+    }else if(routeName == 'PersonalInfoSettingsScreen'){
+
+      return 'none';
+    }else if(routeName == 'ChatsSettingsScreen'){
 
       return 'none';
     }
@@ -287,28 +311,43 @@ export default function App({navigation}) {
 
   const PersonalInfoSettingsScreen = ({}) =>{
 
+    const {signOut} = useContext(AuthContext);
+
     return(
 
-      <PersonalInfoSettingsController></PersonalInfoSettingsController>
+      <PersonalInfoSettingsController signOut={signOut}></PersonalInfoSettingsController>
     );
   }
 
   const ChatsSettingsScreen = ({}) =>{
 
-    return(
+    const { userChatsConfigs } = useContext(AuthContext);
 
-      <ChatsSettingsController></ChatsSettingsController>
-    );
+    if(state.data != null){
+
+      return(
+
+        <ChatsSettingsController userChatsConfigs={userChatsConfigs} chatsConfigs={state.data}></ChatsSettingsController>
+      );
+    }else{
+
+      return(
+
+        <ChatsSettingsController userChatsConfigs={userChatsConfigs}></ChatsSettingsController>
+      );
+    }
+
+    
   }
 
   const SettingsStackScreen = () =>{
 
     return(
 
-      <SettingsStack.Navigator initialRouteName='SettingsApp' screenOptions={({route})=>({
+      <SettingsStack.Navigator initialRouteName='SettingsScreen' screenOptions={({route})=>({
         headerShown: false,
       })}>
-      <SettingsStack.Screen name='SettingsApp' component={SettingsScreen}/>
+      <SettingsStack.Screen name='SettingsScreen' component={SettingsScreen}/>
       <SettingsStack.Screen name='ProfileSettingsScreen' component={ProfileSettingsScreen}/>
       <SettingsStack.Screen name='PersonalInfoSettingsScreen' component={PersonalInfoSettingsScreen}/>
       <SettingsStack.Screen name='ChatsSettingsScreen' component={ChatsSettingsScreen}/>
@@ -384,18 +423,24 @@ export default function App({navigation}) {
 
               {/* --------------- BEGIN SETTINGS ROUTES --------------- */}
 
-              <Tab.Screen name="SettingsApp" options={{headerShown: false, tabBarShowLabel: false, tabBarIcon: ({focused})=>{
+              <Tab.Screen name="SettingsApp" options={({route})=>({
 
-                return (
+                headerShown: false, 
+                tabBarShowLabel: false, 
+                tabBarIcon: ({focused})=>{
 
-                  focused
-                  ? 
-                  <Ionicons name="settings" size={24} color="#4B4B4B" />
-                  :
-                  <Ionicons name="settings-outline" size={24} color="#4B4B4B" />
+                  return (
 
-                );
-              },}} component={SettingsStackScreen}></Tab.Screen>
+                    focused
+                    ? 
+                    <Ionicons name="settings" size={24} color="#4B4B4B" />
+                    :
+                    <Ionicons name="settings-outline" size={24} color="#4B4B4B" />
+
+                  );
+                },
+                tabBarStyle: {display: getTabBarVisibility(route)}
+              })} component={SettingsStackScreen}></Tab.Screen>
 
               {/* --------------- END SETTINGS ROUTES --------------- */}
             </>

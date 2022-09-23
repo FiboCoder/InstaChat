@@ -15,7 +15,7 @@ const ModalText = (props) =>{
 
                 <View style={styles.mainContainer}>
 
-                    <Text style={styles.text}>{props.modalTextData.title}</Text>
+                    <Text style={styles.title}>{props.modalTextData.title}</Text>
 
                     <View style={styles.textField}>
                         <TextInput onChangeText={(text)=>{props.modalTextData.setText(text)}} style={styles.textInput} placeholder={props.modalTextData.placeholder} value={props.modalTextData.text}></TextInput>
@@ -41,8 +41,6 @@ const ModalText = (props) =>{
                         }
                     </View>
                 </View>
-
-                
             </View>
         </Modal>
     );
@@ -72,7 +70,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
     },
 
-    text:{
+    title:{
 
         fontSize: 20,
         fontWeight: '700'

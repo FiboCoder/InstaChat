@@ -6,7 +6,7 @@ import { AntDesign } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 
-export const ChatsSettings = () =>{
+export const ChatsSettings = (props) =>{
 
     const navigation = useNavigation();
 
@@ -78,7 +78,7 @@ export const ChatsSettings = () =>{
 
                     </View>
 
-                    <Switch></Switch>
+                    <Switch trackColor={{ false: "", true: "#1565C0" }}  thumbColor={props.activeReadConfirmation ? "#1565C0" : "#f4f3f4"} onValueChange={()=>{props.setActiveReadConfirmation(!props.activeReadConfirmation)}} value={props.activeReadConfirmation}></Switch>
                     
                 </View>
 
@@ -127,6 +127,10 @@ export const ChatsSettings = () =>{
                     </View>
                 </View>
             </View>
+
+            <TouchableOpacity onPress={()=>{props.saveChanges()}} style={styles.saveButtonContainer}>
+                <Text style={styles.textSaveButtonContainer}>Salvar Alterações</Text>
+            </TouchableOpacity>
         </View>
 
     );
@@ -156,6 +160,7 @@ const styles = StyleSheet.create({
     mainContainer:{
 
         flex: 1,
+        height: '100%',
         padding: 16,
         paddingTop: 20
     },
@@ -219,7 +224,7 @@ const styles = StyleSheet.create({
 
         fontSize: 16,
         fontWeight: '700',
-        color: '$4A4A4A'
+        color: '#4A4A4A'
     },
 
     chatItemText:{
@@ -232,6 +237,24 @@ const styles = StyleSheet.create({
         height: 1,
         marginTop: 30,
         backgroundColor: '#e0e0e0'
+    },
+
+    saveButtonContainer:{
+
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingTop: 20,
+        paddingBottom: 20,
+        backgroundColor: '#2196F3',
+
+    },
+
+    textSaveButtonContainer:{
+
+        fontSize: 16,
+        fontWeight: '600',
+        color: 'white'
     }
 });
 

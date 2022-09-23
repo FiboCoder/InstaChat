@@ -1,6 +1,6 @@
 import { auth, db, storage } from "../utils/firebase";
 import { collection, doc, getDoc, getDocs, onSnapshot, query, setDoc, updateDoc } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, updatePassword } from "firebase/auth";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 export class User{
@@ -87,6 +87,35 @@ export class User{
         }
 
         
+      });
+    }
+
+    static changePassword = (newPassword) =>{
+
+      return new Promise((resolve, reject)=>{
+
+        onAuthStateChanged(auth, (user)=>{
+
+          if(user){
+
+            updatePassword(user, newPassword).then(result=>{
+
+              resolve(result);
+            }).catch(err=>{
+
+              let error = err.toString();
+
+              if(err.toString().includes("auth/requires-recent-login")){
+
+                resolve(err)
+              }else{
+
+                reject(err)
+              }
+
+            });
+          }
+        })
       });
     }
 

@@ -6,6 +6,7 @@ import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Foundation } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
+import { ModalPassword, ModalRequireReAuthentication } from "../../../components/ModalTextPersonalInfoSettings";
 
 export const PersonalInfoSettings = (props) =>{
 
@@ -38,9 +39,6 @@ export const PersonalInfoSettings = (props) =>{
 
                         <View style={styles.email}>
                             <Text style={styles.emailText}>{props.userData.data().email != "" ? props.userData.data().email : "E-mail..."}</Text>
-                            <TouchableOpacity>
-                                <Foundation name="pencil" size={24} color="#4A4A4A" />
-                            </TouchableOpacity>
                         </View> 
                         <View style={styles.divider}></View>
 
@@ -58,7 +56,7 @@ export const PersonalInfoSettings = (props) =>{
 
                         <View style={styles.pass}>
                             <Text style={styles.passText}>Senha</Text>
-                            <TouchableOpacity>
+                            <TouchableOpacity onPress={()=>{props.updatePassword()}}>
                                 <Foundation name="pencil" size={24} color="#4A4A4A" />
                             </TouchableOpacity>
                         </View> 
@@ -69,7 +67,28 @@ export const PersonalInfoSettings = (props) =>{
                 </View>
             </View>
 
-            
+            <ModalPassword 
+
+                isVisible={props.isVisible}
+                error={props.error}
+
+                setIsVisible={props.setIsVisible}
+                setNewPassword={props.setNewPassword}
+                setConfirmNewPassword={props.setConfirmNewPassword}
+                
+                newPassword={props.newPassword}
+                confirmNewPassqord={props.confirmNewPassword}
+                changePassword={props.changePassword}
+
+            ></ModalPassword>
+
+            <ModalRequireReAuthentication
+
+                signOut={props.signOut}
+                setIsVisibleReq={props.setIsVisibleReq}
+                isVisibleReq={props.isVisibleReq}
+
+            ></ModalRequireReAuthentication>
 
         </View>
 
@@ -79,6 +98,8 @@ export const PersonalInfoSettings = (props) =>{
 }
 
 const styles = StyleSheet.create({
+
+    
 
     container:{
 
