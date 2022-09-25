@@ -1,6 +1,14 @@
-import Register from "../../screens/auth/Register";
+import Register from "../../../screens/auth/Register";
+import { User } from "../../../model/User";
+
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { useNavigation } from "@react-navigation/native";
+import { useState } from "react";
+import { auth } from "../../../utils/firebase";
 
 const RegisterController = () =>{
+
+    const navigation = useNavigation();
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -17,7 +25,7 @@ const RegisterController = () =>{
 
                     if(password.toString() === confirmPassword.toString()){
 
-                        setLoginError("");
+                        setRegisterError("");
             
                         createUserWithEmailAndPassword(auth, email, password).then((userCredeantial)=>{
             
@@ -37,10 +45,7 @@ const RegisterController = () =>{
                                 setConfirmPassword('');
                             });
 
-
-                            
-
-                            navigation.navigate('Login')
+                            navigation.navigate('LoginScreen')
 
                         }).catch(err=>{
                 

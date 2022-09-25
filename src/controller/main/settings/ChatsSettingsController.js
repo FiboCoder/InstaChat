@@ -1,10 +1,13 @@
 import { useEffect, useReducer, useState } from "react";
-import ChatsSettings from "../../screens/main/Settings/ChatsSettings";
+import ChatsSettings from "../../../screens/main/Settings/ChatsSettings";
 
 import * as SecureStore from 'expo-secure-store';
+import { useNavigation } from "@react-navigation/native";
 
 
 const ChatsSettingsController = () =>{
+
+  const navigation = useNavigation();
 
     const [activeReadConfirmation, setActiveReadConfirmation] = useState(false);
 
@@ -61,7 +64,7 @@ const ChatsSettingsController = () =>{
       const saveChanges = () =>{
 
         dispatch({type: 'READ_CONFIRMATION', readConfirmation: activeReadConfirmation.toString()});
-        console.log(activeReadConfirmation)
+        navigation.goBack();
       }
 
     return(

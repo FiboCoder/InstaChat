@@ -56,7 +56,7 @@ const Login = (props) =>{
             <View style={styles.bottomContainer}>
 
                 <Text style={{fontSize: 16}}>Não tem conta? </Text>
-                <Text onPress={()=> navigation.navigate('Register')} style={{color: '#304FFE', fontSize: 16}}>Cadastre-se</Text>
+                <Text onPress={()=> navigation.navigate('RegisterScreen')} style={{color: '#304FFE', fontSize: 16}}>Cadastre-se</Text>
                 <Text style={{fontSize: 16}}>.</Text>
 
             </View>

@@ -1,54 +1,15 @@
-import React, { useState } from "react";
-import { LogBox, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import Constants  from "expo-constants";
-import { useNavigation } from "@react-navigation/native";
-import { User } from "../../../model/User";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../../../utils/firebase";
+import React, {  } from "react";
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+
 import { AntDesign } from '@expo/vector-icons';
 
+import Constants  from "expo-constants";
+import { useNavigation } from "@react-navigation/native";
 
-export default function AddContact(){
 
-    LogBox.ignoreAllLogs(true);
-
+export default function AddContact(props){
 
     const navigation = useNavigation();
-
-    const [email, setEmail] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
-
-    const addContact = () =>{
-
-        let meEmail = '';
-
-        onAuthStateChanged(auth, (user)=>{
-
-            if(user){
-
-                meEmail = user.email;
-
-                if(email == meEmail){
-
-                    errorMessage('Você não pode adicionar a si mesmo como um contato!')
-                }else{
-
-                    User.addContact(email, meEmail).then(result=>{
-        
-                        navigation.goBack()
-                    });
-                }
-
-            }else{
-
-                errorMessage('Erro ao adicionar contato, tente novamente!')
-            }
-
-        });
-
-
-        
-    }
 
     return(
 
@@ -65,16 +26,16 @@ export default function AddContact(){
             
             <Text style={styles.headlineText}>Insira abaixo o e-mail do contato:</Text>
             
-            {errorMessage ? <Text style={{color: '#ff0000'}}>{errorMessage}</Text> : <Text style={{display: 'none'}}></Text>}
+            {props.errorMessage ? <Text style={{color: '#ff0000'}}>{props.errorMessage}</Text> : <Text style={{display: 'none'}}></Text>}
             
-            <TextInput onChangeText={(email)=>{setEmail(email)}} style={styles.textInput} placeholder="E-mail..."></TextInput>
+            <TextInput onChangeText={(email)=>{props.setEmail(email)}} style={styles.textInput} placeholder="E-mail..." value={props.email}></TextInput>
 
             <View style={styles.buttonsContainer}>
                 <TouchableOpacity onPress={()=>{navigation.goBack()}} style={styles.cancelButton}>
                     <Text>Cancelar</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={()=>{addContact()}} style={styles.confirmButton}>
+                <TouchableOpacity onPress={()=>{props.addContact()}} style={styles.confirmButton}>
                     <Text style={{color: 'white', fontWeight: '600'}}>Adicionar</Text>
                 </TouchableOpacity>
             </View>
