@@ -26,6 +26,7 @@ const ChatItemController = (props) =>{
             
             contactData={contactData}
 
+            meEmail={props.meEmail}
         ></ChatItem>
     )
 }

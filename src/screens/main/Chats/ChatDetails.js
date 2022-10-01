@@ -21,7 +21,7 @@ export default function ChatDetails(props){
 
         }else if(item.from == props.meEmail && item.type == 'photo'){
 
-            return <Pressable onPress={()=>{props.setModalVisibility(true), setItem(item)}}><ImageBoxBlue message={item}></ImageBoxBlue></Pressable> 
+            return <Pressable onPress={()=>{props.setModalVisibility(true), props.setItem(item)}}><ImageBoxBlue message={item}></ImageBoxBlue></Pressable> 
 
         }else if(item.from != props.meEmail && item.type == 'text'){
 
@@ -29,7 +29,7 @@ export default function ChatDetails(props){
 
         }else if(item.from != props.meEmail && item.type == 'photo'){
 
-            return <Pressable onPress={()=>{props.setModalVisibility(true), setItem(item)}}><ImageBoxLightGray message={item}></ImageBoxLightGray></Pressable>
+            return <Pressable onPress={()=>{props.setModalVisibility(true), props.setItem(item)}}><ImageBoxLightGray message={item}></ImageBoxLightGray></Pressable>
 
         }
     }
@@ -40,35 +40,35 @@ export default function ChatDetails(props){
 
             if(props.contactData.profileImage == ''){
     
-                return <View style={styles.imageProfileContainer}>
+                return <View style={styles.iconProfileContainer}>
                             <FontAwesome5 style={styles.icon} name="user" size={30} color="white" />
                         </View>
             }else{
 
-                return <Image style={styles.image} source={{uri: props.contactData.profileImage}}></Image>
+                return <Image style={styles.imageProfileContainer} source={{uri: props.contactData.profileImage}}></Image>
             }
         }else if(props.route == "Chat_Single"){
 
             if(props.contactData.profileImage == ''){
     
-                return <View style={styles.imageProfileContainer}>
+                return <View style={styles.iconProfileContainer}>
                             <FontAwesome5 style={styles.icon} name="user" size={30} color="white" />
                         </View>
             }else{
 
-                return <Image style={styles.image} source={{uri: props.contactData.profileImage}}></Image>
+                return <Image style={styles.imageProfileContainer} source={{uri: props.contactData.profileImage}}></Image>
             }
 
         }else if(props.route == "Chat_Group"){
 
             if(props.data.groupProfileImage == ''){
     
-                return <View style={styles.imageProfileContainer}>
+                return <View style={styles.iconProfileContainer}>
                             <FontAwesome5 style={styles.icon} name="user" size={30} color="white" />
                         </View>
             }else{
 
-                return <Image style={styles.image} source={{uri: props.data.groupProfileImage}}></Image>
+                return <Image style={styles.imageProfileContainer} source={{uri: props.data.groupProfileImage}}></Image>
             }
         }
 
@@ -184,16 +184,16 @@ export default function ChatDetails(props){
 
                         <View style={styles.bottomMainContainer}>
 
-                            <TouchableOpacity style={{marginLeft: 6}}>
+                            {/*<TouchableOpacity style={{marginLeft: 6}}>
 
                                 <Entypo  name="emoji-happy" size={24} color="#4B4B4B" />
-                            </TouchableOpacity>
+                            </TouchableOpacity>*/}
                             
                             <TextInput onSubmitEditing={Keyboard.dismiss} onChangeText={(message)=>props.setMessageContent(message)} value={props.messageContent} style={{flex: 1, marginLeft: 10}} placeholder='Mensagem...'></TextInput>
 
-                            <TouchableOpacity style={{marginLeft: 6, marginRight: 6}}>
+                            {/*<TouchableOpacity style={{marginLeft: 6, marginRight: 6}}>
                                 <Entypo name="attachment" size={24} color="#4B4B4B" />
-                            </TouchableOpacity>
+                            </TouchableOpacity>*/}
 
                             <TouchableOpacity onPress={()=>{props.requestCameraPermission()}} style={{marginRight: 8}}>
                                 <Entypo name="camera" size={24} color="#4B4B4B" />
@@ -227,12 +227,12 @@ const styles = StyleSheet.create({
 
     // ---------- IMAGE PROFILE ---------- //
 
-    imageProfileContainer:{
+    iconProfileContainer:{
         
         width: 80, 
         height: 80, 
         marginBottom: -40, 
-        borderRadius: 50, 
+        borderRadius: 100, 
         backgroundColor: '#A4A4A4', 
         alignItems: "center", 
         justifyContent: 'center'
@@ -244,10 +244,11 @@ const styles = StyleSheet.create({
         elevation: 4
     },
 
-    image:{
+    imageProfileContainer:{
         
         width: 80, 
-        height: 80, 
+        height: 80,
+        borderRadius: 100,
         marginBottom: -40
     
     },

@@ -8,12 +8,15 @@ import { auth, db } from "../../../utils/firebase";
 const ChatsController = () =>{
 
     const [chatsList, setChatsList] = useState([]);
+    const [meEmail, setMeEmail] = useState();
 
     useEffect(()=>{
 
         onAuthStateChanged(auth, (user)=>{
 
             if(user){
+
+                setMeEmail(user.email);
 
                 const chatsQuery = collection(db, "users", user.email, "chats");
                 onSnapshot(chatsQuery, (chats)=>{
@@ -45,7 +48,7 @@ const ChatsController = () =>{
 
     const renderChatItem = ({item}) =>{
         
-        return <ChatItemController chat={item} ></ChatItemController>
+        return <ChatItemController meEmail={meEmail} chat={item} ></ChatItemController>
     }
 
     return(

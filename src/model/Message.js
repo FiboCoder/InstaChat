@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, getDoc, getDocs, onSnapshot, query, setDoc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, onSnapshot, query, setDoc, updateDoc, where } from "firebase/firestore";
 import { connectStorageEmulator, getDownloadURL, ref, uploadBytes, uploadString } from "firebase/storage";
 import { db, storage } from "../utils/firebase";
 
@@ -23,11 +23,11 @@ export class Message{
     setFrom(value){ return this._from = value;}
 
     //Function to find chat with specific contact
-    static findMeChat(meEmail){
+    static findSpecificChat(contactEmail, meEmail){
 
         return new Promise((resolve, reject)=>{
 
-            getDocs(collection(db, "users", meEmail, "chats")).then(chats=>{
+            getDocs(query(collection(db, "users", meEmail, "chats"), where("users", "array-contains", contactEmail), where("type", "==", "single"))).then(chats=>{
 
                 resolve(chats);
                 
@@ -36,6 +36,20 @@ export class Message{
             reject(err);
         });
     })};
+
+    static findAllChats(meEmail){
+
+        return new Promise((resolve, reject)=>{
+
+            getDocs(collection(db, "users", meEmail, "chats")).then(chats=>{
+
+                resolve(chats);
+            }).catch(err=>{
+
+                reject(err);
+            })
+        })
+    }
 
     static saveToMe(contactEmail, meEmail, chatId, message){
 
@@ -63,14 +77,21 @@ export class Message{
                 const messageRef = doc(db, "users", meEmail, "chats", chatId, "messages", messageData.id);
                 updateDoc(messageRef, {
 
-                    status: 'sent'
+                    status: "sent"
                 }).then(result=>{
 
                     console.log("MESSAGE RESULT" + result)
 
                     updateDoc(doc(db, "users", meEmail, "chats", chatId),{
 
-                        lastMessage: message
+                        lastMessage: {
+
+                            content: message.content,
+                            status: "sent",
+                            time: message.time,
+                            from: message.from,
+                            type: message.type
+                        }
                     });
                     
                 }).catch(err=>{
@@ -105,12 +126,19 @@ export class Message{
                     const messageRef = doc(db, "users", contactEmail, "chats", chatId, "messages", messageId);
                     updateDoc(messageRef, {
     
-                        status: 'sent'
+                        status: "sent"
                     }).then(result=>{
 
                         updateDoc(doc(db, "users", contactEmail, "chats", chatId),{
 
-                            lastMessage: message
+                            lastMessage: {
+
+                                content: message.content,
+                                status: "sent",
+                                time: message.time,
+                                from: message.from,
+                                type: message.type
+                            }
                         });
     
                     }).catch(err=>{
@@ -134,52 +162,36 @@ export class Message{
 
         return new Promise((resolve, reject)=>{
 
-            Message.findMeChat(meEmail).then(chats=>{
 
-                let message = {
+            let message = {
 
-                    content: this._message,
-                    status: this._status,
-                    time: Date.now(),
-                    from: this._from,
-                    type: this._type
-                }
+                content: this._message,
+                status: this._status,
+                time: Date.now(),
+                from: this._from,
+                type: this._type
+            }
 
-                if(route == "Contact_List"){
+            if(route == "Contact_List"){
 
-                    console.log(contactEmail, meEmail, chatId, route);
+                Message.findSpecificChat(contactEmail, meEmail).then(chats=>{
+
+                    let chatsArray = [];
 
                     if(!chats.empty){
 
                         chats.forEach(chat=>{
-    
-                            
-    
-                            if(chat.data().users[0] == contactEmail && chat.data().users[1] == meEmail){
-    
-    
-                                Message.saveToMe(contactEmail, meEmail, chat.id, message).then(result=>{
-    
-                                    resolve(result);
-                                });
-                            }else{
-    
-                                addDoc(collection(db, "users", meEmail, "chats"),{
-    
-                                    users: [contactEmail, meEmail],
-                                    type: "single",
-                                    lastMessage: message
-                                }).then(chat=>{
-    
-                                    Message.saveToMe(contactEmail, meEmail, chat.id, message).then(result=>{
-    
-                                        resolve(result);
-    
-                                    });
-                                });
-                            }
-                        });
+
+                            Message.saveToMe(contactEmail, meEmail, chat.id, message).then(result=>{
+
+                                resolve(result);
+                            });
+                        })
+
+                        
+
                     }else{
+
     
                         addDoc(collection(db, "users", meEmail, "chats"),{
     
@@ -196,21 +208,32 @@ export class Message{
                             });
                         });
                     }
-                }else if(route == "Chat_Single"){
+                });
+                
+            }else if(route == "Chat_Single"){
 
-                    chats.forEach(chat=>{
+                Message.findAllChats(meEmail).then(chats=>{
 
-                        if(chat.id == chatId){
+                    if(!chats.empty){
+
+                        chats.forEach(chat=>{
+
+                            if(chat.id == chatId){
 
 
-                            Message.saveToMe(contactEmail, meEmail, chat.id, message).then(result=>{
+                                Message.saveToMe(contactEmail, meEmail, chat.id, message).then(result=>{
+    
+                                    resolve(result);
+                                });
+                            }
+                        });
 
-                                resolve(result);
-                            });
-                        }
-                    });
-                }
-            });
+                        
+                    }
+                });
+
+                
+            }
         });
     }
 
@@ -243,54 +266,51 @@ export class Message{
 
                 updateDoc(doc(db, "users", meEmail, "chats", chatId, "messages", messageData.id),{
 
-                    status: 'sent'
+                    status: "sent"
                 }).then(result=>{
 
                     resolveArray.push(result);
 
-                });
+                    groupUsersList.forEach(email=>{
 
-                groupUsersList.forEach(email=>{
-
-                    if(email != meEmail){
-
-                        setDoc(doc(db, "users", email, "chats", chatId, "messages", messageData.id), {
-
-                            content: message.content,
-                            status: message.status,
-                            time: message.time,
-                            from: message.from,
-                            type: message.type
-                        }).then(result=>{
-
-                            resolveArray.push(result);
-
-                            updateDoc(doc(db, "users", email, "chats", chatId, "messages", messageData.id),{
-
-                                status: 'sent'
+                        if(email != meEmail){
+    
+                            setDoc(doc(db, "users", email, "chats", chatId, "messages", messageData.id), {
+    
+                                content: message.content,
+                                status: message.status,
+                                time: message.time,
+                                from: message.from,
+                                type: message.type
                             }).then(result=>{
-
-                                updateDoc(doc(db, "users", meEmail, "chats", chatId),{
-
-                                    lastMessage: {
-
-                                        content: message.content,
-                                        status: message.status,
-                                        time: message.time,
-                                        from: message.from,
-                                        type: message.type
-                                    }
-                                });
-
+    
                                 resolveArray.push(result);
+    
+                                updateDoc(doc(db, "users", email, "chats", chatId, "messages", messageData.id),{
+    
+                                    status: "sent"
+                                }).then(result=>{
+    
+                                    updateDoc(doc(db, "users", meEmail, "chats", chatId),{
+    
+                                        lastMessage: {
+    
+                                            content: message.content,
+                                            status: "sent",
+                                            time: message.time,
+                                            from: message.from,
+                                            type: message.type
+                                        }
+                                    });
+    
+                                    resolveArray.push(result);
+                                });
                             });
-                        });
-                    }else{
-
-                        
-                    }
-
-                    
+                        }else{
+    
+                            
+                        }
+                    });
                 });
             });
 

@@ -26,6 +26,7 @@ import PersonalInfoSettingsController from './src/controller/main/settings/Perso
 import ChatsSettingsController from './src/controller/main/settings/ChatsSettingsController';
 
 import CameraScreen from './src/screens/general/Camera';
+import CameraController from './src/controller/main/general/CameraController';
 
 const Tab = createBottomTabNavigator();
 const AuthStack = createStackNavigator();
@@ -360,7 +361,7 @@ export default function App({navigation}) {
 
     return(
 
-      <CameraScreen></CameraScreen>
+      <CameraController></CameraController>
     );
   }
 

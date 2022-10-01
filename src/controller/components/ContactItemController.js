@@ -58,6 +58,8 @@ const ContactItemController = (props) =>{
             contactData={contactData}
 
             doWhenPress={doWhenPress}
+
+            meEmail={props.meEmail}
         ></ContactItem>
     );
 }

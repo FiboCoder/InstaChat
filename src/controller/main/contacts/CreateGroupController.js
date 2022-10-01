@@ -1,10 +1,13 @@
+import { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
+
 import { onAuthStateChanged } from "firebase/auth";
+
 import ContactItemController from "../../components/ContactItemController";
 import { User } from "../../../model/User";
 import CreateGroup from "../../../screens/main/Contacts/CreateGroup";
 import { auth } from "../../../utils/firebase";
-import { useEffect, useState } from "react";
+import { Message } from "../../../model/Message";
 
 const CreateGroupController = () =>{
 

@@ -1,7 +1,9 @@
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { CameraType } from "expo-camera";
+import { useRef, useState } from "react";
 
-import { Message } from "../../model/Message";
-import Camera from "../../screens/general/Camera";
+import { Message } from "../../../model/Message";
+import Camera from "../../../screens/general/Camera";
 
 const CameraController = () =>{
 
@@ -79,7 +81,9 @@ const CameraController = () =>{
         <Camera
         
             setFlash={setFlash}
+            setPhoto={setPhoto}
 
+            cameraRef={cameraRef}
             flash={flash}
             type={type}
             photo={photo}

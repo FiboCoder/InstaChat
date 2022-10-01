@@ -8,6 +8,27 @@ export const ChatItem = (props)=>{
 
     const navigation = useNavigation();
 
+    const renderLastMessage = () =>{
+
+        if(props.chat.data().lastMessage.type == "photo"){
+
+            return <Text style={{color: '#5E5E5E'}}>Imagem</Text>
+
+        }else if(props.chat.data().lastMessage.type == "audio"){
+
+            return <Text style={{color: '#5E5E5E'}}>Audio</Text>
+            
+        }else if(props.chat.data().lastMessage.type == "file"){
+
+            return <Text style={{color: '#5E5E5E'}}>Arquivo</Text>
+            
+        }else{
+
+            return <Text style={{color: '#5E5E5E'}}>{props.chat.data().lastMessage.content}</Text>
+
+        }
+    }
+
     const render = () => {
 
         if(props.chat.data().type == "single"){
@@ -17,11 +38,14 @@ export const ChatItem = (props)=>{
                         <TouchableOpacity 
                             onPress={()=>{navigation.navigate('ChatDetails', {
 
+                                meEmail: props.meEmail,
                                 data: props.chat.data(), 
                                 chatId: props.chat.id, 
                                 contactData: props.contactData, 
                                 route: "Chat_Single"
-                            })}} style={{flexDirection: 'row', alignItems: 'center',}}>
+                            })}} 
+                            
+                            style={{flexDirection: 'row', alignItems: 'center',}}>
 
                             <View>
                                     {
@@ -30,12 +54,12 @@ export const ChatItem = (props)=>{
                                         
                                             ?
                                             
-                                                <View style={styles.icon}>
+                                                <View style={styles.iconProfileContainer}>
                                                     <FontAwesome5 name="user" size={24} color="white" />
                                                 </View>
                                             :
 
-                                                <Image style={{width: 58, height: 58}} source={{uri: props.contactData.profileImage}}></Image>
+                                                <Image style={styles.imageProfileContainer} source={{uri: props.contactData.profileImage}}></Image>
                                     
                                     }
                             </View>
@@ -44,7 +68,12 @@ export const ChatItem = (props)=>{
                                 <View style={{flex: 1, marginRight: 20}}>
 
                                     <Text numberOfLines={1} style={styles.name}>{props.contactData.username}</Text>
-                                    <Text style={{color: '#5E5E5E'}}>{props.chat.data().lastMessage.content}</Text>
+
+                                    {
+
+                                        renderLastMessage()
+
+                                    }
                                 </View>
 
                                 <View style={{alignSelf: 'flex-start'}}>
@@ -63,6 +92,7 @@ export const ChatItem = (props)=>{
                         <TouchableOpacity 
                             onPress={()=>{navigation.navigate('ChatDetails', {
 
+                                meEmail: props.meEmail,
                                 data: props.chat.data(), 
                                 chatId: props.chat.id, 
                                 route: "Chat_Group"
@@ -75,12 +105,12 @@ export const ChatItem = (props)=>{
                                         
                                             ?
                                             
-                                                <View style={styles.icon}>
+                                                <View style={styles.iconProfileContainer}>
                                                     <FontAwesome5 name="user" size={24} color="white" />
                                                 </View>
                                             :
 
-                                                <Image style={{width: 58, height: 58}} source={{uri: props.chat.data().groupProfileImage}}></Image>
+                                                <Image style={styles.imageProfileContainer} source={{uri: props.chat.data().groupProfileImage}}></Image>
                                     
                                     }
                             </View>
@@ -114,7 +144,7 @@ export const ChatItem = (props)=>{
 
 const styles = StyleSheet.create({
 
-    icon:{
+    iconProfileContainer:{
         
         width: 58, 
         height: 58, 
@@ -122,6 +152,13 @@ const styles = StyleSheet.create({
         backgroundColor: '#A4A4A4', 
         alignItems: "center", 
         justifyContent: 'center'
+    },
+
+    imageProfileContainer:{
+
+        width: 58, 
+        height: 58,
+        borderRadius: 100
     },
 
     name:{

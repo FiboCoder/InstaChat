@@ -16,6 +16,8 @@ const ChatDetailsController = (props) =>{
     //Permissions
     const [cameraPermission, setCameraPermission] = Camera.useCameraPermissions();
 
+    const [snapshot, setSnapShot] = useState();
+
     //Message states
     const [messageContent, setMessageContent] = useState('');
     const [messagesList, setMessagesList] = useState([]);
@@ -33,31 +35,46 @@ const ChatDetailsController = (props) =>{
 
             if(route.params.route == "Contact_List"){
 
-                navigation.navigate('CameraChatsApp', {
+                navigation.navigate("ChatsApp", {
+                    
+                    screen: "CameraChatsApp",
 
-                    contactEmail: route.params.contactData.email,
-                    meEmail: meEmail,
-                    chatId: chatId,
-                    route: "Contact_List"
+                    params:{
+
+                        contactEmail: route.params.contactData.email,
+                        meEmail: route.params.meEmail,
+                        chatId: chatId,
+                        route: "Contact_List"
+                    }
                 });
             }else if(route.params.route == "Chat_Single"){
 
-                navigation.navigate('CameraChatsApp', {
+                navigation.navigate("ChatsApp", {
+                    
+                    screen: "CameraChatsApp",
 
-                    contactEmail: route.params.data.email,
-                    meEmail: meEmail,
-                    chatId: chatId,
-                    route: "Chat_Single"
+                    params:{
+                        
+                        contactEmail: route.params.contactData.email,
+                        meEmail: route.params.meEmail,
+                        chatId: chatId,
+                        route: "Chat_Single"
+                    }
                 });
 
             }else if(route.params.route == "Chat_Group"){
 
-                navigation.navigate('CameraChatsApp', {
+                navigation.navigate("ChatsApp", {
+                    
+                    screen: "CameraChatsApp",
 
-                    groupUsersList: route.params.data.users,
-                    meEmail: meEmail,
-                    chatId: chatId,
-                    route: "Chat_Group"
+                    params:{
+                        
+                        contactEmail: route.params.contactData.email,
+                        meEmail: route.params.meEmail,
+                        chatId: chatId,
+                        route: "Chat_Group"
+                    }
                 });
             }
 
@@ -79,19 +96,19 @@ const ChatDetailsController = (props) =>{
             let message = new Message();
             message.setMessage(messageContent);
             message.setStatus('waiting');
-            message.setFrom(meEmail);
+            message.setFrom(route.params.meEmail);
             message.setType('text');
 
             if(route.params.route == "Contact_List"){
 
-                message.sendMessage(route.params.contactData.email, meEmail, "", "Contact_List").then(result=>{
+                message.sendMessage(route.params.contactData.email, route.params.meEmail, "", "Contact_List").then(result=>{
     
                 });
                 setMessageContent('');
                 Keyboard.dismiss();
             }else if(route.params.route == "Chat_Single"){
 
-                message.sendMessage(route.params.contactData.email, meEmail, route.params.chatId, "Chat_Single").then(result=>{
+                message.sendMessage(route.params.contactData.email, route.params.meEmail, route.params.chatId, "Chat_Single").then(result=>{
     
                 });
                 setMessageContent('');
@@ -99,7 +116,7 @@ const ChatDetailsController = (props) =>{
 
             }else if(route.params.route == "Chat_Group"){
 
-                message.sendMessageToGroup(meEmail, route.params.data.users, route.params.chatId).then(result=>{
+                message.sendMessageToGroup(route.params.meEmail, route.params.data.users, route.params.chatId).then(result=>{
     
                 });
                 setMessageContent('');
@@ -110,150 +127,146 @@ const ChatDetailsController = (props) =>{
 
     useEffect(()=>{
 
-        onAuthStateChanged(auth, (user)=>{
 
-            if(user){
+        //Listen 'Chats'
+        const chatsQuery = query(collection(db, "users", route.params.meEmail, "chats"));
+        const snapshot = onSnapshot(chatsQuery, (chats)=>{
 
-                setMeEmail(user.email);
+            if(!chats.empty){
 
-                //Listen 'Chats'
-                const chatsQuery = query(collection(db, "users", user.email, "chats"));
-                onSnapshot(chatsQuery, (chats)=>{
+                chats.forEach((chat)=>{
 
-                    if(!chats.empty){
-        
-                        chats.forEach((chat)=>{
+                    //Get messages if chat exists
 
-                            //Get messages if chat exists
+                    if(route.params.route == "Contact_List"){
 
-                            if(route.params.route == "Contact_List"){
+                        if(chat.data().users[0] == route.params.contactData.email && chat.data().users[1] == route.params.meEmail){
 
-                                if(chat.data().users[0] == route.params.contactData.email && chat.data().users[1] == user.email){
+                            setChatId(chat.id);
 
-                                    setChatId(chat.id);
+                            //Listen 'Messages'
+                            const messagesQuery = query(collection(db, "users", route.params.meEmail, "chats", chat.id, "messages"));
+                            onSnapshot(messagesQuery, (messages)=>{
+
+                                let messagesArray = [];
     
-                                    //Listen 'Messages'
-                                    const messagesQuery = query(collection(db, "users", user.email, "chats", chat.id, "messages"));
-                                    onSnapshot(messagesQuery, (messages)=>{
-    
-                                        let messagesArray = [];
-            
-                                        if(!messages.empty){
-    
-                                            messages.forEach((message, index)=>{
-    
-                                                //Check if message is from contact
-                                                if(message.data().from !== user.email){
-    
-                                                    //Check if status is 'sent' and update status from contact to 'received'
-                                                    if(message.data().status === 'sent'){
-    
-                                                        const messageRef = doc(db, "users", message.data().from, "chats", chat.id, "messages", message.id);
-                                                        updateDoc(messageRef, {
-        
-                                                            status: 'received'
-                                                        }).then(result=>{
-    
-                                                        });
-                                                    }
-    
-                                                    messagesArray.push(message.data());
-    
-                                                }else{
-    
-                                                    messagesArray.push(message.data());
-                                                }
-                                                
-                                            });
-    
-                                            //Sort messages by timestamp
-                                            let sortedArray = messagesArray.sort((a, b)=>{
-    
-                                                return a.time - b.time;
-                                            })
-                                            setMessagesList(sortedArray);
-            
+                                if(!messages.empty){
+
+                                    messages.forEach((message, index)=>{
+
+                                        //Check if message is from contact
+                                        if(message.data().from !== route.params.meEmail){
+
+                                            //Check if status is 'sent' and update status from contact to 'received'
+                                            if(message.data().status === 'sent'){
+
+                                                const messageRef = doc(db, "users", message.data().from, "chats", chat.id, "messages", message.id);
+                                                updateDoc(messageRef, {
+
+                                                    status: 'received'
+                                                }).then(result=>{
+
+                                                });
+                                            }
+
+                                            messagesArray.push(message.data());
+
                                         }else{
-            
-                                            setMessagesList([]);
+
+                                            messagesArray.push(message.data());
                                         }
+                                        
                                     });
-            
+
+                                    //Sort messages by timestamp
+                                    let sortedArray = messagesArray.sort((a, b)=>{
+
+                                        return a.time - b.time;
+                                    })
+                                    setMessagesList(sortedArray);
+    
                                 }else{
     
                                     setMessagesList([]);
                                 }
-                            }else if(route.params.route == "Chat_Single" || route.params.route == "Chat_Group"){
+                            });
+    
+                        }else{
 
-                                if(chat.id == route.params.chatId){
+                            setMessagesList([]);
+                        }
+                    }else if(route.params.route == "Chat_Single" || route.params.route == "Chat_Group"){
 
-                                    setChatId(chat.id);
-    
-                                    //Listen 'Messages'
-                                    const messagesQuery = query(collection(db, "users", user.email, "chats", chat.id, "messages"));
-                                    onSnapshot(messagesQuery, (messages)=>{
-    
-                                        let messagesArray = [];
-            
-                                        if(!messages.empty){
-    
-                                            messages.forEach((message, index)=>{
-    
-                                                //Check if message is from contact
-                                                if(message.data().from !== user.email){
-    
-                                                    //Check if status is 'sent' and update status from contact to 'received'
-                                                    if(message.data().status === 'sent'){
-    
-                                                        const messageRef = doc(db, "users", message.data().from, "chats", chat.id, "messages", message.id);
-                                                        updateDoc(messageRef, {
-        
-                                                            status: 'received'
-                                                        }).then(result=>{
-    
-                                                        });
-                                                    }
-    
-                                                    messagesArray.push(message.data());
+                        if(chat.id == route.params.chatId){
 
+                            setChatId(chat.id);
+
+                            //Listen 'Messages'
+                            const messagesQuery = query(collection(db, "users", route.params.meEmail, "chats", chat.id, "messages"));
+                            onSnapshot(messagesQuery, (messages)=>{
+
+                                let messagesArray = [];
     
-                                                }else{
-    
-                                                    messagesArray.push(message.data());
-                                                }
-                                                
-                                            });
-    
-                                            //Sort messages by timestamp
-                                            let sortedArray = messagesArray.sort((a, b)=>{
-    
-                                                return a.time - b.time;
-                                            })
-                                            setMessagesList(sortedArray);
-            
+                                if(!messages.empty){
+
+                                    messages.forEach((message, index)=>{
+
+                                        //Check if message is from contact
+                                        if(message.data().from !== route.params.meEmail){
+
+                                            //Check if status is 'sent' and update status from contact to 'received'
+                                            if(message.data().status === 'sent'){
+
+                                                const messageRef = doc(db, "users", message.data().from, "chats", chat.id, "messages", message.id);
+                                                updateDoc(messageRef, {
+
+                                                    status: 'received'
+                                                }).then(result=>{
+
+                                                });
+                                            }
+
+                                            messagesArray.push(message.data());
+
+
                                         }else{
-            
-                                            setMessagesList([]);
+
+                                            messagesArray.push(message.data());
                                         }
+                                        
                                     });
-            
+
+                                    //Sort messages by timestamp
+                                    let sortedArray = messagesArray.sort((a, b)=>{
+
+                                        return a.time - b.time;
+                                    })
+                                    setMessagesList(sortedArray);
+    
                                 }else{
     
                                     setMessagesList([]);
                                 }
-                            }
-                        });
-                    }else{
+                            });
+    
+                        }else{
 
-                        setMessagesList([]);
+                            setMessagesList([]);
+                        }
                     }
-
                 });
             }else{
 
-
+                setMessagesList([]);
             }
+
         });
+
+        return ()=> {
+            console.log("clean")
+            snapshot()
+            console.log("cleaned")
+        }
 
         
     }, []);
@@ -291,7 +304,7 @@ const ChatDetailsController = (props) =>{
             menuModalVisibility={menuModalVisibility}
             item={item}
             messagesList={messagesList}
-            meEmail={meEmail}
+            meEmail={route.params.meEmail}
 
             sendMessage={sendMessage}
             requestCameraPermission={requestCameraPermission}

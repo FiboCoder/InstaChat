@@ -7,21 +7,21 @@ import { FontAwesome } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 
 
-const CameraScreen = () =>{
+const CameraScreen = (props) =>{
 
   const getFlashIcon = () =>{
 
-    if(flash == 'off'){
+    if(props.flash == 'off'){
 
       return <TouchableOpacity onPress={()=>{props.setFlash('on')}} style={{marginRight: 4}}>
                 <MaterialIcons name="flash-off" size={26} color="white" />
              </TouchableOpacity>
-    }else if(flash == 'on'){
+    }else if(props.flash == 'on'){
 
       return <TouchableOpacity onPress={()=>{props.setFlash('auto')}} style={{marginRight: 4}}>
                 <MaterialIcons name="flash-on" size={26} color="white" />
              </TouchableOpacity>
-    }else if(flash == 'auto'){
+    }else if(props.flash == 'auto'){
 
       return <TouchableOpacity onPress={()=>{props.setFlash('off')}} style={{marginRight: 4}}>
                 <MaterialIcons name="flash-auto" size={26} color="white" />

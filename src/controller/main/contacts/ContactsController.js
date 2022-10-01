@@ -8,12 +8,15 @@ import ContactItemController from "../../components/ContactItemController";
 const ContactsController = () =>{
 
     const [contactsList, setContactsList] = useState([]);
+    const [meEmail, setMeEmail] = useState();
 
     useEffect(()=>{
 
       onAuthStateChanged(auth, (user)=>{
 
         if(user){
+
+          setMeEmail(user.email);
 
           const contactsQuery = query(collection(db, "users", user.email, "contacts"));
           onSnapshot(contactsQuery, (contacts)=>{
@@ -44,7 +47,7 @@ const ContactsController = () =>{
 
     const renderContactItem = ({item}) =>{
 
-      return <ContactItemController route={"Contacts"} contact={item}></ContactItemController>
+      return <ContactItemController meEmail={meEmail} route={"Contacts"} contact={item}></ContactItemController>
     }
 
     return(
