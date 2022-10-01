@@ -32,8 +32,6 @@ const ModalImageOptions = (props) =>{
                 </View>
             </View>
 
-
-            
         </Modal>
     );
 }

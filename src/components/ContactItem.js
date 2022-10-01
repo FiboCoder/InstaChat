@@ -7,7 +7,6 @@ import { useNavigation } from "@react-navigation/native";
 
 export const ContactItem = (props) =>{
 
-
     const navigation = useNavigation();
 
     const render = () => {
@@ -32,7 +31,6 @@ export const ContactItem = (props) =>{
 
                             }
                             
-
                             <View style={{flex: 1, marginLeft: 26}}>
                                 <Text style={styles.username}>{props.contactData.username}</Text>
                                 <Text style={{fontSize: 14, color: '#5E5E5E'}}>{props.contactData.aboutMe}</Text>
@@ -82,10 +80,9 @@ export const ContactItem = (props) =>{
 
                             }
                             
-
                             <View style={{flex: 1, marginLeft: 26}}>
                                 <Text style={styles.username}>{props.contactData.username}</Text>
-                                <Text style={{fontSize: 14, color: '#5E5E5E'}}>{props.contactData.username}</Text>
+                                <Text style={{fontSize: 14, color: '#5E5E5E'}}>{props.contactData.aboutMe}</Text>
                             </View>
 
                             

@@ -10,17 +10,17 @@ export class User{
 
     }
 
-    getId (){ return this._id; }
-    settId (value){ return this._id = value; }
-
     getEmail (){ return this._email; }
     setEmail (value){ return this._email = value; }
+
+    getProfileImage (){ return this._profileImage; }
+    setProfileImage (value){ return this._profileImage = value; }
 
     getUsername (){ return this._username; }
     settUsername (value){ return this._username = value; }
 
-    getProfileImage (){ return this._profileImage; }
-    setProfileImage (value){ return this._profileImage = value; }
+    getAboutMe (){ return this._aboutMe; }
+    setAboutMe (value){ return this._aboutMe = value; }
 
     saveUser(){
 
@@ -29,9 +29,10 @@ export class User{
             setDoc(doc(db, "users", this._email), {
 
                 email: this._email,
+                profileImage: this._profileImage,
                 username: this._username,
-                profileImage: this._profileImage
-                
+                aboutMe: this._aboutMe
+
               }).then(result=>{
     
                 resolve(result);

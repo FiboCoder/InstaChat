@@ -341,7 +341,7 @@ export class Message{
         });
     }
 
-    static createGroup(meEmail, groupUsersList){
+    static createGroup(meEmail, groupProfileImage = "", groupName, aboutGroup, groupUsersList){
 
         return new Promise((resolve, reject)=>{
 
@@ -349,8 +349,9 @@ export class Message{
 
                 users: groupUsersList,
                 type: "group",
-                groupName: "",
-                groupProfileImage: "",
+                groupName: groupName,
+                groupProfileImage: groupProfileImage,
+                aboutGroup: aboutGroup,
                 lastMessage: []
             }).then(chat=>{
 
@@ -360,8 +361,8 @@ export class Message{
 
                         users: groupUsersList,
                         type: "group",
-                        groupName: "",
-                        groupProfileImage: "",
+                        groupName: groupName,
+                        groupProfileImage: groupProfileImage,
                         lastMessage: []
                     }).then(result=>{
 

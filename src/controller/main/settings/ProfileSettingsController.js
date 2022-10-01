@@ -33,6 +33,7 @@ const ProfileSettingsController = () =>{
 
         if(!image.cancelled){
 
+            setIsVisible(false);
             setImage(image.uri);
             saveImage(image);
         }
@@ -52,6 +53,7 @@ const ProfileSettingsController = () =>{
       
           if (!image.cancelled) {
 
+            setIsVisible(false);
             setImage(image.uri);
             saveImage(image);
           }

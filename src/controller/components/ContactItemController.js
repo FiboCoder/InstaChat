@@ -1,5 +1,6 @@
 import { doc, onSnapshot } from "firebase/firestore";
 import { useState } from "react";
+import { Pressable } from "react-native";
 import { ContactItem } from "../../components/ContactItem";
 import { db } from "../../utils/firebase";
 
@@ -47,10 +48,13 @@ const ContactItemController = (props) =>{
 
     }
 
+    
+
     return(
 
-        <ContactItem
         
+        <ContactItem
+    
             route={props.route}
 
             selected={selected}
