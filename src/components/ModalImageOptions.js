@@ -6,6 +6,8 @@ import { useState } from "react";
 
 const ModalImageOptions = (props) =>{
 
+    
+
     return(
 
         <Modal visible={props.isVisible} transparent={true} animationType={"none"}>

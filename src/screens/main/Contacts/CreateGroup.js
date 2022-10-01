@@ -1,13 +1,102 @@
-import React, {  } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { LogBox, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import Constants  from "expo-constants";
 import { useNavigation } from "@react-navigation/native";
+import { User } from "../../../model/User";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../../../utils/firebase";
 import { AntDesign } from '@expo/vector-icons';
 import { FlatList } from "react-native-gesture-handler";
+import { ContactItem } from "../../../components/ContactItem";
+import { Message } from "../../../model/Message";
 
-const CreateGroup = (props) => {
+const CreateGroup = () => {
+
+    LogBox.ignoreAllLogs(true);
+
 
     const navigation = useNavigation();
+
+    const [email, setEmail] = useState('');
+    const [refreshing, setRefreshing] = useState(false);
+
+    const [contactsList, setContactsList] = useState([]);
+    const [selected, setSelected] = useState(false);
+    const [selectedQuantity, setSelectedQuantity] = useState(0);
+    const [groupList, setGroupList] = useState([]);
+    let groupUsersList = groupList;
+
+    if(email){
+
+        if(groupUsersList.includes(email)){
+
+        }else{
+
+            groupUsersList.push(email);
+        }
+
+    }
+
+
+    useEffect(()=>{
+
+        onAuthStateChanged(auth, (user)=>{
+
+            if(user){
+
+                setEmail(user.email);
+                let contactsArray = [];
+                setRefreshing(true);
+                User.getContacts(user.email).then(contacts=>{
+
+                    contacts.forEach(contact=>{
+
+                        contactsArray.push(contact.data());
+                    });
+                    setContactsList(contactsArray);
+                    setRefreshing(false)
+                });
+
+            }else{
+
+            }
+        });
+    }, []);
+
+    const saveGroup = () => {
+
+        if(email){
+
+            Message.createGroup(email, groupList).then(result=>{
+
+                navigation.goBack();
+            });
+        }else{
+
+            onAuthStateChanged(auth, (user)=>{
+
+                Message.createGroup(user.email, groupList).then(result=>{
+
+                    navigation.goBack();
+                })
+
+            });
+        }
+
+    }
+
+
+    const renderContactItem = ({item}) =>{
+
+        return <ContactItem 
+        route={"CreateGroup"}
+        groupUsersList={groupUsersList}
+        setSelectedQuantity={setSelectedQuantity}
+        selectedQuantity={selectedQuantity}
+        setGroupList={setGroupList}
+        groupList={groupList}
+        contact={item}></ContactItem>
+      }
 
     return(
 
@@ -19,7 +108,7 @@ const CreateGroup = (props) => {
 
                     {
 
-                        props.selectedQuantity > 0
+                        selectedQuantity > 0
                         
                             ?
                                 <>
@@ -29,7 +118,7 @@ const CreateGroup = (props) => {
 
                                     <Text style={styles.addContactText}>Criar Grupo</Text>
 
-                                    <TouchableOpacity onPress={()=>{props.saveGroup()}} style={styles.textCreateContainer}>
+                                    <TouchableOpacity onPress={()=>{saveGroup()}} style={styles.textCreateContainer}>
                                         <Text style={styles.textCreate}>Criar</Text>
                                     </TouchableOpacity>
                                 </>
@@ -49,10 +138,10 @@ const CreateGroup = (props) => {
                 
 
                 {
-                props.selectedQuantity > 0
+                selectedQuantity > 0
 
                     ?
-                        <Text style={styles.headlineText}>{props.selectedQuantity} {props.selectedQuantity > 1 ? 'participantes' : 'participante'} {props.selectedQuantity > 1 ? 'selecionados' : 'selecionado'}.</Text>
+                        <Text style={styles.headlineText}>{selectedQuantity} {selectedQuantity > 1 ? 'participantes' : 'participante'} {selectedQuantity > 1 ? 'selecionados' : 'selecionado'}.</Text>
                         
                     :
                         <Text style={styles.headlineText}>Selecione os participantes do grupo:</Text>
@@ -65,7 +154,7 @@ const CreateGroup = (props) => {
 
             <View style={styles.contactsContainer}>
 
-                <FlatList renderItem={props.renderContactItem} data={props.contactsList} keyExtractor={(item)=>props.contactsList.indexOf(item)} refreshing={props.refreshing} onRefresh={()=>{props.refreshing}}/>
+                <FlatList renderItem={renderContactItem} data={contactsList} keyExtractor={(item)=>contactsList.indexOf(item)} refreshing={refreshing} onRefresh={()=>{refreshing}}/>
             </View>
         
 

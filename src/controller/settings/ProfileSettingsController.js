@@ -1,8 +1,8 @@
 import { useRoute } from "@react-navigation/native";
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from "react";
-import { User } from "../../../model/User";
-import ProfileSettings from "../../../screens/main/Settings/ProfileSettings";
+import { User } from "../../model/User";
+import ProfileSettings from "../../screens/main/Settings/ProfileSettings";
 
 const ProfileSettingsController = () =>{
 

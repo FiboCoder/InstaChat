@@ -1,8 +1,8 @@
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, onSnapshot, query } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import Settings from "../../../screens/main/Settings/Settings";
-import { auth, db } from "../../../utils/firebase";
+import Settings from "../../screens/main/Settings/Settings";
+import { auth, db } from "../../utils/firebase";
 
 const SettingsController = () =>{
 

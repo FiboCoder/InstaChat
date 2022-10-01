@@ -6,26 +6,30 @@ import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
 import * as SecureStore from 'expo-secure-store';
 
-import { Image, LogBox } from 'react-native';
+import { Image } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 
-import LoginController from './src/controller/main/auth/LoginController';
-import RegisterController from './src/controller/main/auth/RegisterController';
+import Contacts from './src/screens/main/Contacts/Contacts';
+import Chats from './src/screens/main/Chats/Chats';
 
-import AddContactController from './src/controller/main/contacts/AddContactController';
-import CreateGroupController from './src/controller/main/contacts/CreateGroupController';
-import ContactsController from './src/controller/main/contacts/ContactsController';
 
-import ChatsController from './src/controller/main/chats/ChatsController';
-import ChatDetailsController from './src/controller/main/chats/ChatDetailsController';
+import LoginController from './src/controller/auth/LoginController';
+import RegisterController from './src/controller/auth/RegisterController';
 
-import SettingsController from './src/controller/main/settings/SettingsController';
-import ProfileSettingsController from './src/controller/main/settings/ProfileSettingsController';
-import PersonalInfoSettingsController from './src/controller/main/settings/PersonalInfoSettingsController';
-import ChatsSettingsController from './src/controller/main/settings/ChatsSettingsController';
+import AddContact from './src/screens/main/Contacts/AddContact';
+import CreateGroup from './src/screens/main/Contacts/CreateGroup';
+
+
+import ChatDetails from './src/screens/main/Chats/ChatDetails';
+
+import SettingsController from './src/controller/settings/SettingsController';
+import ProfileSettingsController from './src/controller/settings/ProfileSettingsController';
+import PersonalInfoSettingsController from './src/controller/settings/PersonalInfoSettingsController';
+import ChatsSettingsController from './src/controller/settings/ChatsSettingsController';
 
 import CameraScreen from './src/screens/general/Camera';
+
 
 const Tab = createBottomTabNavigator();
 const AuthStack = createStackNavigator();
@@ -34,8 +38,6 @@ const ContactsStack = createStackNavigator();
 const SettingsStack = createStackNavigator();
 
 export default function App({navigation}) {
-
-  LogBox.ignoreAllLogs(true);
 
   const AuthContext = createContext();
 
@@ -143,7 +145,16 @@ export default function App({navigation}) {
     
     const routeName = getFocusedRouteNameFromRoute(route) ?? '';
 
-    if(routeName === 'ContactChatDetails'){
+    if(routeName === 'ChatDetails'){
+
+      return 'none';
+    }else if(routeName === 'AboutUser'){
+
+      return 'none';
+    }else if(routeName === 'PersonalInformation'){
+
+      return 'none';
+    }else if(routeName === 'ChatConfiguration'){
 
       return 'none';
     }else if(routeName === 'AddContact'){
@@ -152,10 +163,10 @@ export default function App({navigation}) {
     }else if(routeName === 'CreateGroup'){
 
       return 'none';
-    }else if (routeName == 'ChatDetails'){
+    }else if (routeName == 'CameraChatsApp'){
 
       return 'none';
-    }else if(routeName == 'CameraChatsApp'){
+    }else if(routeName == 'ContactChatDetails'){
 
       return 'none';
     }else if(routeName == 'ProfileSettingsScreen'){
@@ -212,13 +223,13 @@ export default function App({navigation}) {
 
     
     return (
-      <ContactsController></ContactsController>
+      <Contacts></Contacts>
     );
   }
 
   function AddContactScreen({}) {
     return (
-      <AddContactController></AddContactController>
+      <AddContact></AddContact>
     );
   }
 
@@ -226,7 +237,7 @@ export default function App({navigation}) {
 
     return(
 
-      <CreateGroupController></CreateGroupController>
+      <CreateGroup></CreateGroup>
     )
   }
 
@@ -241,7 +252,7 @@ export default function App({navigation}) {
         <ContactsStack.Screen name='ContactsMain' component={ContactsMain}></ContactsStack.Screen>
         <ContactsStack.Screen name='CreateGroup' component={CreateGroupScreen}></ContactsStack.Screen>
         <ContactsStack.Screen name='AddContact' component={AddContactScreen}></ContactsStack.Screen>
-        <ContactsStack.Screen name='ContactChatDetails' component={ChatDetailsController}></ContactsStack.Screen>
+        <ContactsStack.Screen name='ContactChatDetails' component={ChatDetails}></ContactsStack.Screen>
 
 
       </ContactsStack.Navigator>
@@ -254,7 +265,7 @@ export default function App({navigation}) {
 
   function ChatsMain({navigation}) {
     return (
-      <ChatsController></ChatsController>
+      <Chats></Chats>
     );
   }
   
@@ -262,7 +273,7 @@ export default function App({navigation}) {
   
     return(
   
-      <ChatDetailsController navigation={navigation}></ChatDetailsController>
+      <ChatDetails navigation={navigation}></ChatDetails>
     );
   
   }
@@ -276,7 +287,9 @@ export default function App({navigation}) {
     })}>
   
       <ChatStack.Screen name="ChatsMain" component={ChatsMain}  />
+  
       <ChatStack.Screen name='ChatDetails' component={ChatDetailsScreen}/>
+
       <ChatStack.Screen name="CameraChatsApp" component={CameraApp}/>
   
     </ChatStack.Navigator>
@@ -289,7 +302,7 @@ export default function App({navigation}) {
 
     /* --------------- BEGIN - SETTINGS SCREENS FUNCTIONS AND ROUTES --------------- */
 
-  const SettingsMain = ({}) =>{
+  const SettingsScreen = ({}) =>{
     return (
       <SettingsController></SettingsController>
     );
@@ -338,10 +351,10 @@ export default function App({navigation}) {
 
     return(
 
-      <SettingsStack.Navigator initialRouteName='SettingsMain' screenOptions={({route})=>({
+      <SettingsStack.Navigator initialRouteName='SettingsScreen' screenOptions={({route})=>({
         headerShown: false,
       })}>
-      <SettingsStack.Screen name='SettingsMain' component={SettingsMain}/>
+      <SettingsStack.Screen name='SettingsScreen' component={SettingsScreen}/>
       <SettingsStack.Screen name='ProfileSettingsScreen' component={ProfileSettingsScreen}/>
       <SettingsStack.Screen name='PersonalInfoSettingsScreen' component={PersonalInfoSettingsScreen}/>
       <SettingsStack.Screen name='ChatsSettingsScreen' component={ChatsSettingsScreen}/>

@@ -1,7 +1,8 @@
 import { useRoute } from "@react-navigation/native";
 import { useState } from "react";
-import { User } from "../../../model/User";
-import { PersonalInfoSettings } from "../../../screens/main/Settings/PersonalInfoSettings";
+import { User } from "../../model/User";
+
+import { PersonalInfoSettings } from "../../screens/main/Settings/PersonalInfoSettings";
 
 const PersonalInfoSettingsController = (props) =>{
 
@@ -31,8 +32,7 @@ const PersonalInfoSettingsController = (props) =>{
 
                     User.changePassword(newPassword).then(result=>{
 
-                        console.log(result)
-                        if(result != undefined && result.toString().includes("auth/requires-recent-login")){
+                        if(result != undefined && result.includes("auth/requires-recent-login")){
 
                             setIsVisible(false);
                             setIsVisibleReq(true);

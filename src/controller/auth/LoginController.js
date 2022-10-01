@@ -1,20 +1,12 @@
+import Login from "../../screens/auth/Login";
 
-
-import Login from "../../../screens/auth/Login";
-
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { useState } from "react";
-import { auth } from "../../../utils/firebase";
-
-const LoginController = (props) =>{
+const LoginController = () =>{
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loginError, setLoginError] = useState('');
 
     const login = ()=>{
-
-        console.log(email)
 
         if(email.toString() !== ''){
 
@@ -58,7 +50,8 @@ const LoginController = (props) =>{
             email={email}
             password={password}
             loginError={loginError}
-            login={login}
+            login={login
+            }
         ></Login>
     );
 }
