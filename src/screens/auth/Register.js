@@ -1,17 +1,13 @@
-import React, { useState } from "react";
+import React, {  } from "react";
+
 import { StyleSheet, TextInput, View, Text, TouchableOpacity, Image} from "react-native";
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
-import { createUserWithEmailAndPassword } from "firebase/auth";
+
 import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
 
-import { collection, addDoc } from "firebase/firestore";
-import { User } from "../../model/User";
-import { auth } from "../../utils/firebase";
-
-
-const Register = () =>{
+const Register = (props) =>{
 
     const navigation = useNavigation();
 
@@ -48,7 +44,7 @@ const Register = () =>{
 
             <View style={styles.buttonContainer}>
 
-                {props.loginError ? <Text style={{color: '#ff0000'}}>{props.loginError}</Text> : <Text style={{display: 'none'}}></Text>}
+                {props.registerError ? <Text style={{color: '#ff0000'}}>{props.registerError}</Text> : <Text style={{display: 'none'}}></Text>}
                 
                 <TouchableOpacity onPress={props.register} style={styles.tbButtonContainer}>
 
@@ -59,7 +55,7 @@ const Register = () =>{
             <View style={styles.bottomContainer}>
 
                 <Text style={{fontSize: 16}}>Já tem conta? </Text>
-                <Text onPress={()=> navigation.navigate('Login')} style={{color: '#304FFE', fontSize: 16}}>Entrar</Text>
+                <Text onPress={()=> navigation.navigate('LoginScreen')} style={{color: '#304FFE', fontSize: 16}}>Entrar</Text>
                 <Text style={{fontSize: 16}}>.</Text>
 
             </View>
