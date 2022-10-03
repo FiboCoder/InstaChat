@@ -1,47 +1,29 @@
-import { useNavigation } from "@react-navigation/native";
-
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { User } from "../../../model/User";
 import AddContact from "../../../screens/main/Contacts/AddContact";
-
-import { onAuthStateChanged } from "firebase/auth";
 import { useState } from "react";
-import { auth } from "../../../utils/firebase";
 
 
 const AddContactController = () =>{
 
     const navigation = useNavigation();
+    const route = useRoute();
 
     const [email, setEmail] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
     const addContact = () =>{
 
-        let meEmail = '';
+        if(email == route.params.meEmail){
 
-        onAuthStateChanged(auth, (user)=>{
+            setErrorMessage('Você não pode adicionar a si mesmo como um contato!')
+        }else{
 
-            if(user){
+            User.addContact(email, route.params.meEmail).then(result=>{
 
-                meEmail = user.email;
-
-                if(email == meEmail){
-
-                    setErrorMessage('Você não pode adicionar a si mesmo como um contato!')
-                }else{
-
-                    User.addContact(email, meEmail).then(result=>{
-        
-                        navigation.goBack()
-                    });
-                }
-
-            }else{
-
-                setErrorMessage('Erro ao adicionar contato, tente novamente!')
-            }
-
-        });  
+                navigation.goBack()
+            });
+        }
     }
 
     return(

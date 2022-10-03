@@ -1,53 +1,39 @@
-import { onAuthStateChanged } from "firebase/auth";
-import { collection, onSnapshot, query } from "firebase/firestore";
 import { useEffect, useState } from "react";
+import { User } from "../../../model/User";
 import Contacts from "../../../screens/main/Contacts/Contacts";
-import { auth, db } from "../../../utils/firebase";
 import ContactItemController from "../../components/ContactItemController";
 
-const ContactsController = () =>{
+const ContactsController = (props) =>{
 
     const [contactsList, setContactsList] = useState([]);
-    const [meEmail, setMeEmail] = useState();
+    console.log(props.meEmail)
+
 
     useEffect(()=>{
 
-      onAuthStateChanged(auth, (user)=>{
+      User.getContacts(props.meEmail).then(contacts=>{
 
-        if(user){
+        let contactsArray = [];
 
-          setMeEmail(user.email);
+        if(!contacts.empty){
 
-          const contactsQuery = query(collection(db, "users", user.email, "contacts"));
-          onSnapshot(contactsQuery, (contacts)=>{
+            contacts.forEach(contact=>{
 
-            if(!contacts.empty){
+                contactsArray.push(contact.data())
+            })
 
-              let contactsArray = [];
-
-
-              contacts.forEach((contact)=>{
-  
-                contactsArray.push(contact.data());
-
-              });
-              
-              setContactsList(contactsArray);
-            }else{
-
-              setContactsList([]);
-            }
-          }); 
+            setContactsList(contactsArray);
         }else{
+
             setContactsList([]);
         }
-      });
+    });
       
     },[]);
 
     const renderContactItem = ({item}) =>{
 
-      return <ContactItemController meEmail={meEmail} route={"Contacts"} contact={item}></ContactItemController>
+      return <ContactItemController meEmail={props.meEmail} route={"Contacts"} contact={item}></ContactItemController>
     }
 
     return(
@@ -56,6 +42,7 @@ const ContactsController = () =>{
         
             contactsList={contactsList}
             renderContactItem={renderContactItem}
+            meEmail={props.meEmail}
         ></Contacts>
     );
 }

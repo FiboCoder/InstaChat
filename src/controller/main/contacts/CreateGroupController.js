@@ -1,21 +1,17 @@
 import { useEffect, useState } from "react";
-import { useNavigation } from "@react-navigation/native";
-
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { onAuthStateChanged } from "firebase/auth";
 import * as ImagePicker from 'expo-image-picker';
-
-
 import ContactItemController from "../../components/ContactItemController";
 import { User } from "../../../model/User";
 import CreateGroup from "../../../screens/main/Contacts/CreateGroup";
 import { auth } from "../../../utils/firebase";
 import { Message } from "../../../model/Message";
-import { clickProps } from "react-native-web/dist/cjs/modules/forwardedProps";
-import { Pressable } from "react-native";
 
 const CreateGroupController = () =>{
 
     const navigation = useNavigation();
+    const route = useRoute();
 
     const [refreshing, setRefreshing] = useState(false);
 
@@ -84,29 +80,27 @@ const CreateGroupController = () =>{
             setImage(image.uri);
           }
     }
+
     useEffect(()=>{
 
-        onAuthStateChanged(auth, (user)=>{
+        User.getContacts(route.params.meEmail).then(contacts=>{
 
-            if(user){
+            let contactsArray = [];
 
-                setEmail(user.email);
-                let contactsArray = [];
-                setRefreshing(true);
-                User.getContacts(user.email).then(contacts=>{
+            if(!contacts.empty){
 
-                    contacts.forEach(contact=>{
+                contacts.forEach(contact=>{
 
-                        contactsArray.push(contact.data());
-                    });
-                    setContactsList(contactsArray);
-                    setRefreshing(false)
-                });
-
+                    contactsArray.push(contact.data())
+                })
+    
+                setContactsList(contactsArray);
             }else{
 
+                setContactsList([]);
             }
         });
+
     }, []);
 
     const saveGroup = () => {
@@ -118,9 +112,9 @@ const CreateGroupController = () =>{
 
                 if(image != ''){
 
-                    if(email){
+                    if(props.meEmail){
 
-                        Message.createGroup(email, image, groupName, aboutGroup, groupList).then(result=>{
+                        Message.createGroup(props.meEmail, image, groupName, aboutGroup, groupList).then(result=>{
 
                             navigation.goBack();
                         });
@@ -134,14 +128,12 @@ const CreateGroupController = () =>{
                                 navigation.goBack();
                             })
                         });
-                    }
-
-                    
+                    }     
                 }else{
 
-                    if(email){
+                    if(props.meEmail){
 
-                        Message.createGroup(email, "", groupName, aboutGroup, groupList).then(result=>{
+                        Message.createGroup(props.meEmail, "", groupName, aboutGroup, groupList).then(result=>{
 
                             navigation.goBack();
                         });
@@ -158,59 +150,30 @@ const CreateGroupController = () =>{
                     }
                 }
 
-
             }else{
-
-                
+ 
             }
         }else{
 
-
         }
-
-        
     }
-
-    const handleSelectionMultiple = (email) =>{
-
-        let selectedItems = [...selected];
-
-        if(selectedItems.includes(email)){
-
-            selectedItems.filter(m=>{
-
-                return m != email
-            })
-        }else{
-
-            selectedItems.push(email);
-        }
-
-        setSelected(selectedItems)
-        console.log(selectedItems)
-
-
-    }
-
 
     const renderContactItem = ({item}) =>{
 
         return(
 
-            <Pressable onPress={()=>handleSelectionMultiple(item.email)}>
-                <ContactItemController 
+            <ContactItemController 
 
-                    route={"CreateGroup"}
-                    groupUsersList={groupUsersList}
-                    setSelectedQuantity={setSelectedQuantity}
-                    selectedQuantity={selectedQuantity}
-                    setGroupList={setGroupList}
-                    groupList={groupList}
-                    contact={item}
+                route={"CreateGroup"}
+                groupUsersList={groupUsersList}
+                setSelectedQuantity={setSelectedQuantity}
+                selectedQuantity={selectedQuantity}
+                setGroupList={setGroupList}
+                groupList={groupList}
+                contact={item}
+                selected={selected}
 
-                    ></ContactItemController>
-            </Pressable>
-            
+                ></ContactItemController>
         );
       }
     return(

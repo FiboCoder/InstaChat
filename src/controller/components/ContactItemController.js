@@ -1,54 +1,50 @@
 import { doc, onSnapshot } from "firebase/firestore";
 import { useState } from "react";
-import { Pressable } from "react-native";
 import { ContactItem } from "../../components/ContactItem";
 import { db } from "../../utils/firebase";
 
 const ContactItemController = (props) =>{
 
     const [contactData, setContactData] = useState([]);
-    const [selected, setSelected] = useState(false);
 
     const contactQuery = doc(db, "users", props.contact.email);
-    onSnapshot(contactQuery, (contactData)=>{
+
+    const contactSnapshot = onSnapshot(contactQuery, (contactData)=>{
 
         setContactData(contactData.data());
     });
 
+    if(contactSnapshot.length > 0){
+
+        contactSnapshot();
+    }
+
     const doWhenPress = () => {
 
+        let selectedUsersList = props.groupList;
 
-        if(!selected){
+        if(selectedUsersList.includes(props.contact.email)){
 
-            setSelected(!selected);
-            props.setSelectedQuantity(props.selectedQuantity + 1);
-            props.groupUsersList.push(props.contact.email);
-
-            props.setGroupList(props.groupUsersList);
-            
-
-        }else{
-
-            setSelected(!selected);
 
             if(props.selectedQuantity > 0){
 
                 props.setSelectedQuantity(props.selectedQuantity - 1);
-
-                let list = props.groupList;
-
-                props.setGroupList([]);
-                props.setGroupList(list.filter(email=>{
-
-                    return email != props.contact.email;
-
-                }));
             }
-        } 
+            props.setGroupList(selectedUsersList.filter(email=>{
+
+                return email != props.contact.email
+            }))
+
+        }else{
+
+            selectedUsersList.push(props.contact.email);
+            props.setSelectedQuantity(props.selectedQuantity + 1);
+            props.setGroupList(selectedUsersList)
+
+        }
 
     }
 
-    
 
     return(
 
@@ -57,13 +53,13 @@ const ContactItemController = (props) =>{
     
             route={props.route}
 
-            selected={selected}
-
             contactData={contactData}
 
             doWhenPress={doWhenPress}
 
             meEmail={props.meEmail}
+
+            groupUsersList={props.groupUsersList}
         ></ContactItem>
     );
 }

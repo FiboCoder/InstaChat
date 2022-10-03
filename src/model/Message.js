@@ -345,6 +345,8 @@ export class Message{
 
         return new Promise((resolve, reject)=>{
 
+            console.log(aboutGroup)
+
             addDoc(collection(db, "users", meEmail, "chats"), {
 
                 users: groupUsersList,
@@ -363,6 +365,7 @@ export class Message{
                         type: "group",
                         groupName: groupName,
                         groupProfileImage: groupProfileImage,
+                        aboutGroup: aboutGroup,
                         lastMessage: []
                     }).then(result=>{
 

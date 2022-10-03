@@ -9,6 +9,7 @@ export const ContactItem = (props) =>{
 
     const navigation = useNavigation();
 
+
     const render = () => {
 
         if(props.route == "CreateGroup"){
@@ -37,7 +38,7 @@ export const ContactItem = (props) =>{
                             </View>
 
                             {
-                                props.selected
+                                props.groupUsersList.includes(props.contactData.email)
                                     ?
                                         <Ionicons style={{marginLeft: 8}} name="checkmark-circle-sharp" size={26} color="#2196F3" />
                                     :

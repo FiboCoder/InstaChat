@@ -1,7 +1,6 @@
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { CameraType } from "expo-camera";
 import { useRef, useState } from "react";
-
 import { Message } from "../../../model/Message";
 import Camera from "../../../screens/general/Camera";
 

@@ -1,27 +1,30 @@
-import { onAuthStateChanged } from "firebase/auth";
 import { doc, onSnapshot, query } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import Settings from "../../../screens/main/Settings/Settings";
-import { auth, db } from "../../../utils/firebase";
+import { db } from "../../../utils/firebase";
 
-const SettingsController = () =>{
+const SettingsController = (props) =>{
 
     const [userData, setUserData] = useState();
 
     useEffect(()=>{
 
-        onAuthStateChanged(auth, (user)=>{
+        const userRef = query(doc(db, "users", props.meEmail));
+        const settingsSnapshot = onSnapshot(userRef, (userData)=>{
 
-            const userRef = query(doc(db, "users", user.email));
-            onSnapshot(userRef, (userData)=>{
+            if(!userData.empty){
 
-                if(!userData.empty){
+                setUserData(userData);
 
-                    setUserData(userData);
-
-                }
-            });
+            }
         });
+
+        return ()=>{
+
+            console.log("cleaning");
+            settingsSnapshot();
+            console.log("cleaned");
+        }
     },[]);
 
     return(

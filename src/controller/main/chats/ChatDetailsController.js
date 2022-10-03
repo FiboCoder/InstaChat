@@ -1,10 +1,9 @@
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Camera } from "expo-camera";
-import { onAuthStateChanged } from "firebase/auth";
 import { collection, onSnapshot, query } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import ChatDetails from "../../../screens/main/Chats/ChatDetails";
-import { auth, db } from "../../../utils/firebase";
+import { db } from "../../../utils/firebase";
 import { Message } from "../../../model/Message";
 import { Keyboard } from "react-native";
 

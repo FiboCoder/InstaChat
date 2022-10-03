@@ -1,7 +1,4 @@
-
-
 import Login from "../../../screens/auth/Login";
-
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
 import { auth } from "../../../utils/firebase";

@@ -25,7 +25,7 @@ const Contacts = (props) =>{
 
                 <View style={styles.topMainContainer}>
 
-                  <TouchableOpacity onPress={()=>{navigation.navigate('CreateGroup')}} style={styles.topButton}>
+                  <TouchableOpacity onPress={()=>{navigation.navigate('CreateGroup', {meEmail: props.meEmail})}} style={styles.topButton}>
 
                     <View style={styles.iconContainer}>
 
@@ -37,7 +37,7 @@ const Contacts = (props) =>{
 
                   </TouchableOpacity>
 
-                  <TouchableOpacity onPress={()=>{navigation.navigate('AddContact')}} style={styles.topButton}>
+                  <TouchableOpacity onPress={()=>{navigation.navigate('AddContact', {meEmail: props.meEmail})}} style={styles.topButton}>
 
                     <View style={styles.iconContainer}>
 

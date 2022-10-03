@@ -1,54 +1,46 @@
-import { onAuthStateChanged } from "firebase/auth";
 import { collection, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import ChatItemController from "../../components/ChatItemController";
 import Chats from "../../../screens/main/Chats/Chats"
-import { auth, db } from "../../../utils/firebase";
+import { db } from "../../../utils/firebase";
 
-const ChatsController = () =>{
+const ChatsController = (props) =>{
 
     const [chatsList, setChatsList] = useState([]);
-    const [meEmail, setMeEmail] = useState();
 
     useEffect(()=>{
 
-        onAuthStateChanged(auth, (user)=>{
+        const chatsQuery = collection(db, "users", props.meEmail, "chats");
+        const chatsSnapshot = onSnapshot(chatsQuery, (chats)=>{
 
-            if(user){
+            if(!chats.empty){
 
-                setMeEmail(user.email);
+                let chatsArray = [];
 
-                const chatsQuery = collection(db, "users", user.email, "chats");
-                onSnapshot(chatsQuery, (chats)=>{
+                chats.forEach(chat=>{
 
-                    if(!chats.empty){
-
-                        let chatsArray = [];
-
-                        chats.forEach(chat=>{
-
-                            chatsArray.push(chat);
-                        });
-
-                        setChatsList(chatsArray);
-                        
-                    }else{
-
-                        setChatsList([]);
-                    }
+                    chatsArray.push(chat);
                 });
 
-
+                setChatsList(chatsArray);
+                
             }else{
 
                 setChatsList([]);
             }
         });
+
+        return ()=>{
+
+            console.log("cleaning");
+            chatsSnapshot();
+            console.log("cleaned");
+        }
     },[]);
 
     const renderChatItem = ({item}) =>{
         
-        return <ChatItemController meEmail={meEmail} chat={item} ></ChatItemController>
+        return <ChatItemController meEmail={props.meEmail} chat={item} ></ChatItemController>
     }
 
     return(

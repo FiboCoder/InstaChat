@@ -1,8 +1,6 @@
 import Register from "../../../screens/auth/Register";
 import { User } from "../../../model/User";
-
 import * as ImagePicker from 'expo-image-picker';
-
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";

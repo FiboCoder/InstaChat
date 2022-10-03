@@ -28,6 +28,11 @@ import ChatsSettingsController from './src/controller/main/settings/ChatsSetting
 import CameraScreen from './src/screens/general/Camera';
 import CameraController from './src/controller/main/general/CameraController';
 
+import Splash from './src/screens/general/Splash';
+
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './src/utils/firebase';
+
 const Tab = createBottomTabNavigator();
 const AuthStack = createStackNavigator();
 const ChatStack = createStackNavigator();
@@ -47,7 +52,8 @@ export default function App({navigation}) {
           return {
             ...prevState,
             isSignedIn: true,
-            userToken: action.token
+            userToken: action.token,
+            isLoading: false
           };
         case 'SIGN_IN':
 
@@ -74,19 +80,37 @@ export default function App({navigation}) {
 
             ...prevState,
             data: action.data
+          };
+
+        case 'ME_EMAIL':
+          return{
+
+            ...prevState,
+            meEmail: action.meEmail,
+            isLoading: false
           }
       }
     }, {
 
       isSignedIn: false,
       userToken: null,
-      data: null
+      data: null,
+      meEmail: null,
+      isLoading: true
     }
   );
 
   useEffect(() => {
     // Fetch the token from storage then navigate to our appropriate place
     const bootstrapAsync = async () => {
+
+      onAuthStateChanged(auth, (user)=>{
+
+        if(user){
+
+          dispatch({type: 'ME_EMAIL', meEmail: user.email})
+        }
+      });
 
       let userToken;
       let data;
@@ -213,7 +237,16 @@ export default function App({navigation}) {
 
     
     return (
-      <ContactsController></ContactsController>
+
+      <>
+        {
+          state.meEmail != null
+            ?
+              <ContactsController meEmail={state.meEmail}></ContactsController>
+            :
+              <></>
+        }
+      </>
     );
   }
 
@@ -254,8 +287,18 @@ export default function App({navigation}) {
     /* --------------- BEGIN - CHATS SCREENS FUNCTIONS AND ROUTES --------------- */
 
   function ChatsMain({navigation}) {
+
+    
     return (
-      <ChatsController></ChatsController>
+      <>
+        {
+          state.meEmail != null
+            ?
+              <ChatsController meEmail={state.meEmail}></ChatsController>
+            :
+              <></>
+        }
+      </>
     );
   }
   
@@ -292,7 +335,15 @@ export default function App({navigation}) {
 
   const SettingsMain = ({}) =>{
     return (
-      <SettingsController></SettingsController>
+      <>
+        {
+          state.meEmail != null
+            ?
+              <SettingsController meEmail={state.meEmail}></SettingsController>
+            :
+              <></>
+        }
+      </>
     );
   }
 
@@ -365,81 +416,98 @@ export default function App({navigation}) {
     );
   }
 
+  const SplashMain = () =>{
+
+    return(
+
+      <Splash></Splash>
+    );
+  }
+
   return (
 
     <AuthContext.Provider value={authContext}>
       <NavigationContainer>
         <Tab.Navigator >
 
-          {state.userToken == null ? (
+          {
 
-            <>
-              <Tab.Screen name="AuthStack" options={({route})=>({headerShown: false, tabBarStyle: {display: 'none'}})} component={AuthStackScreen} />
-              
-            </>
-          ) : (
-
-            <>
-
-              {/* --------------- BEGIN CONTACTS ROUTES --------------- */}
-
-              <Tab.Screen name="ContactsApp" options={({route})=>({headerShown: false, tabBarShowLabel: false, tabBarIcon: ({focused})=>{
-
-                return (
-
-                  focused
-                  ? 
-                  <FontAwesome5 name="user-alt" size={24} color="#4B4B4B" />
+            state.isLoading == true 
+              ?
+                <Tab.Screen name="SplashMain" component={SplashMain}/>
+              :
+                state.userToken == null
+                  ?
+                    (
+                      <>
+                        <Tab.Screen name="AuthStack" options={({route})=>({headerShown: false, tabBarStyle: {display: 'none'}})} component={AuthStackScreen} />
+                        
+                      </>
+                    )
                   :
-                  <FontAwesome5 name="user" size={24} color="#4B4B4B" />
+                    (
+                      <>
 
-                );
-              }, tabBarStyle: {display: getTabBarVisibility(route)}})} component={ContactsStackScreen}></Tab.Screen>
+                        {/* --------------- BEGIN CONTACTS ROUTES --------------- */}
 
-              {/* --------------- END CONTACTS ROUTES --------------- */}
+                        <Tab.Screen name="ContactsApp" options={({route})=>({headerShown: false, tabBarShowLabel: false, tabBarIcon: ({focused})=>{
 
+                          return (
 
-              {/* --------------- BEGIN CHATS ROUTES --------------- */}
+                            focused
+                            ? 
+                            <FontAwesome5 name="user-alt" size={24} color="#4B4B4B" />
+                            :
+                            <FontAwesome5 name="user" size={24} color="#4B4B4B" />
 
-              <Tab.Screen name="ChatsApp" options={({route})=>({
-                headerShown: false, 
-                tabBarIcon: ({})=>{
+                          );
+                        }, tabBarStyle: {display: getTabBarVisibility(route)}})} component={ContactsStackScreen}></Tab.Screen>
 
-                  return(
-
-                      <Image style={{width: 70, height: 70, marginBottom: 50}} source={require('./assets/images/logo.png')}></Image>
-                  );
-                },
-                tabBarStyle: {display: getTabBarVisibility(route)}, 
-                tabBarShowLabel: false})} component={ChatsRoutes} />
-
-              {/* --------------- END CHATS ROUTES --------------- */}
+                        {/* --------------- END CONTACTS ROUTES --------------- */}
 
 
-              {/* --------------- BEGIN SETTINGS ROUTES --------------- */}
+                        {/* --------------- BEGIN CHATS ROUTES --------------- */}
 
-              <Tab.Screen name="SettingsApp" options={({route})=>({
+                        <Tab.Screen name="ChatsApp" options={({route})=>({
+                          headerShown: false, 
+                          tabBarIcon: ({})=>{
 
-                headerShown: false, 
-                tabBarShowLabel: false, 
-                tabBarIcon: ({focused})=>{
+                            return(
 
-                  return (
+                                <Image style={{width: 70, height: 70, marginBottom: 50}} source={require('./assets/images/logo.png')}></Image>
+                            );
+                          },
+                          tabBarStyle: {display: getTabBarVisibility(route)}, 
+                          tabBarShowLabel: false})} component={ChatsRoutes} />
 
-                    focused
-                    ? 
-                    <Ionicons name="settings" size={24} color="#4B4B4B" />
-                    :
-                    <Ionicons name="settings-outline" size={24} color="#4B4B4B" />
+                        {/* --------------- END CHATS ROUTES --------------- */}
 
-                  );
-                },
-                tabBarStyle: {display: getTabBarVisibility(route)}
-              })} component={SettingsStackScreen}></Tab.Screen>
 
-              {/* --------------- END SETTINGS ROUTES --------------- */}
-            </>
-          )}
+                        {/* --------------- BEGIN SETTINGS ROUTES --------------- */}
+
+                        <Tab.Screen name="SettingsApp" options={({route})=>({
+
+                          headerShown: false, 
+                          tabBarShowLabel: false, 
+                          tabBarIcon: ({focused})=>{
+
+                            return (
+
+                              focused
+                              ? 
+                              <Ionicons name="settings" size={24} color="#4B4B4B" />
+                              :
+                              <Ionicons name="settings-outline" size={24} color="#4B4B4B" />
+
+                            );
+                          },
+                          tabBarStyle: {display: getTabBarVisibility(route)}
+                        })} component={SettingsStackScreen}></Tab.Screen>
+
+                        {/* --------------- END SETTINGS ROUTES --------------- */}
+                      </>
+                    )
+          }
         </Tab.Navigator>
       </NavigationContainer>
     </AuthContext.Provider>
