@@ -1,6 +1,7 @@
+import React from "react";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Camera } from "expo-camera";
-import { collection, onSnapshot, query } from "firebase/firestore";
+import { collection, doc, onSnapshot, orderBy, query, updateDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import ChatDetails from "../../../screens/main/Chats/ChatDetails";
 import { db } from "../../../utils/firebase";
@@ -15,17 +16,16 @@ const ChatDetailsController = (props) =>{
     //Permissions
     const [cameraPermission, setCameraPermission] = Camera.useCameraPermissions();
 
-    const [snapshot, setSnapShot] = useState();
-
     //Message states
     const [messageContent, setMessageContent] = useState('');
     const [messagesList, setMessagesList] = useState([]);
-    const [meEmail, setMeEmail] = useState('');
     const [chatId, setChatId] = useState();
 
     const [modalVisibility, setModalVisibility] = useState(false);
     const [menuModalVisibility, setMenuModalVisibility] = useState(false);
     const [item, setItem] = useState(false);
+
+    console.log("UPDATE")
 
     //Request permissions
     const requestCameraPermission = async () =>{
@@ -56,7 +56,7 @@ const ChatDetailsController = (props) =>{
                         
                         contactEmail: route.params.contactData.email,
                         meEmail: route.params.meEmail,
-                        chatId: chatId,
+                        chatId: route.params.chatId,
                         route: "Chat_Single"
                     }
                 });
@@ -71,7 +71,7 @@ const ChatDetailsController = (props) =>{
                         
                         contactEmail: route.params.contactData.email,
                         meEmail: route.params.meEmail,
-                        chatId: chatId,
+                        chatId: route.params.chatId,
                         route: "Chat_Group"
                     }
                 });
@@ -126,26 +126,22 @@ const ChatDetailsController = (props) =>{
 
     useEffect(()=>{
 
+        if(route.params.route == "Contact_List"){
 
-        //Listen 'Chats'
-        const chatsQuery = query(collection(db, "users", route.params.meEmail, "chats"));
-        const snapshot = onSnapshot(chatsQuery, (chats)=>{
+            const chatsQuery = query(collection(db, "users", route.params.meEmail, "chats"));
+            const chatsSnapshot = onSnapshot(chatsQuery, (chats)=>{
 
-            if(!chats.empty){
+                if(!chats.empty){
 
-                chats.forEach((chat)=>{
-
-                    //Get messages if chat exists
-
-                    if(route.params.route == "Contact_List"){
+                    chats.forEach((chat)=>{
 
                         if(chat.data().users[0] == route.params.contactData.email && chat.data().users[1] == route.params.meEmail){
 
                             setChatId(chat.id);
 
                             //Listen 'Messages'
-                            const messagesQuery = query(collection(db, "users", route.params.meEmail, "chats", chat.id, "messages"));
-                            onSnapshot(messagesQuery, (messages)=>{
+                            const messagesQuery = query(collection(db, "users", route.params.meEmail, "chats", chat.id, "messages"), orderBy("time"));
+                            const messagesSnapshot = onSnapshot(messagesQuery, (messages)=>{
 
                                 let messagesArray = [];
     
@@ -170,103 +166,184 @@ const ChatDetailsController = (props) =>{
 
                                             messagesArray.push(message.data());
 
+                                            console.log("RECEIVED")
+
+
                                         }else{
+
+                                            console.log("NOT")
 
                                             messagesArray.push(message.data());
                                         }
                                         
                                     });
 
-                                    //Sort messages by timestamp
-                                    let sortedArray = messagesArray.sort((a, b)=>{
+                                    if(messages.size == messagesArray.length){
 
+                                        console.log("SIZE: "+messages.size+" LENGHT: "+messagesArray.length)
+                                    }
+
+                                    let sortedArray = messagesArray.sort((a, b)=>{
+            
                                         return a.time - b.time;
                                     })
                                     setMessagesList(sortedArray);
-    
+
+                                    
+
                                 }else{
     
-                                    setMessagesList([]);
+                                    setMessagesList(messagesList);
                                 }
                             });
+
+                            return ()=>{
+
+                                messagesSnapshot();
+                            }
     
                         }else{
 
-                            setMessagesList([]);
+                            setMessagesList(messagesList);
                         }
-                    }else if(route.params.route == "Chat_Single" || route.params.route == "Chat_Group"){
+                    });
+                }
+            });
 
-                        if(chat.id == route.params.chatId){
+            return ()=>{
 
-                            setChatId(chat.id);
-
-                            //Listen 'Messages'
-                            const messagesQuery = query(collection(db, "users", route.params.meEmail, "chats", chat.id, "messages"));
-                            onSnapshot(messagesQuery, (messages)=>{
-
-                                let messagesArray = [];
-    
-                                if(!messages.empty){
-
-                                    messages.forEach((message, index)=>{
-
-                                        //Check if message is from contact
-                                        if(message.data().from !== route.params.meEmail){
-
-                                            //Check if status is 'sent' and update status from contact to 'received'
-                                            if(message.data().status === 'sent'){
-
-                                                const messageRef = doc(db, "users", message.data().from, "chats", chat.id, "messages", message.id);
-                                                updateDoc(messageRef, {
-
-                                                    status: 'received'
-                                                }).then(result=>{
-
-                                                });
-                                            }
-
-                                            messagesArray.push(message.data());
-
-
-                                        }else{
-
-                                            messagesArray.push(message.data());
-                                        }
-                                        
-                                    });
-
-                                    //Sort messages by timestamp
-                                    let sortedArray = messagesArray.sort((a, b)=>{
-
-                                        return a.time - b.time;
-                                    })
-                                    setMessagesList(sortedArray);
-    
-                                }else{
-    
-                                    setMessagesList([]);
-                                }
-                            });
-    
-                        }else{
-
-                            setMessagesList([]);
-                        }
-                    }
-                });
-            }else{
-
-                setMessagesList([]);
+                chatsSnapshot();
             }
 
-        });
 
-        return ()=> {
-            console.log("clean")
-            snapshot()
-            console.log("cleaned")
+        }else if(route.params.route == "Chat_Single"){
+
+            //Listen 'Messages'
+            const messagesQuery = query(collection(db, "users", route.params.meEmail, "chats", route.params.chatId, "messages"));
+            const messagesSnapshot = onSnapshot(messagesQuery, (messages)=>{
+
+                let messagesArray = [];
+
+                if(!messages.empty){
+
+                    messages.forEach((message, index)=>{
+
+                        //Check if message is from contact
+                        if(message.data().from !== route.params.meEmail){
+
+                            //Check if status is 'sent' and update status from contact to 'received'
+                            if(message.data().status === 'sent'){
+
+                                const messageRef = doc(db, "users", message.data().from, "chats", route.params.chatId, "messages", message.id);
+                                updateDoc(messageRef, {
+
+                                    status: 'received'
+                                }).then(result=>{
+
+                                });
+                            }
+
+                            messagesArray.push(message.data());
+
+
+                        }else{
+
+                            messagesArray.push(message.data());
+                        }
+
+                    });
+
+                    //Sort messages by timestamp
+                    if(messages.size == messagesArray.length){
+
+                        
+
+                        console.log("SIZE: "+messages.size+" LENGHT: "+messagesArray.length)
+                    }
+
+                    let sortedArray = messagesArray.sort((a, b)=>{
+
+                        return a.time - b.time;
+                    })
+                    setMessagesList(sortedArray);
+
+                }else{
+
+                    setMessagesList(messagesList);
+                }
+            });
+
+            return ()=>{
+                
+                messagesSnapshot
+            }
+
+        }else if(route.params.route == "Chat_Group"){
+
+            //Listen 'Messages'
+            const messagesQuery = query(collection(db, "users", route.params.meEmail, "chats", route.params.chatId, "messages"));
+            const messagesSnapshot = onSnapshot(messagesQuery, (messages)=>{
+
+                let messagesArray = [];
+
+                if(!messages.empty){
+
+                    messages.forEach((message, index)=>{
+
+                        //Check if message is from contact
+                        if(message.data().from !== route.params.meEmail){
+
+                            //Check if status is 'sent' and update status from contact to 'received'
+                            if(message.data().status === 'sent'){
+
+                                const messageRef = doc(db, "users", message.data().from, "chats", route.params.chatId, "messages", message.id);
+                                updateDoc(messageRef, {
+
+                                    status: 'received'
+                                }).then(result=>{
+
+                                });
+                            }
+
+                            messagesArray.push(message.data());
+
+
+                        }else{
+
+                            messagesArray.push(message.data());
+                        }
+
+                    });
+
+                    //Sort messages by timestamp
+                    if(messages.size == messagesArray.length){
+
+                        
+
+                        console.log("SIZE: "+messages.size+" LENGHT: "+messagesArray.length)
+                    }
+
+                    let sortedArray = messagesArray.sort((a, b)=>{
+
+                        return a.time - b.time;
+                    })
+                    setMessagesList(sortedArray);
+
+                }else{
+
+                    setMessagesList([]);
+                }
+            });
+
+            return ()=>{
+                
+                messagesSnapshot
+            }
+
+        }else{
+
+
         }
-
         
     }, []);
 

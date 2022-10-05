@@ -1,6 +1,7 @@
+import { collection, onSnapshot, query } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { User } from "../../../model/User";
 import Contacts from "../../../screens/main/Contacts/Contacts";
+import { db } from "../../../utils/firebase";
 import ContactItemController from "../../components/ContactItemController";
 
 const ContactsController = (props) =>{
@@ -11,23 +12,29 @@ const ContactsController = (props) =>{
 
     useEffect(()=>{
 
-      User.getContacts(props.meEmail).then(contacts=>{
+        const contactsQuery = query(collection(db, "users", props.meEmail, "contacts"));
+        const contactsnapshot = onSnapshot(contactsQuery, (contacts)=>{
 
-        let contactsArray = [];
+            let contactsArray = [];
 
-        if(!contacts.empty){
+            if(!contacts.empty){
 
-            contacts.forEach(contact=>{
+                contacts.forEach(contact=>{
+    
+                    contactsArray.push(contact.data())
+                })
+    
+                setContactsList(contactsArray);
+            }else{
+    
+                setContactsList(contactsList);
+            }
+        });
 
-                contactsArray.push(contact.data())
-            })
+        return ()=>{
 
-            setContactsList(contactsArray);
-        }else{
-
-            setContactsList([]);
+            contactsnapshot()
         }
-    });
       
     },[]);
 
