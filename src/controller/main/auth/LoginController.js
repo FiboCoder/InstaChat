@@ -25,7 +25,7 @@ const LoginController = (props) =>{
 
                     setEmail('');
                     setPassword('');
-                    props.signIn({email});
+                    props.signIn({user});
 
                 }).catch(err=>{
         

@@ -82,10 +82,11 @@ export default function App({navigation}) {
             data: action.data
           };
 
-        case 'ME_EMAIL':
+        case 'USER_DATA':
           return{
 
             ...prevState,
+            userData: action.userData,
             meEmail: action.meEmail,
             isLoading: false
           }
@@ -96,6 +97,7 @@ export default function App({navigation}) {
       userToken: null,
       data: null,
       meEmail: null,
+      userData: null,
       isLoading: true
     }
   );
@@ -104,20 +106,39 @@ export default function App({navigation}) {
     // Fetch the token from storage then navigate to our appropriate place
     const bootstrapAsync = async () => {
 
-      onAuthStateChanged(auth, (user)=>{
-
-        if(user){
-
-          dispatch({type: 'ME_EMAIL', meEmail: user.email})
-        }
-      });
-
-      let userToken;
-      let data;
+      let userToken = null;
+      let data = null;
 
       try {
         userToken = await SecureStore.getItemAsync('userToken');
         data = await SecureStore.getItemAsync('userChatsConfigs');
+
+        onAuthStateChanged(auth, (user)=>{
+
+          if(user){
+
+            if(userToken != null && user != null){
+
+              if(userToken == user.uid){
+    
+                dispatch({type: 'USER_DATA', userData: user, meEmail: user.email})
+                dispatch({type: 'RESTORE_TOKEN', token: userToken});
+
+              }else{
+    
+                dispatch({type: 'USER_DATA', userData: user, meEmail: user.email})
+                dispatch({type: 'RESTORE_TOKEN', token: null});
+              }
+            }else{
+
+              dispatch({type: 'RESTORE_TOKEN', token: null});
+            }
+          }else{
+
+            dispatch({type: 'RESTORE_TOKEN', token: null});
+          }
+        });
+        
       } catch (e) {
         // Restoring token failed
       }
@@ -126,7 +147,7 @@ export default function App({navigation}) {
 
       // This will switch to the App screen or Auth screen and this loading
       // screen will be unmounted and thrown away.
-      dispatch({ type: 'RESTORE_TOKEN', token: userToken });
+      //dispatch({ type: 'RESTORE_TOKEN', token: userToken });
     };
 
     bootstrapAsync();
@@ -141,17 +162,17 @@ export default function App({navigation}) {
         // After getting token, we need to persist the token using `SecureStore`
         // In the example, we'll use a dummy token
 
-        dispatch({ type: 'SIGN_IN',  token: 'niceToken'});
+        dispatch({ type: 'SIGN_IN',  token: data.user.uid});
 
       },
       signOut: () => dispatch({ type: 'SIGN_OUT' }),
-      signUp: async () => {
+      signUp: async (data) => {
         // In a production app, we need to send user data to server and get a token
         // We will also need to handle errors if sign up failed
         // After getting token, we need to persist the token using `SecureStore`
         // In the example, we'll use a dummy token
 
-        dispatch({ type: 'SIGN_IN', token: 'niceToken'});
+        dispatch({ type: 'SIGN_IN', token: data.user.uid});
         
       },
 
@@ -434,7 +455,7 @@ export default function App({navigation}) {
 
             state.isLoading == true 
               ?
-                <Tab.Screen name="SplashMain" component={SplashMain}/>
+                <Tab.Screen options={{headerShown: false, tabBarStyle: {display: 'none'}}} name="SplashMain" component={SplashMain}/>
               :
                 state.userToken == null
                   ?
