@@ -240,7 +240,7 @@ export default function App({navigation}) {
 
     return(
 
-      <AuthStack.Navigator initialRouteName='RegisterScreen' screenOptions={{headerShown: false}}>
+      <AuthStack.Navigator initialRouteName='LoginScreen' screenOptions={{headerShown: false}}>
 
         <AuthStack.Screen name="RegisterScreen" component={RegisterScreen}></AuthStack.Screen>
         <AuthStack.Screen name="LoginScreen" component={LoginScreen}></AuthStack.Screen>

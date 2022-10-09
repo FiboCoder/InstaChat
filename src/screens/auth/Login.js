@@ -37,10 +37,10 @@ const Login = (props) =>{
                     <TextInput secureTextEntry={true} onChangeText={(text)=>props.setPassword(text)} style={styles.textInput} placeholder="Senha" value={props.password}></TextInput>
                 </View>
 
-                <View>
+                {/*<View>
 
                     <Text style={styles.forgetPasswordText}>Esqueceu a senha ?</Text>
-                </View>
+                </View>*/}
             </View>
 
             <View style={styles.buttonContainer}>

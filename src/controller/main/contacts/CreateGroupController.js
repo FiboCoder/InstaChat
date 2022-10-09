@@ -112,9 +112,9 @@ const CreateGroupController = () =>{
 
                 if(image != ''){
 
-                    if(props.meEmail){
+                    if(route.params.meEmail){
 
-                        Message.createGroup(props.meEmail, image, groupName, aboutGroup, groupList).then(result=>{
+                        Message.createGroup(route.params.meEmail, image, groupName, aboutGroup, groupList).then(result=>{
 
                             navigation.goBack();
                         });
@@ -131,9 +131,9 @@ const CreateGroupController = () =>{
                     }     
                 }else{
 
-                    if(props.meEmail){
+                    if(route.params.meEmail){
 
-                        Message.createGroup(props.meEmail, "", groupName, aboutGroup, groupList).then(result=>{
+                        Message.createGroup(route.params.meEmail, "", groupName, aboutGroup, groupList).then(result=>{
 
                             navigation.goBack();
                         });

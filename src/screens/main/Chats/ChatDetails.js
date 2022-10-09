@@ -189,7 +189,7 @@ export default function ChatDetails(props){
                                 <Entypo  name="emoji-happy" size={24} color="#4B4B4B" />
                             </TouchableOpacity>*/}
                             
-                            <TextInput onSubmitEditing={Keyboard.dismiss} onChangeText={(message)=>props.setMessageContent(message)} value={props.messageContent} style={{flex: 1, marginLeft: 10}} placeholder='Mensagem...'></TextInput>
+                            <TextInput onSubmitEditing={Keyboard.dismiss} onChangeText={(message)=>props.setMessageContent(message)} value={props.messageContent} style={{flex: 1, marginLeft: 10, marginRight: 10}} placeholder='Mensagem...'></TextInput>
 
                             {/*<TouchableOpacity style={{marginLeft: 6, marginRight: 6}}>
                                 <Entypo name="attachment" size={24} color="#4B4B4B" />

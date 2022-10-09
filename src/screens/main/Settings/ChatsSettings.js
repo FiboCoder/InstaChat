@@ -27,7 +27,7 @@ export const ChatsSettings = (props) =>{
 
             <View style={styles.mainContainer}>
 
-                <Text style={styles.title}>Display</Text>
+                {/*<Text style={styles.title}>Display</Text>
 
                 <View style={styles.displayItemContainer}>
 
@@ -61,7 +61,7 @@ export const ChatsSettings = (props) =>{
 
                     </View>
                         
-                </View>
+                </View>*/}
 
                 <Text style={[styles.title, {marginTop: 30}]}>Chat</Text>
 
@@ -82,7 +82,7 @@ export const ChatsSettings = (props) =>{
                     
                 </View>
 
-                <View style={styles.chatItemContainer}>
+                {/*<View style={styles.chatItemContainer}>
 
                     <View style={{flex: 1, width: '100%', marginLeft: 20}}>
 
@@ -125,7 +125,7 @@ export const ChatsSettings = (props) =>{
                         </View>
 
                     </View>
-                </View>
+                </View>*/}
             </View>
 
             <TouchableOpacity onPress={()=>{props.saveChanges()}} style={styles.saveButtonContainer}>

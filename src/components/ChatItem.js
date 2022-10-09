@@ -24,7 +24,7 @@ export const ChatItem = (props)=>{
             
         }else{
 
-            return <Text style={{color: '#5E5E5E'}}>{props.chat.data().lastMessage.content}</Text>
+            return <Text numberOfLines={1} style={{color: '#5E5E5E'}}>{props.chat.data().lastMessage.content}</Text>
 
         }
     }

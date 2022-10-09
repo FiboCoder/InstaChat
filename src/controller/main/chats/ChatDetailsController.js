@@ -25,8 +25,6 @@ const ChatDetailsController = (props) =>{
     const [menuModalVisibility, setMenuModalVisibility] = useState(false);
     const [item, setItem] = useState(false);
 
-    console.log("UPDATE")
-
     //Request permissions
     const requestCameraPermission = async () =>{
 
@@ -166,22 +164,12 @@ const ChatDetailsController = (props) =>{
 
                                             messagesArray.push(message.data());
 
-                                            console.log("RECEIVED")
-
-
                                         }else{
-
-                                            console.log("NOT")
 
                                             messagesArray.push(message.data());
                                         }
                                         
                                     });
-
-                                    if(messages.size == messagesArray.length){
-
-                                        console.log("SIZE: "+messages.size+" LENGHT: "+messagesArray.length)
-                                    }
 
                                     let sortedArray = messagesArray.sort((a, b)=>{
             
@@ -254,13 +242,6 @@ const ChatDetailsController = (props) =>{
                     });
 
                     //Sort messages by timestamp
-                    if(messages.size == messagesArray.length){
-
-                        
-
-                        console.log("SIZE: "+messages.size+" LENGHT: "+messagesArray.length)
-                    }
-
                     let sortedArray = messagesArray.sort((a, b)=>{
 
                         return a.time - b.time;
@@ -316,13 +297,6 @@ const ChatDetailsController = (props) =>{
                     });
 
                     //Sort messages by timestamp
-                    if(messages.size == messagesArray.length){
-
-                        
-
-                        console.log("SIZE: "+messages.size+" LENGHT: "+messagesArray.length)
-                    }
-
                     let sortedArray = messagesArray.sort((a, b)=>{
 
                         return a.time - b.time;

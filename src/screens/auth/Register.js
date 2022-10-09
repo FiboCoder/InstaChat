@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { StyleSheet, TextInput, View, Text, TouchableOpacity, Image, Pressable} from "react-native";
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
-
+import { Foundation } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
 import ModalImageOptions from "../../components/ModalImageOptions";
@@ -111,7 +111,7 @@ const Register = (props) =>{
 
                     <View style={styles.textFields}>
 
-                        <FontAwesome name="envelope-o" size={20} color="#5E5E5E" />
+                        <Foundation name="lightbulb" size={20} color="#5E5E5E" />
                         <TextInput onChangeText={(val)=>props.setAboutMe(val)} style={styles.textInput} placeholder="Sobre mim..." value={props.aboutMe}></TextInput>
                     </View>
 

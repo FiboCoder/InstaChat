@@ -24,7 +24,10 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+
+      "package": "com.app.instachat",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"
