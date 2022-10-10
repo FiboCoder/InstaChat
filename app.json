@@ -26,6 +26,8 @@
         "backgroundColor": "#FFFFFF"
       },
 
+      "permissions": [],
+
       "package": "com.app.instachat",
       "versionCode": 1
     },
