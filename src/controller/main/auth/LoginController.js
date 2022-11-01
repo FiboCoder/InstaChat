@@ -8,14 +8,19 @@ const LoginController = (props) =>{
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loginError, setLoginError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const login = ()=>{
+
+        
 
         console.log(email)
 
         if(email.toString() !== ''){
 
             if(password.toString() !== ''){
+
+                setLoading(true);
 
                 setLoginError('');
     
@@ -26,22 +31,24 @@ const LoginController = (props) =>{
                     setEmail('');
                     setPassword('');
                     props.signIn({user});
+                    setLoading(false);
 
                 }).catch(err=>{
         
                     console.log(err)
                     setLoginError("Erro ao fazer login, tente novamente.");
+                    setLoading(false);
+
                 });
         
             }else{
     
                 setLoginError("Preencha o campo Senha.");
-                
+
             }
         }else{
 
             setLoginError("Preencha o campo E-mail.");
-
         }
     }
 
@@ -55,6 +62,9 @@ const LoginController = (props) =>{
             email={email}
             password={password}
             loginError={loginError}
+
+            loading={loading}
+            
             login={login}
         ></Login>
     );

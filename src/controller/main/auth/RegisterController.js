@@ -20,6 +20,10 @@ const RegisterController = () =>{
     const [aboutMe, setAboutMe] = useState('');
     const [registerError, setRegisterError] = useState('');
 
+    const [loading, setLoading] = useState(false);
+
+    const [step, setStep] = useState("first");
+
     getImageModal = () =>{
 
         setIsVisible(true);
@@ -62,6 +66,50 @@ const RegisterController = () =>{
           }
     }
 
+    const previous = () =>{
+
+        setStep("first");
+    }
+
+    const next = () =>{
+
+        if(email.toString() !== ''){
+
+            if(password.toString() !== ''){
+
+                if(confirmPassword.toString() !== ''){
+
+                    if(password.toString() === confirmPassword.toString()){
+
+                        if(password.length >= 6 && confirmPassword.length >= 6){
+
+                            setRegisterError("");
+                            setStep("second");
+                        }else{
+
+                            setRegisterError("A senha deve conter no mínimo 6 caractéres!")
+                        }
+
+                    }else{
+
+                        setRegisterError("As senhas digitas não conferem!");
+
+                    }
+
+                }else{
+        
+                    setRegisterError("Antes de avançar preencha todos os campos!");
+                }
+            }else{
+    
+                setRegisterError("Antes de avançar preencha todos os campos!");
+            }
+        }else{
+
+            setRegisterError("Antes de avançar preencha todos os campos!");
+        }
+    }
+
     const register = async ()=>{
 
         if(email.toString() !== ''){
@@ -72,27 +120,68 @@ const RegisterController = () =>{
 
                     if(password.toString() === confirmPassword.toString()){
 
-                        if(username.toString() !== ''){
+                        if(password.length >= 6 && confirmPassword >= 6){
 
-                            if(aboutMe.toString() !== ''){
+                            if(username.toString() !== ''){
 
-                                setRegisterError("");
-
-                                if(image != ''){
-
-                                    let response = await fetch(image);
-                                    const blob = await response.blob();
-        
-                                    User.uploadPhoto(email, blob).then(imageRef=>{
-        
-                                        createUserWithEmailAndPassword(auth, email, password).then((userCredeantial)=>{
+                                if(aboutMe.toString() !== ''){
+    
+                                    setRegisterError("");
+    
+                                    if(image != ''){
+    
+                                        setLoading(true);
+    
+                                        let response = await fetch(image);
+                                        const blob = await response.blob();
+            
+                                        User.uploadPhoto(email, blob).then(imageRef=>{
+            
+                                            createUserWithEmailAndPassword(auth, email, password).then((userCredeantial)=>{
+                        
+                                                const userData = userCredeantial.user;
                     
+                                                let user = new User();
+                    
+                                                user.setEmail(email);
+                                                user.setProfileImage(imageRef);
+                                                user.settUsername(username);
+                                                user.setAboutMe(aboutMe);
+                    
+                                                user.saveUser().then(result=>{
+                    
+                                                    setEmail('');
+                                                    setPassword('');
+                                                    setConfirmPassword('');
+                                                    setImage('');
+                                                    setUsername('');
+                                                    setAboutMe('');
+    
+                                                    setLoading(false);
+    
+                                                    navigation.navigate('LoginScreen');
+    
+                                                });
+                    
+                    
+                                            }).catch(err=>{
+                                    
+                                                setLoading(false);
+                                                setRegisterError("Erro ao cadastrar usuário, tente novamente.");
+                                            });
+                                        });
+                                    }else{
+    
+                                        setLoading(true);
+            
+                                        createUserWithEmailAndPassword(auth, email, password).then((userCredeantial)=>{
+                        
                                             const userData = userCredeantial.user;
                 
                                             let user = new User();
                 
                                             user.setEmail(email);
-                                            user.setProfileImage(imageRef);
+                                            user.setProfileImage('');
                                             user.settUsername(username);
                                             user.setAboutMe(aboutMe);
                 
@@ -101,57 +190,39 @@ const RegisterController = () =>{
                                                 setEmail('');
                                                 setPassword('');
                                                 setConfirmPassword('');
-                                                setImage('');
                                                 setUsername('');
                                                 setAboutMe('');
+    
+                                                setLoading(false);
+    
+                                                navigation.navigate('LoginScreen');
+    
                                             });
                 
-                                            navigation.navigate('LoginScreen');
                 
                                         }).catch(err=>{
                                 
+                                            console.log(err)
+                                            setLoading(false);
                                             setRegisterError("Erro ao cadastrar usuário, tente novamente.");
                                         });
-                                    });
+                                    }
                                 }else{
-        
-                                    createUserWithEmailAndPassword(auth, email, password).then((userCredeantial)=>{
-                    
-                                        const userData = userCredeantial.user;
-            
-                                        let user = new User();
-            
-                                        user.setEmail(email);
-                                        user.setProfileImage('');
-                                        user.settUsername(username);
-                                        user.setAboutMe(aboutMe);
-            
-                                        user.saveUser().then(result=>{
-            
-                                            setEmail('');
-                                            setPassword('');
-                                            setConfirmPassword('');
-                                            setUsername('');
-                                            setAboutMe('');
-                                        });
-            
-                                        navigation.navigate('LoginScreen')
-            
-                                    }).catch(err=>{
-                            
-                                        setRegisterError("Erro ao cadastrar usuário, tente novamente.");
-                                    });
+    
+                                    setRegisterError("Preencha o campo Sobre mim.");
+    
                                 }
                             }else{
-
-                                setRegisterError("Preencha o campo Sobre mim.");
-
+    
+                                setRegisterError("Preencha o campo Nome de Usuário.");
+    
                             }
                         }else{
 
-                            setRegisterError("Preencha o campo Nome de Usuário.");
-
+                            setRegisterError("A senha deve conter no mínimo 6 caractéres!")
                         }
+
+                        
                     }else{
             
                         setRegisterError("As senhas digitadas não conferem!");
@@ -189,6 +260,13 @@ const RegisterController = () =>{
             aboutMe={aboutMe}
             confirmPassword={confirmPassword}
             registerError={registerError}
+
+            loading={loading}
+
+            step={step}
+
+            previous={previous}
+            next={next}
 
             register={register}
 

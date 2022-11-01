@@ -7,27 +7,15 @@ import { Foundation } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
 import ModalImageOptions from "../../components/ModalImageOptions";
+import LoadingBar from "../../components/LoadingBar";
 
 const Register = (props) =>{
 
     const navigation = useNavigation();
 
-    const [step, setStep] = useState("first");
-
-    next = () =>{
-
-        setStep("second");
-    }
-
-    previous = () =>{
-
-        setStep("first");
-        
-    }
-
     renderSteps = () =>{
 
-        if(step == "first"){
+        if(props.step == "first"){
 
             return (
 
@@ -57,12 +45,13 @@ const Register = (props) =>{
                         <TextInput secureTextEntry={true} onChangeText={(val)=>props.setConfirmPassword(val)} style={styles.textInput} placeholder="Confirmar senha" value={props.confirmPassword}></TextInput>
                     </View>
 
-                    {props.registerError ? <Text style={{marginTop: 20, color: '#ff0000'}}>{props.registerError}</Text> : <Text style={{display: 'none'}}></Text>}
+                    
 
                     <View style={styles.buttonsContainer}>
 
-                        
-                        <TouchableOpacity onPress={()=>{next()}} style={styles.nextButtonContainer}>
+                        {props.registerError ? <Text style={{color: '#ff0000'}}>{props.registerError}</Text> : <Text style={{display: 'none'}}></Text>}
+
+                        <TouchableOpacity onPress={()=>{props.next()}} style={styles.nextButtonContainer}>
 
                             <Text style={styles.nextButtonText}>Avançar</Text>
                         </TouchableOpacity>
@@ -71,7 +60,7 @@ const Register = (props) =>{
             )
 
 
-        }else if(step == "second"){
+        }else if(props.step == "second"){
 
             return (
 
@@ -116,11 +105,11 @@ const Register = (props) =>{
                     </View>
 
 
-                    {props.registerError ? <Text style={{color: '#ff0000'}}>{props.registerError}</Text> : <Text style={{display: 'none'}}></Text>}
+                    {props.registerError ? <Text style={{marginTop: 30, color: '#ff0000'}}>{props.registerError}</Text> : <View style={{marginTop: 30}}></View>}
 
-                    <View style={styles.buttonsContainer}>
+                    <View style={[styles.buttonsContainer, {flexDirection: "row", marginTop: 10}]}>
 
-                        <TouchableOpacity onPress={()=>{previous()}} style={styles.previousButtonContainer}>
+                        <TouchableOpacity onPress={()=>{props.previous()}} style={styles.previousButtonContainer}>
 
                             <Text style={styles.previousButtonText}>Voltar</Text>
                         </TouchableOpacity>
@@ -130,6 +119,8 @@ const Register = (props) =>{
                             <Text style={styles.registerButtonText}>Cadastrar</Text>
                         </TouchableOpacity>
                     </View>
+
+                    { props.loading ? <LoadingBar/> : null }
                 </>
             )
         }
@@ -221,9 +212,9 @@ const styles = StyleSheet.create({
     buttonsContainer:{
 
         width: '100%', 
-        flexDirection: 'row',
+        flexDirection: 'column',
         justifyContent: 'space-between',
-        marginTop: 10, 
+        marginTop: 30, 
         alignItems: 'center', 
         paddingStart: 5, 
         paddingEnd: 5
@@ -231,7 +222,6 @@ const styles = StyleSheet.create({
 
     previousButtonContainer:{
 
-        marginTop: 20, 
         paddingStart: 14,
         paddingEnd: 14,
         paddingTop: 14,
@@ -245,7 +235,7 @@ const styles = StyleSheet.create({
     nextButtonContainer:{
 
         width: "100%",
-        marginTop: 40, 
+        marginTop: 10,
         paddingStart: 10,
         paddingEnd: 10,
         paddingTop: 14,
@@ -259,7 +249,6 @@ const styles = StyleSheet.create({
 
     registerButtonContainer:{
 
-        marginTop: 10, 
         paddingStart: 16,
         paddingEnd: 16,
         paddingTop: 14,

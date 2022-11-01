@@ -6,6 +6,7 @@ import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 
 import Constants from 'expo-constants';
+import LoadingBar from "../../components/LoadingBar";
 
 const Login = (props) =>{
 
@@ -14,7 +15,7 @@ const Login = (props) =>{
 
     return(
 
-        <View style={styles.mainContainer}>
+        <View style={styles.container}>
 
             <Image resizeMode={'center'} resizeMethod={'auto'} source={require('../../../assets/images/logo_text.png')}></Image>
 
@@ -60,13 +61,15 @@ const Login = (props) =>{
                 <Text style={{fontSize: 16}}>.</Text>
 
             </View>
+
+            { props.loading ? <LoadingBar/> : null }
         </View>
 );
 }
 
 const styles = StyleSheet.create({
 
-    mainContainer:{
+    container:{
 
         flex:1,
         paddingBottom: 10,
