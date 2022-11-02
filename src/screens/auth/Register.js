@@ -72,7 +72,7 @@ const Register = (props) =>{
                         <Text style={styles.title}>Cadastre-se</Text>
                     </View>
 
-                    <Pressable onPress={()=>{props.getImageModal()}}>
+                    <Pressable onPress={()=>{props.setIsVisible(true)}}>
 
                         {
 

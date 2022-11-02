@@ -63,6 +63,8 @@ const ChatsSettingsController = () =>{
 
       const saveChanges = () =>{
 
+        setLoading
+
         dispatch({type: 'READ_CONFIRMATION', readConfirmation: activeReadConfirmation.toString()});
         navigation.goBack();
       }

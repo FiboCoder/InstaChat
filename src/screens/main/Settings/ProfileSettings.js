@@ -4,8 +4,11 @@ import { AntDesign } from '@expo/vector-icons';
 import { Foundation } from '@expo/vector-icons';
 import Constants from "expo-constants";
 import { useNavigation } from "@react-navigation/native";
+
 import ModalImageOptions from "../../../components/ModalImageOptions";
 import ModalText from "../../../components/ModalText";
+import LoadingBar from "../../../components/LoadingBar";
+import MessageBar from "../../../components/MessageBar";
 
 
 export const ProfileSettings = (props) =>{
@@ -128,11 +131,11 @@ export const ProfileSettings = (props) =>{
 
             </View>
 
-            {
+            { props.loading ? <LoadingBar/> : null }
 
-                renderModal()
-                
-            }
+            { renderModal() }
+
+            {props.success ? <MessageBar backgroundColor={"#09AF00"} message={"Alteração salva!"}/> : null}
 
         </View>
     );

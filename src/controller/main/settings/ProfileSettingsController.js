@@ -1,6 +1,6 @@
 import { useRoute } from "@react-navigation/native";
 import * as ImagePicker from 'expo-image-picker';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { User } from "../../../model/User";
 import ProfileSettings from "../../../screens/main/Settings/ProfileSettings";
 
@@ -14,6 +14,9 @@ const ProfileSettingsController = () =>{
     const [modalRoute, setModalRoute] = useState();
     const [isVisible, setIsVisible] = useState(false);
 
+    const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
+
     const getImageModal = () =>{
 
         setModalRoute("Image");
@@ -22,13 +25,16 @@ const ProfileSettingsController = () =>{
 
     const getImageFromCamera = async () =>{
 
+        setLoading(true);
+
         let image = await ImagePicker.launchCameraAsync({
 
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             quality: 1,
             base64: true,
-            esif: true
+            esif: true,
+            aspect: [1, 1]
         });
 
         if(!image.cancelled){
@@ -36,17 +42,24 @@ const ProfileSettingsController = () =>{
             setIsVisible(false);
             setImage(image.uri);
             saveImage(image);
+        }else{
+
+            setLoading(false);
+
         }
     }
 
     const getImageFromGallery = async () =>{
+
+        setLoading(true);
 
         let image = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             quality: 1,
             base64: true,
-            esif: true
+            esif: true,
+            aspect: [1, 1]
           });
       
           console.log(image);
@@ -56,6 +69,10 @@ const ProfileSettingsController = () =>{
             setIsVisible(false);
             setImage(image.uri);
             saveImage(image);
+          }else{
+
+            setLoading(false);
+
           }
     }
 
@@ -70,9 +87,22 @@ const ProfileSettingsController = () =>{
 
             User.updateUser(route.params.userData.data().email, imageRef, "", "", "Image").then(result=>{
 
+                setLoading(false);
+                setTimeout(()=>{
+
+                    setSuccess(true);
+                }, 500);
+
+            }).catch(err=>{
+
+                setLoading(false);
 
             });
-        })
+        }).catch(err=>{
+
+            setLoading(false);
+            
+        });
     }
 
     const changeUsernameText = () =>{
@@ -90,17 +120,41 @@ const ProfileSettingsController = () =>{
 
     const saveName = () =>{
 
+        setLoading(true);
+
         User.updateUser(route.params.userData.data().email, "", text, "", "Username").then(result=>{
 
+            setLoading(false);
             setIsVisible(false);
+            setText("");
+            setTimeout(()=>{
+
+                setSuccess(true);
+            }, 500);
+        }).catch(err=>{
+
+            setLoading(false);
+
         });
     }
 
     const saveAboutMe = () =>{
 
+        setLoading(true);
+
         User.updateUser(route.params.userData.data().email, "", "", text, "AboutMe").then(result=>{
 
+            setLoading(false);
             setIsVisible(false);
+            setText("");
+            setTimeout(()=>{
+
+                setSuccess(true);
+            }, 500);
+        }).catch(err=>{
+
+            setLoading(false);
+
         });
     }
 
@@ -121,6 +175,19 @@ const ProfileSettingsController = () =>{
         title: "Sobre mim",
         placeholder: "Sobre mim...."
     }
+
+    useEffect(()=>{
+
+        if(success == true){
+
+            setTimeout(()=>{
+
+                setSuccess(false);
+            }, 2000);
+        }
+
+        
+    },[success]);
  
 
     return(
@@ -135,6 +202,8 @@ const ProfileSettingsController = () =>{
 
                             setIsVisible={setIsVisible} 
                             isVisible={isVisible} 
+                            loading={loading}
+                            success={success}
                             userData={route.params.userData}
                             modalRoute={modalRoute}
 

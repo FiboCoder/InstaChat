@@ -1,5 +1,5 @@
 import { useRoute } from "@react-navigation/native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { User } from "../../../model/User";
 import { PersonalInfoSettings } from "../../../screens/main/Settings/PersonalInfoSettings";
 
@@ -14,12 +14,8 @@ const PersonalInfoSettingsController = (props) =>{
     const [confirmNewPassword, setConfirmNewPassword] = useState("");
 
     const [error, setError] = useState("");
-
-    const updatePassword = () =>{
-
-        setIsVisible(true);
-
-    }
+    const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
 
     const changePassword = () =>{
 
@@ -29,24 +25,36 @@ const PersonalInfoSettingsController = (props) =>{
 
                 if(confirmNewPassword == newPassword){
 
+                    setLoading(true);
+
                     User.changePassword(newPassword).then(result=>{
 
                         console.log(result)
                         if(result != undefined && result.toString().includes("auth/requires-recent-login")){
 
+                            setLoading(false);
                             setIsVisible(false);
                             setIsVisibleReq(true);
                             setNewPassword("");
                             setConfirmNewPassword("");
                             setError("");
+                            
                         }else{
 
+                            setLoading(false);
                             setIsVisible(false);
                             setIsVisibleReq(false);
                             setNewPassword("");
                             setConfirmNewPassword("");
                             setError("");
+                            setTimeout(()=>{
+
+                                setSuccess(true)
+                            }, 500);
                         }
+                    }).catch(err=>{
+
+                        setLoading(false);
                     });
                 }else{
 
@@ -62,6 +70,18 @@ const PersonalInfoSettingsController = (props) =>{
         }
     }
 
+    useEffect(()=>{
+
+
+        if(success == true){
+
+            setTimeout(()=>{
+
+                setSuccess(false);
+            }, 2000);
+        }
+    }, [success])
+
     return(
 
         <>
@@ -72,12 +92,13 @@ const PersonalInfoSettingsController = (props) =>{
                         <PersonalInfoSettings 
 
                             userData={route.params.userData}
-                            updatePassword={updatePassword}
                             signOut={props.signOut}
         
                             isVisible={isVisible}
                             isVisibleReq={isVisibleReq}
                             error={error}
+                            loading={loading}
+                            success={success}
 
                             setIsVisible={setIsVisible}
                             setIsVisibleReq={setIsVisibleReq}
@@ -85,7 +106,7 @@ const PersonalInfoSettingsController = (props) =>{
                             setConfirmNewPassword={setConfirmNewPassword}
                             
                             newPassword={newPassword}
-                            confirmNewPassqord={confirmNewPassword}
+                            confirmNewPassword={confirmNewPassword}
                             
                             changePassword={changePassword}
                             >

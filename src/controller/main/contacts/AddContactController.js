@@ -12,16 +12,26 @@ const AddContactController = () =>{
     const [email, setEmail] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
+    const [loading, setLoading] = useState(false);
+
     const addContact = () =>{
+
+        setLoading(true);
 
         if(email == route.params.meEmail){
 
+            setLoading(false);
             setErrorMessage('Você não pode adicionar a si mesmo como um contato!')
         }else{
 
             User.addContact(email, route.params.meEmail).then(result=>{
 
-                navigation.goBack()
+                setLoading(false);
+                navigation.goBack();
+            }).catch(err=>{
+
+                setLoading(false);
+                setErrorMessage("Erro ao adicionar contato, tente novamente!")
             });
         }
     }
@@ -34,6 +44,8 @@ const AddContactController = () =>{
 
             email={email}
             errorMessage={errorMessage}
+
+            loading={loading}
 
             addContact={addContact}
         ></AddContact>

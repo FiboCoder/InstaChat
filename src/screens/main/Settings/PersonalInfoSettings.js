@@ -7,6 +7,8 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import { Foundation } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import { ModalPassword, ModalRequireReAuthentication } from "../../../components/ModalTextPersonalInfoSettings";
+import LoadingBar from "../../../components/LoadingBar";
+import MessageBar from "../../../components/MessageBar";
 
 export const PersonalInfoSettings = (props) =>{
 
@@ -56,7 +58,7 @@ export const PersonalInfoSettings = (props) =>{
 
                         <View style={styles.pass}>
                             <Text style={styles.passText}>Senha</Text>
-                            <TouchableOpacity onPress={()=>{props.updatePassword()}}>
+                            <TouchableOpacity onPress={()=>{props.setIsVisible(true)}}>
                                 <Foundation name="pencil" size={24} color="#4A4A4A" />
                             </TouchableOpacity>
                         </View> 
@@ -66,6 +68,8 @@ export const PersonalInfoSettings = (props) =>{
                         
                 </View>
             </View>
+            
+            { props.loading ? <LoadingBar/> : null}
 
             <ModalPassword 
 
@@ -77,7 +81,7 @@ export const PersonalInfoSettings = (props) =>{
                 setConfirmNewPassword={props.setConfirmNewPassword}
                 
                 newPassword={props.newPassword}
-                confirmNewPassqord={props.confirmNewPassword}
+                confirmNewPassword={props.confirmNewPassword}
                 changePassword={props.changePassword}
 
             ></ModalPassword>
@@ -89,6 +93,8 @@ export const PersonalInfoSettings = (props) =>{
                 isVisibleReq={props.isVisibleReq}
 
             ></ModalRequireReAuthentication>
+
+            {props.success ? <MessageBar backgroundColor={"#09AF00"} message={"Alteração salva!"}/> : null}
 
         </View>
 

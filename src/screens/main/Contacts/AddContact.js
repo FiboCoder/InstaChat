@@ -6,6 +6,8 @@ import { AntDesign } from '@expo/vector-icons';
 import Constants  from "expo-constants";
 import { useNavigation } from "@react-navigation/native";
 
+import LoadingBar from "../../../components/LoadingBar"
+
 
 export default function AddContact(props){
 
@@ -40,6 +42,7 @@ export default function AddContact(props){
                 </TouchableOpacity>
             </View>
 
+            { props.loading ? <LoadingBar/> : null }
         </View>
     )
 }

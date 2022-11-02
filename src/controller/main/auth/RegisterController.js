@@ -24,12 +24,9 @@ const RegisterController = () =>{
 
     const [step, setStep] = useState("first");
 
-    getImageModal = () =>{
-
-        setIsVisible(true);
-    }
-
     const getImageFromCamera = async () =>{
+
+        setLoading(true);
 
         let image = await ImagePicker.launchCameraAsync({
 
@@ -42,12 +39,15 @@ const RegisterController = () =>{
 
         if(!image.cancelled){
 
+            setLoading(false);
             setIsVisible(false);
             setImage(image.uri);
         }
     }
 
     const getImageFromGallery = async () =>{
+
+        setLoading(true);
 
         let image = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -61,6 +61,7 @@ const RegisterController = () =>{
       
           if (!image.cancelled) {
 
+            setLoading(false);
             setIsVisible(false);
             setImage(image.uri);
           }
@@ -273,7 +274,6 @@ const RegisterController = () =>{
             isVisible={isVisible}
             setIsVisible={setIsVisible}
 
-            getImageModal={getImageModal}
             getImageFromCamera={getImageFromCamera}
             getImageFromGallery={getImageFromGallery}
 
