@@ -1,5 +1,5 @@
 import React, {  } from "react";
-import { Image, View, Text, TouchableOpacity, FlatList, StyleSheet } from "react-native";
+import { Image, View, Text, TouchableOpacity, FlatList, StyleSheet, TextInput } from "react-native";
 import Constants  from "expo-constants";
 import { AntDesign } from '@expo/vector-icons';
 
@@ -9,18 +9,37 @@ const Chats = (props) =>{
 
         <View style={styles.container}>
 
-            <View style={styles.topContainer}>
-                <Image style={styles.icon} source={require('../../../../assets/images/chat100x100_white.png')}></Image>
-                <Text style={styles.title}>Conversas</Text>
-                <TouchableOpacity style={styles.searchButton}>
-                    <AntDesign  name="search1" size={26} color="white" />
-                </TouchableOpacity>
-            </View>
+            {
+
+                !props.searchBarStatus
+                    ?
+
+                    <View style={styles.topContainer}>
+                        <Image style={styles.icon} source={require('../../../../assets/images/chat100x100_white.png')}></Image>
+                        <Text style={styles.title}>Conversas</Text>
+                        <TouchableOpacity onPress={()=>{props.setSearchBarStatus(!props.searchBarStatus)}} style={styles.searchButton}>
+                            <AntDesign  name="search1" size={26} color="white" />
+                        </TouchableOpacity>
+                    </View>
+                    :
+
+                    <View style={[styles.topContainer, {flexDirection: "column", alignItems: "flex-start"}]}>
+
+                        <View style={styles.searchBar}>
+
+                        <TouchableOpacity onPress={()=>{props.setSearchBarStatus(!props.searchBarStatus)}}>
+                            <AntDesign  name="arrowleft" size={26} color="black" /> 
+                        </TouchableOpacity>
+                        <TextInput onChangeText={(text)=>{props.filterList(text)}} style={styles.textInput}></TextInput>
+                        </View>
+                        
+                    </View>
+            }
 
             <View style={styles.flatListContainer}>
 
                 <View style={styles.flatList}>
-                    <FlatList data={props.chatsList} renderItem={props.renderChatItem} keyExtractor={(item)=>props.chatsList.indexOf(item)}/>
+                    <FlatList data={props.filteredChatsList} renderItem={props.renderChatItem} keyExtractor={(item)=>props.filteredChatsList.indexOf(item)}/>
                 </View>
                 
             </View>
@@ -90,6 +109,23 @@ const styles = StyleSheet.create({
         marginRight: 4, 
         flexDirection: 'column'
     },
+
+    searchBar:{
+
+        width: "94%",
+        flexDirection: "row",
+        backgroundColor: "white",
+        alignSelf: "center",
+        borderRadius: 24,
+        padding: 8
+      },
+    
+      textInput:{
+    
+        flex: 1,
+        marginLeft: 10,
+        marginRight: 10
+      }
 });
 
 export default Chats;

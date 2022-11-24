@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Constants from 'expo-constants';
+import LoadingBar from "../../../components/LoadingBar";
 
 import { AntDesign } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
@@ -98,9 +99,9 @@ export default function Settings(props){
 
                     
                 </View>
-
-
             </View>
+
+            { props.loading ? <LoadingBar/> : null }
         </View>
     );
 }

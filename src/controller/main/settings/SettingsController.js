@@ -6,8 +6,11 @@ import { db } from "../../../utils/firebase";
 const SettingsController = (props) =>{
 
     const [userData, setUserData] = useState();
+    const [loading, setLoading] = useState(false);
 
     useEffect(()=>{
+
+        setLoading(true);
 
         const userRef = query(doc(db, "users", props.meEmail));
         const settingsSnapshot = onSnapshot(userRef, (userData)=>{
@@ -15,15 +18,13 @@ const SettingsController = (props) =>{
             if(!userData.empty){
 
                 setUserData(userData);
-
+                setLoading(false);
             }
         });
 
         return ()=>{
 
-            console.log("cleaning");
             settingsSnapshot();
-            console.log("cleaned");
         }
     },[]);
 
@@ -34,7 +35,7 @@ const SettingsController = (props) =>{
                 userData
             
                 ?
-                    <Settings userData={userData}></Settings>
+                    <Settings userData={userData} loading={loading}></Settings>
 
                 :
                     null

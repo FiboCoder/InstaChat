@@ -1,11 +1,12 @@
 import React, {  } from "react";
-import { Image, View, Text, TouchableOpacity, StyleSheet, FlatList, LogBox } from "react-native";
+import { Image, View, Text, TouchableOpacity, StyleSheet, FlatList, LogBox, TextInput } from "react-native";
 import Constants  from "expo-constants";
-
 import { AntDesign } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
 
 const Contacts = (props) =>{
+
+  console.log("FILTERED LIST   "+props.filteredList)
 
     const navigation = useNavigation();
 
@@ -13,13 +14,36 @@ const Contacts = (props) =>{
 
         <View style={styles.container}>
 
-            <View style={styles.topContainer}>
-                <Image style={styles.topIcon} source={require('../../../../assets/images/chat100x100_white.png')}></Image>
-                <Text style={styles.title}>Contatos</Text>
-                <TouchableOpacity style={styles.searchIcon}>
-                    <AntDesign  name="search1" size={26} color="white" />
-                </TouchableOpacity>
-            </View>
+            
+
+              {
+
+                !props.searchBarStatus
+                  ?
+
+                    <View style={styles.topContainer}>
+                      <Image style={styles.topIcon} source={require('../../../../assets/images/chat100x100_white.png')}></Image>
+                      <Text style={styles.title}>Contatos</Text>
+                      <TouchableOpacity onPress={()=>{props.setSearchBarStatus(!props.searchBarStatus)}} style={styles.searchIcon}>
+                          <AntDesign  name="search1" size={26} color="white" />
+                      </TouchableOpacity>
+                    </View>
+                  :
+
+                    <View style={[styles.topContainer, {flexDirection: "column", alignItems: "flex-start"}]}>
+                      
+                      
+                      <View style={styles.searchBar}>
+
+                        <TouchableOpacity onPress={()=>{props.setSearchBarStatus(!props.searchBarStatus)}}>
+                          <AntDesign  name="arrowleft" size={26} color="black" /> 
+                        </TouchableOpacity>
+                        <TextInput onChangeText={(text)=>{props.filterList(text)}} style={styles.textInput}></TextInput>
+                      </View>
+                      
+                    </View>
+              }
+          
 
             <View style={styles.mainContainer}>
 
@@ -55,7 +79,12 @@ const Contacts = (props) =>{
 
                 <View style={{flex: 1, marginTop: 20}}>
 
-                  <FlatList data={props.contactsList} renderItem={props.renderContactItem} keyExtractor={(item)=>props.contactsList.indexOf(item)}/>
+                  {
+
+                    
+                    <FlatList data={props.filteredEmailsList} renderItem={props.renderContactItem} keyExtractor={(item)=>props.filteredEmailsList.indexOf(item)}/>
+                  }
+                  
 
                 </View>
                 
@@ -138,6 +167,23 @@ const styles = StyleSheet.create({
     alignItems: 'center', 
     justifyContent: 'center', 
     backgroundColor: '#A4A4A4'
+  },
+
+  searchBar:{
+
+    width: "94%",
+    flexDirection: "row",
+    backgroundColor: "white",
+    alignSelf: "center",
+    borderRadius: 24,
+    padding: 8
+  },
+
+  textInput:{
+
+    flex: 1,
+    marginLeft: 10,
+    marginRight: 10
   }
 
   });

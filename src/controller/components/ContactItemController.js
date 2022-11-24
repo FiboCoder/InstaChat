@@ -1,5 +1,5 @@
 import { doc, onSnapshot } from "firebase/firestore";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ContactItem } from "../../components/ContactItem";
 import { db } from "../../utils/firebase";
 
@@ -13,11 +13,6 @@ const ContactItemController = (props) =>{
 
         setContactData(contactData.data());
     });
-
-    if(contactSnapshot.length > 0){
-
-        contactSnapshot();
-    }
 
     const doWhenPress = () => {
 
@@ -44,7 +39,6 @@ const ContactItemController = (props) =>{
         }
 
     }
-
 
     return(
 
